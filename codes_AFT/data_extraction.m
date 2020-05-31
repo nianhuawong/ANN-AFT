@@ -1,4 +1,5 @@
 clear;clc;
+tic
 grid = importfile1('./grid/hybrid.cas');
 %%
 %读入基本信息
@@ -102,7 +103,7 @@ while size(AFT_stack,1)>0
     % 可以画出圆来看看临近点有哪些
 %     figure;
     PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
-    hold on
+%     hold on
 %     plot(x_best,y_best,'*')
 %     hold on
 %     txt = text(x_best+0.1,y_best,num2str(node_best), 'Color', 'red', 'FontSize', 14);
@@ -176,46 +177,31 @@ while size(AFT_stack,1)>0
     %按质量参数逐一选择点，判断是否与临近阵面相交，如相交则下一个候选点，如不想交，则选定该点构成新的三角形
     Qp_sort = sort(Qp, 'descend');
     node_select = -1;
+    
+    if nCells_AFT == 45
+        kkk = 1;
+    end
+    
     for i = 1 : length(nodeCandidate)
         node_test_list = nodeCandidate( find(Qp==Qp_sort(i)) );
-%%       
-% %         if( length(node_test_list) ~= 1 )
-%             for i2 = 1:length(node_test_list)
-%                 node_test = node_test_list(i2);
-%                 flagCross = IsNotCross(node1_base, node2_base, node_test, frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp);            
-%                 flagLeftCell = IsLeftCell(node1_base, node2_base, node_test, xCoord_tmp, yCoord_tmp);
-%                 
-%                 if flagCross == 1 && flagLeftCell == 1
-%                     node_select = node_test;
-%                     break;
-%                 end
-                
-%             end
-%         end
-%%
-            if( length(node_test_list) == 2 )
-                Qp_sort(1) = Qp_sort(1) + 0.1;
-            end
-            if(length(node_test_list) > 2)
-               kkk = 0.000000000000000002; 
-            end
-            if(length(node_test_list) < 1)
-               kkk = 0.000000000000000001; 
-               Qp
-            end            
-            
-            node_test = node_test_list(1);
-
+%%     
+        for j = 1:length(node_test_list)
+            node_test = node_test_list(j);
             flagCross = IsNotCross(node1_base, node2_base, node_test, frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp);            
             flagLeftCell = IsLeftCell(node1_base, node2_base, node_test, xCoord_tmp, yCoord_tmp);
 
             if flagCross == 1 && flagLeftCell == 1
-                node_select = node_test;
+                node_select = node_test;           
                 break;
-            end            
+            end               
+        end
+        
+        if node_select ~= -1
+            break;
+        end
     end
 
-    %% 
+%% 
     %更新阵面信息
     if node_select ~= -1                      
         if(node_select == node_best)    %只有在选择了新生成的点时，才需要将新点坐标存下来            
@@ -446,7 +432,9 @@ while size(AFT_stack,1)>0
     
     AFT_stack = AFT_stack_sorted;
 end
-
+str = {'阵面推进完成，单元数：', num2str(nCells_AFT) };
+display(str);
+toc
     
     
 
