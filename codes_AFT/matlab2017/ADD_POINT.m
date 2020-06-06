@@ -11,7 +11,7 @@ normal = zeros(1,2);
 normal(1) = -( yCoord(node2) - yCoord(node1) ) / dist;
 normal(2) =  ( xCoord(node2) - xCoord(node1) ) / dist;
 
-new_point = ( node1Coord + node2Coord ) / 2.0 + normal * Sp * dist;
+new_point = ( node1Coord + node2Coord ) / 2.0 + normal * Sp;
 
 x_new = new_point(1);
 y_new = new_point(2);

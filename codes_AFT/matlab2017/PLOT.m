@@ -10,16 +10,16 @@ for i = 1:len
     xx = [xCoord(node1),xCoord(node2)];
     yy = [yCoord(node1),yCoord(node2)];
 
-    plot( xx, yy, '-r');
+    plot( xx, yy, 'o--b');
     hold on;
 end
 
-% nodeList = AFT_stack(:,1:2);
-% nNodes = max( max(nodeList)-min(nodeList)+1 );
-% for i = 1 : nNodes
-%     str = num2str(i);
-%     text(xCoord(i)+0.1,yCoord(i),str, 'Color', 'red', 'FontSize', 14)
-% end
+nodeList = AFT_stack(:,1:2);
+nNodes = max( max(nodeList)-min(nodeList)+1 );
+for i = 1 : nNodes
+    str = num2str(i);
+    text(xCoord(i)+0.1,yCoord(i),str, 'Color', 'red', 'FontSize', 14)
+end
 
 axis equal
 
