@@ -3,7 +3,19 @@ function AFT_stack_sorted = Update_AFT_INFO_GENERAL(AFT_stack_sorted, node1, nod
 dist1 = DISTANCE(node1, node2, xCoord_AFT, yCoord_AFT);
 dist2 = DISTANCE(node1, node3, xCoord_AFT, yCoord_AFT);
 dist3 = DISTANCE(node2, node3, xCoord_AFT, yCoord_AFT);
-
+%%
+[Ymin, Imin] = min([dist1, dist2, dist3]);
+Ymean = mean([dist1, dist2, dist3]);
+if( Ymean / Ymin > 1e1 )
+    if(Imin==1)
+        dist1 = 1e3 * dist1;
+    elseif Imin == 2
+        dist2 = 1e3 * dist2;
+    elseif Imin == 3 
+        dist3 = 1e3 * dist3;
+    end
+end
+%%
 flag1 = IsLeftCell(node1, node2, node3, xCoord_AFT, yCoord_AFT);
 [direction, row] = FrontExist(node1,node2, AFT_stack_sorted);    
 if( flag1 == 1 )        %如果为左单元        

@@ -1,7 +1,14 @@
 clear;clc;
 tic
+format long
 %%
-gridType             = 0;    % 0-单一单元网格，1-混合单元网格
+gridType    = 0;        % 0-单一单元网格，1-混合单元网格
+Sp          = 1.0;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866         
+al          = 2.0;      % 在几倍范围内搜索
+coeff       = 0.99;      % 尽量选择现有点的参数，Pbest质量参数的系数
+dt          = 0.01;   % 暂停时长
+outGridType = 1;        % 0-各向同性网格，1-各向异性网格
+%%
 [AFT_stack,Coord,~]  = read_grid('./grid/tri2.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
@@ -13,16 +20,13 @@ PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
 %%
 % 选择最小阵面，生成Pbest
 nCells_AFT = 0;
-Sp = 1.0;
-% Sp = sqrt(3.0)/2.0;  %0.866
-al = 3.0;
-coeff = 0.8;  %尽量选择现有点的参数，Pbest质量参数的系数
 node_best = node_num;     %初始时最佳点Pbest的序号
-dt = 0.0001;
-AFT_stack_sorted =[];
-while size(AFT_stack,1)>0
-    AFT_stack_sorted = sortrows(AFT_stack, 5);
-    [x_best, y_best] = ADD_POINT(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
+% AFT_stack_sorted =[];
+AFT_stack_sorted = sortrows(AFT_stack, 5);
+% while size(AFT_stack,1)>0
+while size(AFT_stack_sorted,1)>0
+%     AFT_stack_sorted = sortrows(AFT_stack, 5);
+    [x_best, y_best] = ADD_POINT(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp, outGridType);
     node_best = node_best + 1;      %新增最佳点Pbest的序号
 
     %%
@@ -35,8 +39,8 @@ while size(AFT_stack,1)>0
 %     hold on
 %     txt = text(x_best+0.1,y_best,num2str(node_best), 'Color', 'red', 'FontSize', 14);
 %     syms xxx yyy
-%     ezplot((xxx-x_best)^2+(yyy-y_best)^2==al*al*Sp*Sp);
-%     fimplicit(@(xxx,yyy) (xxx-x_best)^2+(yyy-y_best)^2-al*al*Sp*Sp);
+% % %     ezplot((xxx-x_best)^2+(yyy-y_best)^2==al*al*Sp*Sp*ds*ds);
+%     fimplicit(@(xxx,yyy) (xxx-x_best)^2+(yyy-y_best)^2-al*al*Sp*Sp*ds*ds);
 %     hold on
     pause(dt);
     
@@ -47,6 +51,9 @@ while size(AFT_stack,1)>0
     %在现有阵面中，查找临近点，与新增点的距离小于al*Sp*ds的点，要遍历除自己外的所有阵面
     ds = AFT_stack_sorted(1,5);  %基准阵面的长度
     nodeCandidate = node_best;  
+    x_mid = 0.5 * (xCoord_AFT(node1_base) + xCoord_AFT(node2_base));
+    y_mid = 0.5 * (yCoord_AFT(node1_base) + yCoord_AFT(node2_base));
+    
     for i = 2:size(AFT_stack_sorted,1)
         node1 = AFT_stack_sorted(i,1);
         node2 = AFT_stack_sorted(i,2);
@@ -56,9 +63,14 @@ while size(AFT_stack,1)>0
         x_p2 = xCoord_AFT(node2);
         y_p2 = yCoord_AFT(node2);  
 
-        if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+%         if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+%             nodeCandidate(end+1) = node1;
+%         elseif( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+%             nodeCandidate(end+1) = node2;
+%         end
+        if( (x_p1-x_mid)^2 + (y_p1-y_mid)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
             nodeCandidate(end+1) = node1;
-        elseif( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+        elseif( (x_p2-x_mid)^2 + (y_p2-y_mid)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
             nodeCandidate(end+1) = node2;
         end
     end
@@ -96,7 +108,8 @@ while size(AFT_stack,1)>0
         node1 = AFT_stack_sorted(i,1);
         node2 = AFT_stack_sorted(i,2);      %如果阵面的2个点都是候选点，那么阵面是邻近阵面
 
-        if( size(find(nodeCandidate_tmp == node1), 2) ~= 0 && size(find(nodeCandidate_tmp == node2), 2) ~= 0 )
+%         if( size(find(nodeCandidate_tmp == node1), 2) ~= 0 && size(find(nodeCandidate_tmp == node2), 2) ~= 0 )
+        if( size(find(nodeCandidate_tmp == node1), 2) ~= 0 || size(find(nodeCandidate_tmp == node2), 2) ~= 0 )
     %         frontCandidate(end+1) = AFT_stack_sorted(i,6);
             frontCandidate(end+1) = i;
         end
@@ -107,8 +120,8 @@ while size(AFT_stack,1)>0
     %按质量参数逐一选择点，判断是否与临近阵面相交，如相交则下一个候选点，如不相交，则选定该点构成新的三角形
     Qp_sort = sort(Qp, 'descend');
     node_select = -1;
-    
-%     if nCells_AFT == 409
+     
+%     if nCells_AFT == 107
 %         kkk = 1;
 %     end
     
@@ -233,26 +246,30 @@ while size(AFT_stack,1)>0
         %找出非活跃阵面，并删除
         for i = 1: size(AFT_stack_sorted,1)
             if((AFT_stack_sorted(i,3) ~= -1) && (AFT_stack_sorted(i,4) ~= -1))  %左单元和右单元编号均不为-1
+                AFT_stack(end+1,:) = AFT_stack_sorted(i,:);
                 AFT_stack_sorted(i,:)=-1;
             end
         end
         
-        AFT_stack_sorted( find(AFT_stack_sorted(:,1) == -1), : ) = [];       
+        AFT_stack_sorted( find(AFT_stack_sorted(:,1) == -1), : ) = [];
+        
+        AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);        
     else
         %%未找到node_select的情况，应该比较少见
         disp('未找到node_select的情况...,无法推进，请检查！');
         node_best = node_best - 1;
-        %变换最短阵面的方向
-        tmp = AFT_stack_sorted(1,1);
-        AFT_stack_sorted(1,1) = AFT_stack_sorted(1,2);
-        AFT_stack_sorted(1,2) = tmp;        
+        
+        tmp = AFT_stack_sorted(1,:);
+        AFT_stack_sorted(1,:) = AFT_stack_sorted(2,:);
+        AFT_stack_sorted(2,:) = tmp;        
     end
     
-    AFT_stack = AFT_stack_sorted;    
+%     AFT_stack = AFT_stack_sorted;    
 end
 
-str = {'阵面推进完成，单元数：', num2str(nCells_AFT) };
-disp(str);
+disp(['阵面推进完成，单元数：', num2str(nCells_AFT)]);
+disp(['阵面推进完成，节点数：', num2str(length(xCoord_AFT))]);
+disp(['阵面推进完成，面个数：', num2str(size(AFT_stack,1))]);
 toc
     
     

@@ -3,6 +3,18 @@ function AFT_stack_sorted = Update_AFT_INFO(AFT_stack_sorted, node1_base, node2_
 dist1 = DISTANCE(node1_base, node_select, xCoord_AFT, yCoord_AFT);
 dist2 = DISTANCE(node2_base, node_select, xCoord_AFT, yCoord_AFT);
 
+%%
+[Ymin, Imin] = min([dist1, dist2]);
+Ymean = mean([dist1, dist2]);
+if( Ymean / Ymin > 1e1 )
+    if Imin==1
+        dist1 = 1e3 * dist1;
+    elseif Imin == 2
+        dist2 = 1e3 * dist2;
+    end
+end
+
+%%
 %对于基准阵面，按照正常逻辑更新，左单元=>左单元，右单元=>右单元
 flag1 = IsLeftCell(node1_base, node2_base, node_select, xCoord_AFT, yCoord_AFT);     
 if( flag1 == 1 )
