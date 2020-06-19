@@ -4,12 +4,12 @@ format long
 %%
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1.0;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866         
-al          = 2.0;      % 在几倍范围内搜索
-coeff       = 0.99;      % 尽量选择现有点的参数，Pbest质量参数的系数
+al          = 3.0;      % 在几倍范围内搜索
+coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 dt          = 0.01;   % 暂停时长
-outGridType = 1;        % 0-各向同性网格，1-各向异性网格
+outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 %%
-[AFT_stack,Coord,~]  = read_grid('./grid/tri2.cas', gridType);
+[AFT_stack,Coord,~]  = read_grid('./grid/inv_cylinder.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -22,6 +22,9 @@ PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
 nCells_AFT = 0;
 node_best = node_num;     %初始时最佳点Pbest的序号
 % AFT_stack_sorted =[];
+for i =1:size(AFT_stack,1)
+    AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
+end
 AFT_stack_sorted = sortrows(AFT_stack, 5);
 % while size(AFT_stack,1)>0
 while size(AFT_stack_sorted,1)>0
@@ -49,7 +52,7 @@ while size(AFT_stack_sorted,1)>0
     node2_base = AFT_stack_sorted(1,2);
     
     %在现有阵面中，查找临近点，与新增点的距离小于al*Sp*ds的点，要遍历除自己外的所有阵面
-    ds = AFT_stack_sorted(1,5);  %基准阵面的长度
+    ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT); %基准阵面的长度
     nodeCandidate = node_best;  
     x_mid = 0.5 * (xCoord_AFT(node1_base) + xCoord_AFT(node2_base));
     y_mid = 0.5 * (yCoord_AFT(node1_base) + yCoord_AFT(node2_base));

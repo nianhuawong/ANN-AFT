@@ -10,7 +10,7 @@ for i = 1:len
     xx = [xCoord(node1),xCoord(node2)];
     yy = [yCoord(node1),yCoord(node2)];
 
-    plot( xx, yy, '-or');
+    plot( xx, yy, '-r');
     hold on;
 end
 

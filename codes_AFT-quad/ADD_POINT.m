@@ -1,4 +1,4 @@
-function [x_new, y_new] = ADD_POINT(AFT_stack, xCoord, yCoord, Sp)
+function [x_new, y_new] = ADD_POINT(AFT_stack, xCoord, yCoord, Sp, outGridType)
 node1 = AFT_stack(1,1);
 node2 = AFT_stack(1,2);
 
@@ -11,8 +11,11 @@ normal = zeros(1,2);
 normal(1) = -( yCoord(node2) - yCoord(node1) ) / dist;
 normal(2) =  ( xCoord(node2) - xCoord(node1) ) / dist;
 
-new_point1 = node1Coord + normal * Sp * dist;
-new_point2 = node2Coord + normal * Sp * dist;
+if outGridType == 0
+    new_point = ( node1Coord + node2Coord ) / 2.0 + normal * Sp * dist;
+elseif outGridType == 1
+    new_point = node2Coord + normal * Sp * dist;
+end
 
-x_new = [new_point1(1),new_point2(1)];
-y_new = [new_point1(2),new_point2(2)];
+x_new = new_point(1);
+y_new = new_point(2);
