@@ -3,12 +3,18 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
     %阵面及左单元编号更新
     node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
     node2_base = AFT_stack_sorted(1,2);
-       
+%%
+    x1 = xCoord_AFT(node1_base);
+    y1 = yCoord_AFT(node1_base);
+
+    x2 = xCoord_AFT(node2_base);
+    y2 = yCoord_AFT(node2_base);
+    
     nCells_AFT = nCells_AFT + 1;    
-    if outGridType == 0    %输出四边形单元
+    if  y1 >0 && y2 > 0%输出四边形单元
         AFT_stack_sorted = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, ...
             node2_base, node_select, nCells_AFT, xCoord_AFT, yCoord_AFT);
-    elseif outGridType == 1  %将一个四边形剖分成2个直角三角形
+    else%将一个四边形剖分成2个直角三角形
         AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
             node2_base, node_select(2),nCells_AFT, xCoord_AFT, yCoord_AFT);
         
@@ -21,6 +27,24 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
 %         AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
 %             node_select(2), node_select(1),nCells_AFT , xCoord_AFT, yCoord_AFT);
     end
+    %%
+%     nCells_AFT = nCells_AFT + 1;    
+%     if outGridType == 0    %输出四边形单元
+%         AFT_stack_sorted = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, ...
+%             node2_base, node_select, nCells_AFT, xCoord_AFT, yCoord_AFT);
+%     elseif outGridType == 1  %将一个四边形剖分成2个直角三角形
+%         AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
+%             node2_base, node_select(2),nCells_AFT, xCoord_AFT, yCoord_AFT);
+%         
+%         nCells_AFT = nCells_AFT + 1;
+%         AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
+%             node_select(2), node_select(1),nCells_AFT , xCoord_AFT, yCoord_AFT);
+%         
+% %         AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
+% %             node2_base, node_select(2),nCells_AFT, xCoord_AFT, yCoord_AFT);        
+% %         AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
+% %             node_select(2), node_select(1),nCells_AFT , xCoord_AFT, yCoord_AFT);
+%     end
     
     %%
     %新增点和阵面之后，除了基准阵面形成的单元，还有可能会自动构成多个单元，需要判断。
@@ -180,23 +204,41 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
             node2 = new_cell(i,2);
             node3 = new_cell(i,3);
             node4 = new_cell(i,4);
-            if (node4 > 0)
-                if outGridType == 0
-                    AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
-                        node1, node2, node3, node4, nCells_AFT , xCoord_AFT, yCoord_AFT);
-                elseif outGridType == 1
-                    AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
-                        node1, node2, node3,nCells_AFT, xCoord_AFT, yCoord_AFT);
-                    
-                    nCells_AFT = nCells_AFT + 1;
-                    AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
-                        node1, node3, node4,nCells_AFT , xCoord_AFT, yCoord_AFT);
-                end
-            elseif (node4 < 0)
-                AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
-                    node1, node2, node3, nCells_AFT , xCoord_AFT, yCoord_AFT);
-            end
-            
+            %%
+%             if (node4 > 0)
+%                 if outGridType == 0
+%                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
+%                         node1, node2, node3, node4, nCells_AFT , xCoord_AFT, yCoord_AFT);
+%                 elseif outGridType == 1
+%                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
+%                         node1, node2, node3,nCells_AFT, xCoord_AFT, yCoord_AFT);
+%                     
+%                     nCells_AFT = nCells_AFT + 1;
+%                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
+%                         node1, node3, node4,nCells_AFT , xCoord_AFT, yCoord_AFT);
+%                 end
+%             elseif (node4 < 0)
+%                 AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
+%                     node1, node2, node3, nCells_AFT , xCoord_AFT, yCoord_AFT);
+%             end
+       %%
+           if (node4 > 0)
+               if y1 >0 && y2 > 0
+                   AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
+                       node1, node2, node3, node4, nCells_AFT , xCoord_AFT, yCoord_AFT);
+               else
+                   AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
+                       node1, node2, node3,nCells_AFT, xCoord_AFT, yCoord_AFT);
+
+                   nCells_AFT = nCells_AFT + 1;
+                   AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
+                       node1, node3, node4,nCells_AFT , xCoord_AFT, yCoord_AFT);
+               end
+           elseif (node4 < 0)
+               AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
+                   node1, node2, node3, nCells_AFT , xCoord_AFT, yCoord_AFT);
+           end
+  %%     
         end
     end
 

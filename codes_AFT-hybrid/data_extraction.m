@@ -3,13 +3,13 @@ tic
 format long
 %%
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
-Sp          = 0.5;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
+Sp          = 1;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
-outGridType = 1;        % 0-各向同性网格，1-各向异性网格
+outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.01;   % 暂停时长
 %%
-[AFT_stack,Coord,~]  = read_grid('./grid/tri2.cas', gridType);
+[AFT_stack,Coord,~]  = read_grid('./grid/tri.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -28,7 +28,7 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 %%  先将边界阵面推进
 for i =1:size(AFT_stack,1)
 %     AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
-%     AFT_stack(i,5) = 1E1* AFT_stack(i,5);
+    AFT_stack(i,5) = 1E2* AFT_stack(i,5);
 end
 %%
 % AFT_stack_sorted = sortrows(AFT_stack, 5, 'descend');
@@ -36,6 +36,8 @@ AFT_stack_sorted = sortrows(AFT_stack, 5);
 AFT_stack_sorted = AFT_stack_sorted(end:-1:1,:);
 
 while size(AFT_stack_sorted,1)>0
+%     Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT);
+    
     %%
     %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
     size0 = size(AFT_stack_sorted,1);
@@ -43,6 +45,7 @@ while size(AFT_stack_sorted,1)>0
     if nCells_AFT == 24
         kkk = 1;
     end  
+    %%
     [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack);
     if sum(node_select) ~= -2
         xCoord_AFT = [xCoord_AFT;coordX];
