@@ -7,14 +7,19 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
     nCells_AFT = nCells_AFT + 1;    
     if outGridType == 0    %输出四边形单元
         AFT_stack_sorted = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, ...
-            node2_base, node_select,nCells_AFT, xCoord_AFT, yCoord_AFT);
+            node2_base, node_select, nCells_AFT, xCoord_AFT, yCoord_AFT);
     elseif outGridType == 1  %将一个四边形剖分成2个直角三角形
-        AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
+        AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
             node2_base, node_select(2),nCells_AFT, xCoord_AFT, yCoord_AFT);
-       
+        
         nCells_AFT = nCells_AFT + 1;
         AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
             node_select(2), node_select(1),nCells_AFT , xCoord_AFT, yCoord_AFT);
+        
+%         AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
+%             node2_base, node_select(2),nCells_AFT, xCoord_AFT, yCoord_AFT);        
+%         AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1_base, ...
+%             node_select(2), node_select(1),nCells_AFT , xCoord_AFT, yCoord_AFT);
     end
     
     %%
@@ -134,7 +139,7 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
             end
         end
         
-        II = find(new_cell(:,1) == -1);
+        II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         
         %%         还要去掉已经有的单元
@@ -166,7 +171,7 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
             end
         end
         
-        II = find(new_cell(:,1) == -1);
+        II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         % %         将新单元加入数据结构
         for i = 1:size(new_cell,1)

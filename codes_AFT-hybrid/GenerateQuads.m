@@ -19,7 +19,7 @@ for ii = 1:2
     node2_base = AFT_stack_sorted(1,2);
     ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
     
-    PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
+%     PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
     
     %在现有阵面中，查找临近点，作为候选点，与 新增点或基准阵面中点 的距离小于al*Sp*ds的点，要遍历除自己外的所有阵面
     nodeCandidate = node_best;     
@@ -81,7 +81,28 @@ for ii = 1:2
         end
     end
 %     frontCandidateNodes = AFT_stack_sorted(frontCandidate,1:2);
+
+    %%  在非阵面中查找可能相交的点
+    nodeCandidate2 = node_best;
+    for i = 2:size(Grid_stack,1)
+        node1 = Grid_stack(i,1);
+        node2 = Grid_stack(i,2);
+        x_p1 = xCoord_AFT(node1);
+        y_p1 = yCoord_AFT(node1);
+        
+        x_p2 = xCoord_AFT(node2);
+        y_p2 = yCoord_AFT(node2);
+        
+        if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+            nodeCandidate2(end+1) = node1;
+        end
+        if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+            nodeCandidate2(end+1) = node2;
+        end
+    end
+    nodeCandidate2 = unique(nodeCandidate2); 
     
+    nodeCandidate_tmp = [nodeCandidate, nodeCandidate2, node1_base, node2_base];
     %在非阵面中查找临近面
     faceCandidate = [];
     for i = 2:size(Grid_stack,1)
@@ -92,9 +113,9 @@ for ii = 1:2
             faceCandidate(end+1) = i;
         end
     end
-    
-%     faceCandidateNodes = Grid_stack(faceCandidate,1:2);
-
+    if size(Grid_stack,1)>0
+        faceCandidateNodes = Grid_stack(faceCandidate,1:2);
+    end
     %%
     %按质量参数逐一选择点，判断是否与临近阵面相交，如相交则下一个候选点，如不相交，则选定该点构成新的三角形
     Qp_sort = sort(Qp, 'descend');
@@ -142,13 +163,15 @@ for ii = 1:2
                     flagNotCross3 = IsNotCross(node_select(1), node2_base, node_select(2), ...
                         frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp, 1);
                     
-%                     flagNotCross4 = IsNotCross(node_select(1), node2_base, node_select(2), ...
-%                         faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp, 1);
+                    flagNotCross4 = IsNotCross(node_select(1), node2_base, node_select(2), ...
+                        faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp, 1);
                 end
+                
                 if flagNotCross3 == 1 &&  flagNotCross4 == 1             %如果不相交，则可以
                     break;
                 else
-                    node_select(ii) = -1;           %如果相交，则要再次选择
+                    node_select(ii) = -1;           %如果相交，则要再次选择                          
+                    node_best = node_best - 1; %如果没有选择到合适点，则编号要回退1
                 end
             end
         end
@@ -162,10 +185,9 @@ for ii = 1:2
                 node_best = node_best - 1;%如果没有选择Pbest，则编号要回退1
             end
             break;
-        elseif node_select(ii) == -1
-            node_best = node_best - 1;%如果没有选择到合适点，则编号要回退1
         end
     end
+    
 end
 %%
 % 判断四边形质量，如果质量太差，就生成三角形单元

@@ -7,7 +7,7 @@ node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
 ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
-PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
+% PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
 
 nodeCandidate = node_best;
 for i = 2:size(AFT_stack_sorted,1)
@@ -64,7 +64,27 @@ for i = 2:size(AFT_stack_sorted,1)
 end
 
 frontCandidateNodes = AFT_stack_sorted(frontCandidate,1:2);
+%%  在非阵面中查找可能相交的点
+nodeCandidate2 = node_best;
+for i = 2:size(Grid_stack,1)
+    node1 = Grid_stack(i,1);
+    node2 = Grid_stack(i,2);
+    x_p1 = xCoord_AFT(node1);
+    y_p1 = yCoord_AFT(node1);
+    
+    x_p2 = xCoord_AFT(node2);
+    y_p2 = yCoord_AFT(node2);
+    
+    if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+        nodeCandidate2(end+1) = node1;
+    end
+    if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+        nodeCandidate2(end+1) = node2;
+    end
+end
+nodeCandidate2 = unique(nodeCandidate2);
 
+nodeCandidate_tmp = [nodeCandidate, nodeCandidate2, node1_base, node2_base];
 %在非阵面中查找临近面
 faceCandidate = [];
 for i = 2:size(Grid_stack,1)
@@ -87,9 +107,9 @@ for i = 1 : length(nodeCandidate)
     %%     %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
     for j = 1:length(node_test_list)
         node_test = node_test_list(j);
-        if node_test == 81 && node1_base == 79 && node2_base == 86
-            kk = 1;
-        end
+%         if node_test == 81 && node1_base == 79 && node2_base == 86
+%             kk = 1;
+%         end
         flagNotCross1 = IsNotCross(node1_base, node2_base, node_test, frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp ,0);
         
         flagNotCross2 = IsNotCross(node1_base, node2_base, node_test, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
