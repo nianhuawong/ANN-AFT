@@ -7,7 +7,7 @@ node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
 ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
-% PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
+PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
 
 nodeCandidate = node_best;
 for i = 2:size(AFT_stack_sorted,1)
@@ -83,7 +83,7 @@ Qp_sort = sort(Qp, 'descend');
 node_select = -1;
 
 for i = 1 : length(nodeCandidate)
-    node_test_list = nodeCandidate( find(Qp==Qp_sort(i)) );
+    node_test_list = nodeCandidate( Qp==Qp_sort(i) );
     %%     %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
     for j = 1:length(node_test_list)
         node_test = node_test_list(j);
@@ -100,8 +100,8 @@ for i = 1 : length(nodeCandidate)
         neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted);
         neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted);
         
-        neighbor1(find(neighbor1==node2_base))=[];
-        neighbor2(find(neighbor2==node1_base))=[];
+        neighbor1(neighbor1==node2_base)=[];
+        neighbor2(neighbor2==node1_base)=[];
         
         neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
         neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);

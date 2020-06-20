@@ -3,9 +3,9 @@ tic
 format long
 %%
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
-Sp          = 0.8;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
+Sp          = 0.5;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
 al          = 3.0;      % 在几倍范围内搜索
-coeff       = 0.5;      % 尽量选择现有点的参数，Pbest质量参数的系数
+coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.01;   % 暂停时长
 %%
@@ -27,11 +27,12 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 
 %%  先将边界阵面推进
 for i =1:size(AFT_stack,1)
-%         AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
-    AFT_stack(i,5) = 1E5* AFT_stack(i,5);
+    AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
+%     AFT_stack(i,5) = 1E5* AFT_stack(i,5);
 end
 %%
-AFT_stack_sorted = sortrows(AFT_stack, 5, 'descend');
+% AFT_stack_sorted = sortrows(AFT_stack, 5, 'descend');
+AFT_stack_sorted = sortrows(AFT_stack, 5);
 while size(AFT_stack_sorted,1)>0
     %%
     %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
@@ -46,15 +47,21 @@ while size(AFT_stack_sorted,1)>0
         
     elseif sum(node_select) == -2            
         [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack);
+        
+        while node_select == -1 
+            al = 2 * al;
+            [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack);
+        end
+        
         if( flag_best == 1 )
             xCoord_AFT = [xCoord_AFT;coordX];
             yCoord_AFT = [yCoord_AFT;coordY];
             node_best = node_best + 1;
-        end
-        [AFT_stack_sorted,nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best);
+        end  
+            [AFT_stack_sorted,nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best);     
     end
     %%
-    if nCells_AFT == 63
+    if nCells_AFT == 41
         kkk = 1;
     end  
     %% ==============================================
@@ -83,7 +90,8 @@ while size(AFT_stack_sorted,1)>0
     
     AFT_stack_sorted( find(AFT_stack_sorted(:,1) == -1), : ) = [];
     
-    AFT_stack_sorted = sortrows(AFT_stack_sorted, 5, 'descend');
+    AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
+    % AFT_stack_sorted = sortrows(AFT_stack, 5, 'descend');
 end
 
 disp(['阵面推进完成，单元数：', num2str(nCells_AFT)]);

@@ -19,7 +19,7 @@ for ii = 1:2
     node2_base = AFT_stack_sorted(1,2);
     ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
     
-%     PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
+    PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
     
     %在现有阵面中，查找临近点，作为候选点，与 新增点或基准阵面中点 的距离小于al*Sp*ds的点，要遍历除自己外的所有阵面
     nodeCandidate = node_best;     
@@ -100,7 +100,7 @@ for ii = 1:2
     Qp_sort = sort(Qp, 'descend');
     
     for i = 1 : length(nodeCandidate)
-        node_test_list = nodeCandidate( find(Qp==Qp_sort(i)) );
+        node_test_list = nodeCandidate( Qp==Qp_sort(i) );
         for j = 1:length(node_test_list)
             node_test = node_test_list(j);
             flagNotCross1 = IsNotCross(node1_base, node2_base, node_test, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
@@ -114,6 +114,9 @@ for ii = 1:2
             neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted);
             neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted);
             
+            neighbor1(neighbor1==node2_base)=[];
+            neighbor2(neighbor2==node1_base)=[];
+            
             neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
             neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);
             
@@ -124,6 +127,11 @@ for ii = 1:2
             if( size(find(neighbor22==node_test),2) == 0 && ii == 2)
                 flagSpecial = 1;
             end
+            
+%             flagSpecial_2 = 0;
+%             if flagSpecial == 1
+%                 
+%             end
             
             if flagNotCross1 == 1 && flagNotCross2 == 1 && flagLeftCell == 1 && flagSpecial == 1 
                 node_select(ii) = node_test;
@@ -154,19 +162,26 @@ for ii = 1:2
                 node_best = node_best - 1;%如果没有选择Pbest，则编号要回退1
             end
             break;
+        elseif node_select(ii) == -1
+            node_best = node_best - 1;%如果没有选择到合适点，则编号要回退1
         end
     end
 end
 %%
 % 判断四边形质量，如果质量太差，就生成三角形单元
-
-quality = QualityCheckQuad(node1_base, node2_base, node_select(1), node_select(2), xCoord_AFT, yCoord_AFT, Sp);
-if quality < 0.8
+if sum(node_select==-1)>0   %如果找不到合适的点，则无法生成四边形
     node_select = [-1,-1];
     coordX = -1;
     coordY = -1;
 else
-    coordX = xCoord_AFT(end-sum(flag_best)+1:end);
-    coordY = yCoord_AFT(end-sum(flag_best)+1:end);
+    quality = QualityCheckQuad(node1_base, node2_base, node_select(1), node_select(2), xCoord_AFT, yCoord_AFT, Sp);
+    if quality < 0.8
+        node_select = [-1,-1];
+        coordX = -1;
+        coordY = -1;
+    else
+        coordX = xCoord_AFT(end-sum(flag_best)+1:end);
+        coordY = yCoord_AFT(end-sum(flag_best)+1:end);
+    end
 end
 end
