@@ -1,6 +1,6 @@
 clear;clc;
-gridName       = './inv_cylinder/inv_cylinder-10-6.cas';
-fileName       = './inv_cylinder/0/cy10-20.mat';
+gridName       = './inv_cylinder/inv_cylinder-10.cas'
+fileName       = './inv_cylinder/0/cy10-30.mat'
 gridType       = 0;    % 0-单一单元网格，1-混合单元网格
 stencilType    = 'all'; % random-只随机取一种；%all-取所有可能
 mode           = 0;     % 0-只输出4个点的坐标；1-输出基准面到物面的距离；2-输出基准面长度；3-输出基准面与水平面夹角;

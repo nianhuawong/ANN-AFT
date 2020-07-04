@@ -26,8 +26,8 @@ wdist = [];
 count = 1;
 frontLength = [];
 frontAngle = [];
-disturbance1 = [];
-disturbance2 = [];
+% disturbance1 = [];
+% disturbance2 = [];
 for i = 1:nFaces                %对于某个阵面
 %% 引入物面距离作为参数
     wdist_Tmp = ComputeWallDistOfFace(i, Grid_stack, Coord);
@@ -47,8 +47,8 @@ for i = 1:nFaces                %对于某个阵面
         wdist(end+1) = wdist_Tmp;
 		frontLength(end+1) = Grid_stack(i,5);
 		frontAngle(end+1)  = angle_Tmp;
-        disturbance1(end+1) = Grid_stack(i,5) * rand() / 20.0;
-        disturbance2(end+1) = Grid_stack(i,5) * rand() / 20.0;
+%         disturbance1(end+1) = Grid_stack(i,5) * rand() / 20.0;
+%         disturbance2(end+1) = Grid_stack(i,5) * rand() / 20.0;
     else % 或者将所有的可能都做成模板     
         stencilPoint_Tmp = SelectStencilPointAllPossible(node1_base,node2_base, neighborNode1,neighborNode2);
         ntmp = size(stencilPoint_Tmp,1);
@@ -57,8 +57,8 @@ for i = 1:nFaces                %对于某个阵面
         wdist(end+1:end+ntmp) = wdist_Tmp;
 		frontLength(end+1:end+ntmp) = Grid_stack(i,5);
 		frontAngle(end+1:end+ntmp)  = angle_Tmp;
-        disturbance1(end+1:end+ntmp) = Grid_stack(i,5) * rand() / 20.0;
-        disturbance2(end+1:end+ntmp) = Grid_stack(i,5) * rand() / 20.0;
+%         disturbance1(end+1:end+ntmp) = Grid_stack(i,5) * rand() / 20.0;
+%         disturbance2(end+1:end+ntmp) = Grid_stack(i,5) * rand() / 20.0;
     end
     
    %%     
@@ -70,10 +70,20 @@ for i = 1:nFaces                %对于某个阵面
 end
 
 %%
+% PLOT(Grid_stack, xCoord, yCoord)
+% hold on;
 % PlotStencil(nFaces,stencilPoint,targetPoint)
-if perturb == 1 
-    xCoord(stencilPoint) = xCoord(stencilPoint) + disturbance1';
-    yCoord(stencilPoint) = yCoord(stencilPoint) + disturbance2'; 
+if perturb == 1
+    a=-1.0/4;
+    b=1.0/4;
+    for iNode = 1 : nNodes
+        [flag, frontSize] = isNotBoundaryNodes(iNode, Grid_stack);
+        if flag == 1
+            xCoord(iNode) = xCoord(iNode) + frontSize *  ( a + (b-a).*rand(1,1) );
+            yCoord(iNode) = yCoord(iNode) + frontSize *  ( a + (b-a).*rand(1,1) );
+        end
+    end
+%     PLOT(Grid_stack, xCoord, yCoord)
 end
 %%
 if mode == 0

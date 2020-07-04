@@ -1,5 +1,5 @@
 function [AFT_stack, Coord, Grid_stack] = read_grid(fileName, gridType)
-grid = importfile(fileName);
+grid = importfile1(fileName);
 %%
 %读入基本信息
 dimension       = hex2dec(grid(4,2));
