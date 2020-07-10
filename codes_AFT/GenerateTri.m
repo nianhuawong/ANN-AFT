@@ -1,8 +1,8 @@
-function [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack)
+function [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType )
 
 % [x_best, y_best] = ADD_POINT_tri(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
 % [x_best, y_best] = ADD_POINT(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp, outGridType);
-[x_best, y_best] = ADD_POINT_ANN(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack);
+[x_best, y_best] = ADD_POINT_ANN(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType);
     
 node_best = node_best + 1;      %新增最佳点Pbest的序号
 

@@ -5,11 +5,13 @@ format long
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1.0;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866         
 al          = 3.0;      % 在几倍范围内搜索
-coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
+coeff       = 0.6;      % 尽量选择现有点的参数，Pbest质量参数的系数
 dt          = 0.0001;   % 暂停时长
+stencilType = 'random';
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
+nn_fun = @myNeuralNetworkFunction_cy2;
 %%
-[AFT_stack,Coord,~]  = read_grid('../grid/inv_cylinder/inv_cylinder-20.cas', gridType);
+[AFT_stack,Coord,~]  = read_grid('../grid/naca0012/naca0012-tri-quadBC.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -30,7 +32,7 @@ for i =1:size(AFT_stack,1)
 %     AFT_stack(i,5) = 1e5* AFT_stack(i,5);
 end
 AFT_stack_sorted = sortrows(AFT_stack, 5); 
-
+% AFT_stack_sorted = AFT_stack;
 % AFT_stack_sorted = sortrows(AFT_stack, 5,'descend');
 
 while size(AFT_stack_sorted,1)>0
@@ -41,11 +43,11 @@ while size(AFT_stack_sorted,1)>0
     
     size0 = size(AFT_stack_sorted,1);
    
-    [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack);
+    [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);
     
     while node_select == -1
         al = 1.2 * al;
-        [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack);
+        [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);
     end
     
     if( flag_best == 1 )
@@ -56,7 +58,7 @@ while size(AFT_stack_sorted,1)>0
     [AFT_stack_sorted,nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best);
         
     size1 = size(AFT_stack_sorted,1);
-    PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, size1-size0);
+    PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, size1-size0, flag_best);
     pause(dt);
     hold on;
     
@@ -79,7 +81,8 @@ while size(AFT_stack_sorted,1)>0
   end
   
   AFT_stack_sorted( AFT_stack_sorted(:,1) == -1, : ) = [];
-  
+    
+
   AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
   %         AFT_stack_sorted = sortrows(AFT_stack_sorted, 5, 'descend');
   
