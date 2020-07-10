@@ -1,8 +1,8 @@
 function [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
     Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType)
+
 node_select = [-1,-1];
 flag_best   = [1 1];
-
 % [x_best_quad, y_best_quad] = ADD_POINT_quad(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
 [x_best_quad, y_best_quad] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType);
 
@@ -21,7 +21,7 @@ angle = angle / pi * 180;
 % dd2 / dd1
 % angle
 %如果生成的2个点距离非常小，则认为是1个点，或者新点连线与阵面的夹角接近90°，生成三角形
-if  dd2 / dd1 < 0.6 || ( abs(angle) - 90 ) < 10
+if  dd2 / dd1 < 0.4 || ( abs(angle) - 90 ) < 10
     node_select = [-1,-1];
     coordX = -1;
     coordY = -1;
@@ -195,26 +195,30 @@ for ii = 1:2
                     break;
                 else
                     node_select(ii) = -1;           %如果相交，则要再次选择                          
-                    node_best = node_best - 1; %如果没有选择到合适点，则编号要回退1
                 end
-            else
-                node_best = node_best - 1;%如果没有选择Pbest，则编号要回退1
             end
         end
         
         if node_select(ii) ~= -1
-            if(node_select(ii) == node_best)    %只有在选择了新生成的点时，才需要将新点坐标存下来
-                xCoord_AFT(end+1) = x_best;
-                yCoord_AFT(end+1) = y_best;
-            elseif( node_select(ii)~= node_best)
-                flag_best(ii) = 0;
-                node_best = node_best - 1;%如果没有选择Pbest，则编号要回退1
-            end
             break;
-        end
+        end        
     end
     
+    if node_select(ii) ~= -1
+        if(node_select(ii) == node_best)    %只有在选择了新生成的点时，才需要将新点坐标存下来
+            xCoord_AFT(end+1) = x_best;
+            yCoord_AFT(end+1) = y_best;
+        elseif( node_select(ii)~= node_best)
+            flag_best(ii) = 0;
+            node_best = node_best - 1;%如果没有选择Pbest，则编号要回退1
+        end
+    else
+        flag_best(ii) = 0;
+        node_best = node_best - 1;%如果没有选择Pbest，则编号要回退1
+    end
 end
+
+
 %%
 % 判断四边形质量，如果质量太差，就生成三角形单元
 if sum(node_select==-1)>0   %如果找不到合适的点，则无法生成四边形

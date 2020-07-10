@@ -152,14 +152,31 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
             end
         end
         %%
+
+        for i = 1 : size(new_cell,1)
+            iCell = new_cell(i,:);
+            iCell(iCell<0) = [];
+            iCell = unique( iCell );
+            if length(iCell) < 3
+                new_cell(i,:)=-1;
+            end
+        end
+        II = new_cell(:,1) == -1;
+        new_cell(II,:)=[];
+        
         % %         去掉重复的单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
+            iCell(iCell<0) = [];%
+            iCell = unique(iCell);%
             for j = i+1:size(new_cell,1)
                 jCell = new_cell(j,:);
-                if( sum(unique(jCell) == unique(iCell)) == 4 )
-                    new_cell(j,:)=-1;
-                end
+                jCell(jCell<0) = [];%
+                jCell = unique(jCell);  %                 
+%                     if( sum(unique(jCell) == unique(iCell)) == 4 )
+                    if( length(iCell) == length(jCell) && ( sum(jCell == iCell) == 4 || sum(jCell == iCell) == 3) )
+                        new_cell(j,:)=-1;
+                    end
             end
         end
         

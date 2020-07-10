@@ -1,18 +1,19 @@
-clear;
+clear;close all;
 tic
 format long
 %%
-gridType    = 0;        % 0-单一单元网格，1-混合单元网格
+gridType    = 1;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
 al          = 3.0;      % 在几倍范围内搜索
-coeff       = 0.75;      % 尽量选择现有点的参数，Pbest质量参数的系数
+coeff       = 0.6;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.0001;   % 暂停时长
 stencilType = 'random';
-nn_fun = @net_cylinder_quad3;
+nn_fun = @net_cylinder_quad5;
+% nn_fun = @net_naca0012_quad;
 %%
-% [AFT_stack,Coord,~]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad.cas', gridType);
-[AFT_stack,Coord,~]  = read_grid('../grid/naca0012/naca0012-tri-quadBC.cas', gridType);
+[AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad.cas', gridType);
+% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -40,13 +41,13 @@ AFT_stack_sorted = sortrows(AFT_stack, 5);
 % AFT_stack_sorted = sortrows(AFT_stack, 5, 'descend');
 %%
 while size(AFT_stack_sorted,1)>0
-%     Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT);
+    Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid);
     
     %%
     %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
     size0 = size(AFT_stack_sorted,1);
     %%
-    if nCells_AFT ==275
+    if nCells_AFT ==390
         kkk = 1;
     end  
     %%

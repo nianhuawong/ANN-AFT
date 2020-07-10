@@ -1,4 +1,4 @@
-function AFT_stack_sorted = Update_AFT_INFO(AFT_stack_sorted, node1_base, node2_base, node_select, nCells_AFT , xCoord_AFT, yCoord_AFT)
+function AFT_stack_sorted = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, node2_base, node_select, nCells_AFT , xCoord_AFT, yCoord_AFT)
 %%
 dist11 = DISTANCE(node1_base, node_select(1), xCoord_AFT, yCoord_AFT);
 dist12 = DISTANCE(node_select(1), node_select(2), xCoord_AFT, yCoord_AFT);
