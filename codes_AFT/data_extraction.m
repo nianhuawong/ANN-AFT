@@ -6,13 +6,15 @@ gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1.0;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866         
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.6;      % 尽量选择现有点的参数，Pbest质量参数的系数
-dt          = 0.0001;   % 暂停时长
-stencilType = 'random';
+dt          = 0.00001;   % 暂停时长
+stencilType = 'all';
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
-nn_fun = @myNeuralNetworkFunction_cy2;
+nn_fun = @myNeuralNetworkFunction_all2;
 %%
-[AFT_stack,Coord,~]  = read_grid('../grid/naca0012/naca0012-tri-quadBC.cas', gridType);
-%%
+[AFT_stack,Coord,~]  = read_grid('../grid/inv_cylinder/inv_cylinder-20.cas', gridType);
+% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/naca0012-tri-quadBC.cas', gridType);
+% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/naca0012-tri-coarse.cas', gridType);
+%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
 xCoord_AFT = Coord(1:node_num,1);                %初始阵面点坐标
