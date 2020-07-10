@@ -70,8 +70,8 @@ for i = 1:nFaces                %对于某个阵面
 end
 
 %%
-% PLOT(Grid_stack, xCoord, yCoord)
-% hold on;
+PLOT(Grid_stack, xCoord, yCoord)
+hold on;
 % PlotStencil(nFaces,stencilPoint,targetPoint)
 if perturb == 1
     a=-1.0/4;
@@ -83,7 +83,7 @@ if perturb == 1
             yCoord(iNode) = yCoord(iNode) + frontSize *  ( a + (b-a).*rand(1,1) );
         end
     end
-%     PLOT(Grid_stack, xCoord, yCoord)
+    PLOT(Grid_stack, xCoord, yCoord)
 end
 %%
 if mode == 0
