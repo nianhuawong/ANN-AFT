@@ -30,16 +30,18 @@ for i = 1:nFaces                %对于某个阵面
 %         end
     end
     %% 对targetPoint进行排序，node1_base的放在前，node2_base的放在后
-    node1_base = node1(i);
-    node2_base = node2(i);
-    neighbor1 = NeighborNodes(node1_base,Grid_stack,node2_base);
-%     neighbor2 = NeighborNodes(node2_base,Grid_stack,node1_base);
-    
-    if( sum(targetTmp(1)==neighbor1) ~= 0 )
-        targetPoint(i,:) = [targetTmp(1), targetTmp(2)];
-    else
-       targetPoint(i,:) = [targetTmp(2), targetTmp(1)]; 
+    if length(targetTmp) == 2
+        node1_base = node1(i);
+        node2_base = node2(i);
+        neighbor1 = NeighborNodes(node1_base,Grid_stack,node2_base);
+        %     neighbor2 = NeighborNodes(node2_base,Grid_stack,node1_base);
+        
+        if( sum(targetTmp(1)==neighbor1) ~= 0 )
+            targetPoint(i,:) = [targetTmp(1), targetTmp(2)];
+        else
+            targetPoint(i,:) = [targetTmp(2), targetTmp(1)];
+        end
+    else       
+        targetPoint(i,:) = targetTmp;
     end
-            
-%     targetPoint(i,:) = targetTmp;
 end
