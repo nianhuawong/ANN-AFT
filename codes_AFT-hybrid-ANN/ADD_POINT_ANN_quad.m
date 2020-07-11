@@ -56,6 +56,48 @@ else
 %     x_new = new_point(1);
 %     y_new = new_point(2); 
     x_new = new_point(1:2);
-    y_new = new_point(3:4);    
-
+    y_new = new_point(3:4); 
+    Sp    = new_point(5);
 end
+
+% v_ad =   [x_new(2)-xCoord(node1), y_new(2)-yCoord(node1)];
+% v_cb = - [x_new(1)-xCoord(node2), y_new(1)-yCoord(node2)];
+% 
+% dd1 = sqrt( v_ad(1)^2 + v_ad(2)^2 );
+% dd2 = sqrt( v_cb(1)^2 + v_cb(2)^2 );
+% angle = acos( v_ad * v_cb' / dd1 / dd2 );
+% Area = 0.5 * dd1 * dd2 * sin(angle);
+% h = sqrt(Area);
+% 
+% Sp = max([h,Sp]);
+%%
+% plot(x_new,y_new,'*')
+v_base = [xCoord(node2)-xCoord(node1), yCoord(node2)-yCoord(node1)];
+v_newpoint = [x_new(2)-x_new(1), y_new(2)-y_new(1)];
+
+dd1 = sqrt( v_base(1)^2 + v_base(2)^2 );
+dd2 = sqrt( v_newpoint(1)^2 + v_newpoint(2)^2 );
+angle = acos( v_base * v_newpoint'/ dd1 / dd2 );
+angle = angle / pi * 180;
+
+if  dd2 / dd1 < 0.3 || ( abs(angle) - 90 ) < 10
+    x_new = x_new(1);
+    y_new = y_new(1);
+    
+    ds = DISTANCE(node1, node2, xCoord, yCoord);
+    normal = normal_vector(node1, node2, xCoord, yCoord);
+
+    v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
+    h = abs( v_ac * normal' );
+    
+    Sp = max([h,Sp]);
+
+    v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;
+    v_ad = ( v_ac * v_ab' ) .* v_ab;
+    v_de = Sp .* normal;
+    pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
+    x_new = pointE(1);
+    y_new = pointE(2);
+end
+
+

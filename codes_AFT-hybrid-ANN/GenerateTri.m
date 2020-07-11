@@ -9,22 +9,7 @@ ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 [x_best, y_best] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType);
 x_best = x_best(1);
 y_best = y_best(1);
-%%
-normal = zeros(1,2);
-normal(1) = -( yCoord_AFT(node2_base) - yCoord_AFT(node1_base) ) / ds;
-normal(2) =  ( xCoord_AFT(node2_base) - xCoord_AFT(node1_base) ) / ds;
 
-v_ac = [x_best-xCoord_AFT(node1_base), y_best-yCoord_AFT(node1_base)];
-h = abs( v_ac * normal' );
-
-if h / Sp < 0.5
-    v_ab = [xCoord_AFT(node2_base) - xCoord_AFT(node1_base), yCoord_AFT(node2_base) - yCoord_AFT(node1_base)]./ds;
-    v_ad = ( v_ac * v_ab' ) .* v_ab;
-    v_de = Sp .* normal;
-    pointE = v_ad + v_de + [xCoord_AFT(node1_base), yCoord_AFT(node1_base)];
-    x_best = pointE(1);
-    y_best = pointE(2);
-end
 %%
 node_best = node_best + 1;      %新增最佳点Pbest的序号
 

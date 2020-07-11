@@ -5,7 +5,7 @@ format long
 gridType    = 1;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
 al          = 3.0;      % 在几倍范围内搜索
-coeff       = 0.6;      % 尽量选择现有点的参数，Pbest质量参数的系数
+coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.0001;   % 暂停时长
 stencilType = 'random';
@@ -32,8 +32,10 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 
 %%  先将边界阵面推进
 for i =1:size(AFT_stack,1)
-    AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
-%     AFT_stack(i,5) = 1E5* AFT_stack(i,5);
+%     if AFT_stack(i,7) == 3
+        AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
+    %     AFT_stack(i,5) = 1e5* AFT_stack(i,5);
+%     end
 end
 %%
 AFT_stack_sorted = sortrows(AFT_stack, 5);

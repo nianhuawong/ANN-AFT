@@ -7,21 +7,11 @@ flag_best   = [1 1];
 [x_best_quad, y_best_quad] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType);
 
 %%
-% plot(x_best_quad,y_best_quad,'*')
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
 
-v_base = [xCoord_AFT(node2_base)-xCoord_AFT(node1_base), yCoord_AFT(node2_base)-yCoord_AFT(node1_base)];
-v_newpoint = [x_best_quad(1)-x_best_quad(2), y_best_quad(1)-y_best_quad(2)];
-
-dd1 = sqrt( v_base(1)^2 + v_base(2)^2 );
-dd2 = sqrt( v_newpoint(1)^2 + v_newpoint(2)^2 );
-angle = acos( v_base * v_newpoint'/ dd1 / dd2 );
-angle = angle / pi * 180;
-% dd2 / dd1
-% angle
 %如果生成的2个点距离非常小，则认为是1个点，或者新点连线与阵面的夹角接近90°，生成三角形
-if  dd2 / dd1 < 0.4 || ( abs(angle) - 90 ) < 10
+if  length(x_best_quad) == 1 && length(y_best_quad) == 1
     node_select = [-1,-1];
     coordX = -1;
     coordY = -1;

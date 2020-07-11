@@ -65,7 +65,7 @@ end
 % hold off
 %%
 % 完成边界面信息的提取，建立阵面信息
-AFT_stack = zeros(nBoundaryFaces,6);
+AFT_stack = zeros(nBoundaryFaces,7);
 for i = 1:nBoundaryFaces
     AFT_stack(i,1) = node1(i,1);
     AFT_stack(i,2) = node2(i,1);
@@ -73,4 +73,5 @@ for i = 1:nBoundaryFaces
     AFT_stack(i,4) = rightCell(i,1);
     AFT_stack(i,5) = DISTANCE(AFT_stack(i,1), AFT_stack(i,2), xCoord, yCoord);
     AFT_stack(i,6) = i;
+    AFT_stack(i,7) = bcType(i);
 end
