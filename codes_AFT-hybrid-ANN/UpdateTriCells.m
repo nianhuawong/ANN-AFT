@@ -52,7 +52,7 @@ if flag_best == 0
         end
     end
     
-    II = find(new_cell(:,1) == -1);
+    II = new_cell(:,1) == -1;
     new_cell(II,:)=[];
     
     %还要去掉已经有的单元
@@ -63,7 +63,7 @@ if flag_best == 0
         end
     end
     
-    II = find(new_cell(:,1) == -1);
+    II = new_cell(:,1) == -1;
     new_cell(II,:)=[];
     
     %将新单元加入数据结构
