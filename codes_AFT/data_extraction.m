@@ -9,11 +9,11 @@ coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 dt          = 0.00001;   % 暂停时长
 stencilType = 'random';
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
-nn_fun = @net_naca0012_tri;
+nn_fun = @net_naca0012_quadBC;
 %%
-% [AFT_stack,Coord,~]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-10.cas', gridType);
-[AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
-% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/naca0012-tri-coarse.cas', gridType);
+[AFT_stack,Coord,~]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-40.cas', gridType);
+% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri.cas', gridType);
 %
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -30,10 +30,10 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 
 %%  先将边界阵面推进
 for i =1:size(AFT_stack,1)
-    if AFT_stack(i,7) == 3
+%     if AFT_stack(i,7) == 3
         AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
     %     AFT_stack(i,5) = 1e5* AFT_stack(i,5);
-    end
+%     end
 end
 AFT_stack_sorted = sortrows(AFT_stack, 5); 
 % AFT_stack_sorted = AFT_stack;
