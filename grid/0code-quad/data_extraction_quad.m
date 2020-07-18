@@ -1,6 +1,6 @@
 clear;clc;
-gridName       = '../inv_cylinder/quad/inv_cylinder_quad.cas'
-fileName       = '../inv_cylinder/quad/cy-q28.mat'
+gridName       = '../inv_cylinder/quad/inv_cylinder_quad-c.cas'
+fileName       = '../inv_cylinder/quad/cy-q39.mat'
 % gridName       = 'f:/ANN_Grid/grid/naca0012/naca0012-quad.cas'
 % fileName       = 'f:/ANN_Grid/grid/naca0012/naca-q5.mat'
 % gridName       = '../naca0012/tri/naca0012-tri-quadBC.cas'
