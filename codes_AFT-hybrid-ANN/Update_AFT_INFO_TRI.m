@@ -1,4 +1,6 @@
 function AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, node2_base, node_select, nCells_AFT , xCoord_AFT, yCoord_AFT)
+global cellNodeTopo;
+cellNodeTopo(end+1,:) = [node1_base, node2_base, node_select, 0];
 %%
 dist1 = DISTANCE(node1_base, node_select, xCoord_AFT, yCoord_AFT);
 dist2 = DISTANCE(node2_base, node_select, xCoord_AFT, yCoord_AFT);

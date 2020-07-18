@@ -1,5 +1,6 @@
 function [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, cellNodeTopo, epsilon)
+    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon)
+global cellNodeTopo;
 
 node_select = [-1,-1];
 flag_best   = [1 1];
@@ -185,7 +186,7 @@ for ii = 1:2
                 continue;
             end  
             
-            if ii == 2            
+            if ii == 2 && node_select(1) ~= -1           
                 new_cell = [node1_base, node2_base, node_select(1),node_test];
                 cellNodeTopo_Tmp = [cellNodeTopo;new_cell];
                 flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);

@@ -1,5 +1,6 @@
 function [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, cellNodeTopo, epsilon)
+    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon)
+global cellNodeTopo;
 
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);

@@ -8,6 +8,7 @@ for i= 1:nodes
     plot(xCoord(i),yCoord(i),'r.')
     if flag_label(i) == 0
         text(xCoord(i),yCoord(i),num2str(i), 'Color', 'red', 'FontSize', 9)
+        flag_label(i) = 1;
     end
 end
 
