@@ -26,7 +26,7 @@ if( flag21 == 1 && flag22 == 1)  %如果为左单元
             AFT_stack_sorted(row, 4) = nCells_AFT;  %否则更新到右单元
         end
     else    %如果不存在，则按反的逻辑新增阵面，即阵面方向反过来（node1_base, node_select），nCells_AFT更新到右单元，左单元不更新
-        AFT_stack_sorted(end+1,:) = [node_select(2), node2_base, -1, nCells_AFT, dist22,  size(AFT_stack_sorted,1)+1];  
+        AFT_stack_sorted(end+1,:) = [node_select(2), node2_base, -1, nCells_AFT, dist22,  size(AFT_stack_sorted,1)+1, 2];  
     end
 else   %如果为右单元
     if( row ~= -1 )  %如果已经存在
@@ -36,7 +36,7 @@ else   %如果为右单元
             AFT_stack_sorted(row, 3) = nCells_AFT; %否则更新到左单元
         end
     else  %如果不存在，则按反的逻辑新增阵面，即阵面方向反过来（node1_base, node_select），nCells_AFT更新到左单元，右单元不更新
-        AFT_stack_sorted(end+1,:) = [node_select(2), node2_base, nCells_AFT, -1, dist22,  size(AFT_stack_sorted,1)+1];  
+        AFT_stack_sorted(end+1,:) = [node_select(2), node2_base, nCells_AFT, -1, dist22,  size(AFT_stack_sorted,1)+1, 2];  
     end
 end 
 
@@ -51,7 +51,7 @@ if( flag31 == 1 && flag32 == 1 ) %如果为左单元
             AFT_stack_sorted(row, 4) = nCells_AFT;%否则更新到右单元
         end
     else  %如果不存在，则按反的逻辑新增阵面，即阵面方向反过来（node1_base, node_select），nCells_AFT更新到右单元，左单元不更新           
-        AFT_stack_sorted(end+1,:) = [node_select(1), node_select(2), -1, nCells_AFT, dist12,  size(AFT_stack_sorted,1)+1];  
+        AFT_stack_sorted(end+1,:) = [node_select(1), node_select(2), -1, nCells_AFT, dist12,  size(AFT_stack_sorted,1)+1, 2];  
     end
 else %如果为右单元
     if( row ~= -1 ) %如果已经存在
@@ -61,7 +61,7 @@ else %如果为右单元
             AFT_stack_sorted(row, 3) = nCells_AFT;  %否则更新到左单元
         end
     else  %如果不存在，则按反的逻辑新增阵面，即阵面方向反过来（node_select, node2_base），nCells_AFT更新到左单元，右单元不更新
-        AFT_stack_sorted(end+1,:) = [node_select(1), node_select(2), nCells_AFT, -1, dist12,  size(AFT_stack_sorted,1)+1];              
+        AFT_stack_sorted(end+1,:) = [node_select(1), node_select(2), nCells_AFT, -1, dist12,  size(AFT_stack_sorted,1)+1, 2];              
     end
 end
 
@@ -76,7 +76,7 @@ if( flag41 == 1 && flag42 == 1 ) %如果为左单元
             AFT_stack_sorted(row, 4) = nCells_AFT;%否则更新到右单元
         end
     else  %如果不存在，则按反的逻辑新增阵面，即阵面方向反过来（node1_base, node_select），nCells_AFT更新到右单元，左单元不更新           
-        AFT_stack_sorted(end+1,:) = [node1_base, node_select(1), -1, nCells_AFT, dist11,  size(AFT_stack_sorted,1)+1];  
+        AFT_stack_sorted(end+1,:) = [node1_base, node_select(1), -1, nCells_AFT, dist11,  size(AFT_stack_sorted,1)+1, 2];  
     end
 else %如果为右单元
     if( row ~= -1 ) %如果已经存在
@@ -86,6 +86,6 @@ else %如果为右单元
             AFT_stack_sorted(row, 3) = nCells_AFT;  %否则更新到左单元
         end
     else  %如果不存在，则按反的逻辑新增阵面，即阵面方向反过来（node_select, node2_base），nCells_AFT更新到左单元，右单元不更新
-        AFT_stack_sorted(end+1,:) = [node1_base, node_select(1), nCells_AFT, -1, dist11,  size(AFT_stack_sorted,1)+1];              
+        AFT_stack_sorted(end+1,:) = [node1_base, node_select(1), nCells_AFT, -1, dist11,  size(AFT_stack_sorted,1)+1, 2];              
     end
 end

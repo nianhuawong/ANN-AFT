@@ -59,19 +59,18 @@ else
     y_new = new_point(3:4); 
     Sp    = new_point(5);
 end
+plot(x_new,y_new,'*')
+v_ad =   [x_new(2)-xCoord(node1), y_new(2)-yCoord(node1)];
+v_cb = - [x_new(1)-xCoord(node2), y_new(1)-yCoord(node2)];
 
-% v_ad =   [x_new(2)-xCoord(node1), y_new(2)-yCoord(node1)];
-% v_cb = - [x_new(1)-xCoord(node2), y_new(1)-yCoord(node2)];
-% 
-% dd1 = sqrt( v_ad(1)^2 + v_ad(2)^2 );
-% dd2 = sqrt( v_cb(1)^2 + v_cb(2)^2 );
-% angle = acos( v_ad * v_cb' / dd1 / dd2 );
-% Area = 0.5 * dd1 * dd2 * sin(angle);
-% h = sqrt(Area);
-% 
+dd1 = sqrt( v_ad(1)^2 + v_ad(2)^2 );
+dd2 = sqrt( v_cb(1)^2 + v_cb(2)^2 );
+angle = acos( v_ad * v_cb' / dd1 / dd2 );
+Area = 0.5 * dd1 * dd2 * sin(angle);
+h = sqrt(Area);
+
 % Sp = max([h,Sp]);
 %%
-% plot(x_new,y_new,'*')
 v_base = [xCoord(node2)-xCoord(node1), yCoord(node2)-yCoord(node1)];
 v_newpoint = [x_new(2)-x_new(1), y_new(2)-y_new(1)];
 
@@ -80,7 +79,7 @@ dd2 = sqrt( v_newpoint(1)^2 + v_newpoint(2)^2 );
 angle = acos( v_base * v_newpoint'/ dd1 / dd2 );
 angle = angle / pi * 180;
 
-if  dd2 / dd1 < 0.3 || ( abs(angle) - 90 ) < 10
+if  dd2 / dd1 < 0.5 || abs( ( abs(angle) - 90 ) ) < 10 || abs(h-Sp)/h > 0.5
     x_new = x_new(1);
     y_new = y_new(1);
     

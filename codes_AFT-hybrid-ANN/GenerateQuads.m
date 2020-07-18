@@ -210,6 +210,13 @@ end
 
 
 %%
+if node_select(1) == node_select(2)
+    node_select = [-1,-1];
+    coordX = -1;
+    coordY = -1;
+    return;
+end
+
 % 判断四边形质量，如果质量太差，就生成三角形单元
 if sum(node_select==-1)>0   %如果找不到合适的点，则无法生成四边形
     node_select = [-1,-1];

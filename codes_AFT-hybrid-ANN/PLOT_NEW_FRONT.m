@@ -14,7 +14,7 @@ for i = 1:num
     plot( xx, yy, '-b');
     hold on;
     
-%     text(xCoord(node1)+0.1*dist,yCoord(node1),num2str(node1), 'Color', 'red', 'FontSize', 14)
+    text(xCoord(node1)+0.1*dist,yCoord(node1),num2str(node1), 'Color', 'red', 'FontSize', 14)
 %     text(xCoord(node2)+0.1*dist,yCoord(node2),num2str(node2), 'Color', 'red', 'FontSize', 14)
 end
 axis equal
