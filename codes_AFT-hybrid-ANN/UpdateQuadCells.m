@@ -152,7 +152,7 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
             end
         end
         %%
-
+%% 去掉无效单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
             iCell(iCell<0) = [];
@@ -164,7 +164,7 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         
-        % %         去掉重复的单元
+        %%         去掉重复的单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
             iCell(iCell<0) = [];%
@@ -214,7 +214,24 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
         
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
-        % %         将新单元加入数据结构
+        
+        %% 还要去掉质量不好的单元
+        for i = 1 : size(new_cell,1)
+            node1 = new_cell(i,1);
+            node2 = new_cell(i,2);
+            node3 = new_cell(i,3);
+            node4 = new_cell(i,4);
+           if node4 > 0
+               [quality,~] = QualityCheckQuad(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT, -1);
+               if quality < 0.5
+                   new_cell(i,:)=-1;
+               end
+           end
+        end
+        II = new_cell(:,1) == -1;
+        new_cell(II,:)=[];
+        
+        %%         将新单元加入数据结构
         for i = 1:size(new_cell,1)
             nCells_AFT = nCells_AFT + 1;
             node1 = new_cell(i,1);

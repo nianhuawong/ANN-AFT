@@ -2,18 +2,22 @@ clear;close all;
 tic
 format long
 %%
-gridType    = 0;        % 0-单一单元网格，1-混合单元网格
+global num_label flag_label;
+gridType    = 1;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;   % 暂停时长
 stencilType = 'random';
-nn_fun = @net_cylinder_quad;
+epsilon     = 0.3;     % 四边形网格质量要求, 值越大要求越低
+nn_fun      = @net_cylinder_quad3;
+num_label   = 0;
+flag_label  = zeros(1,10000);
 % nn_fun = @net_naca0012_quad;
 %%
-% [AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad.cas', gridType);
-[AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-15.cas', gridType);
+[AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad-c.cas', gridType);
+% [AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-50.cas', gridType);
 % [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
@@ -50,27 +54,51 @@ while size(AFT_stack_sorted,1)>0
     %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
     size0 = size(AFT_stack_sorted,1);
     %%
-    if nCells_AFT ==130
+    if nCells_AFT > 580
         kkk = 1;
-    end  
+        [direction, row] = FrontExist(401,415, AFT_stack_sorted);
+        if row~=-1
+            kkk = 1;
+        end
+    end
+        
+    cellNodeTopo = CellTopology(Grid_stack, AFT_stack_sorted, nCells_AFT);
     %%
-    [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);
-    if sum(node_select) ~= -2
+    [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT,...
+        Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType,cellNodeTopo, epsilon);
+        
+    xCoord_tmp = [xCoord_AFT;coordX];
+    yCoord_tmp = [yCoord_AFT;coordY];
+    
+    node1_base = AFT_stack_sorted(1,1);         
+    node2_base = AFT_stack_sorted(1,2);
+    flagConvexPoly = IsConvexPloygon(node1_base, node2_base, node_select(2), node_select(1), xCoord_tmp, yCoord_tmp);
+    
+    [~, row1] = FrontExist(node1_base,node_select(1), Grid_stack);    
+    [~, row2] = FrontExist(node2_base,node_select(2), Grid_stack);
+    [~, row3] = FrontExist(node_select(1),node_select(2), Grid_stack);
+    
+%     flagDiag   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_test);
+
+    if ( sum(node_select) ~= -2 && flagConvexPoly == 1 ) && row1 == -1 && row2 == -1 && row3 == -1
         xCoord_AFT = [xCoord_AFT;coordX];
         yCoord_AFT = [yCoord_AFT;coordY];
-        node_best = node_best + sum(flag_best);
+        node_best = node_best + sum(flag_best);       
         
         tmp = nCells_AFT;
-        [AFT_stack_sorted,nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, xCoord_AFT, yCoord_AFT, node_select, flag_best); 
+        [AFT_stack_sorted,nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, ...
+            xCoord_AFT, yCoord_AFT, node_select, flag_best); 
         
         nCells_quad = nCells_quad + nCells_AFT - tmp;
         
-    elseif sum(node_select) == -2            
-        [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);
+    elseif sum(node_select) == -2 || flagConvexPoly == 0 || row1 ~= -1 || row2 ~= -1 || row3 ~= -1     
+        [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
+            Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, cellNodeTopo, epsilon);
         
         while node_select == -1 
             al = 2 * al;
-            [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);
+            [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
+                Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, cellNodeTopo, epsilon);
         end
         
         if( flag_best == 1 )
@@ -79,7 +107,8 @@ while size(AFT_stack_sorted,1)>0
             node_best = node_best + 1;
         end  
             tmp = nCells_AFT;
-            [AFT_stack_sorted,nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best);     
+            [AFT_stack_sorted,nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, ...
+                node_select, flag_best);     
             nCells_tri = nCells_tri + nCells_AFT - tmp;
     end
 
@@ -88,7 +117,7 @@ while size(AFT_stack_sorted,1)>0
     PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, size1-size0);
     pause(dt);
     hold on;
-
+        
     interval = 100;
     if(mod(nCells_AFT,interval)==0)
         disp('================================');

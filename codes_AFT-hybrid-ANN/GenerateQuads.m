@@ -1,10 +1,11 @@
 function [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType)
+    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, cellNodeTopo, epsilon)
 
 node_select = [-1,-1];
 flag_best   = [1 1];
 % [x_best_quad, y_best_quad] = ADD_POINT_quad(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
-[x_best_quad, y_best_quad] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType);
+[x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
+                                                    Grid_stack, stencilType, epsilon );
 
 %%
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
@@ -46,10 +47,12 @@ for ii = 1:2
         x_p2 = xCoord_AFT(node2);
         y_p2 = yCoord_AFT(node2);
         
-        if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+%         if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+        if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)    
             nodeCandidate(end+1) = node1;
         end
-        if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+%         if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+        if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)    
             nodeCandidate(end+1) = node2;
         end
     end
@@ -74,8 +77,9 @@ for ii = 1:2
             v_new = [xCoord_tmp(node3)-xCoord_tmp(node2_base), yCoord_tmp(node3)-yCoord_tmp(node2_base)];
         end
        
-        Qp(i) = 1.0 / ( ( 2.0 * b/a - Sp ) + abs(v_base * v_new' ) );   %四边形网格的质量参数新增边长度最好等于基准阵面，新增边与基准阵面的夹角最好接近90°
-        
+       % Qp(i) = 1.0 / ( ( 2.0 * b/a - Sp ) + abs(v_base * v_new' ) );   %四边形网格的质量参数新增边长度最好等于基准阵面，新增边与基准阵面的夹角最好接近90°
+%         Qp(i) = 1.0 / ( abs( b/a - Sp ) + abs( a/b - Sp ) );
+        Qp(i) = 1.0 / ( abs( b/a - Sp ) + abs( a/b - Sp ) + abs( acos( abs(v_base * v_new') / a / b ) - pi / 2.0 )  ); 
         if( node3 == node_best )            %为了尽量选择现有阵面上的点，将Pbest的质量降低一点
             Qp(i) = coeff * Qp(i);
         end
@@ -140,17 +144,23 @@ for ii = 1:2
             node_test = node_test_list(j);
             flagNotCross1 = IsNotCross(node1_base, node2_base, node_test, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
                 frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp,ii);
+            if flagNotCross1 == 0
+                continue;
+            end
             
-             flagNotCross2 = IsNotCross(node1_base, node2_base, node_test, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
-                faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp,ii);  
+            flagNotCross2 = IsNotCross(node1_base, node2_base, node_test, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
+                faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp,ii);
+            if flagNotCross2 == 0
+                continue;
+            end
             
             flagLeftCell = IsLeftCell(node1_base, node2_base, node_test, xCoord_tmp, yCoord_tmp);
+            if flagLeftCell == 0
+                continue;
+            end
             
             neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted, node2_base);
             neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted, node1_base);
-            
-            neighbor1(neighbor1==node2_base)=[];
-            neighbor2(neighbor2==node1_base)=[];
             
             neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
             neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);
@@ -162,36 +172,85 @@ for ii = 1:2
             if( size(find(neighbor22==node_test),2) == 0 && ii == 2)
                 flagSpecial = 1;
             end
+            if flagSpecial == 0
+                continue;
+            end
             
-%             flagSpecial_2 = 0;
-%             if flagSpecial == 1
-%                 
-%             end
+            %             flagSpecial_2 = 0;
+            %             if flagSpecial == 1
+            %
+            %             end
+            flagInCell = IsPointInCell(cellNodeTopo, xCoord_tmp, yCoord_tmp, node_test);
+            if flagInCell == 1
+                continue;
+            end  
             
-            if flagNotCross1 == 1 && flagNotCross2 == 1 && flagLeftCell == 1 && flagSpecial == 1 
-                node_select(ii) = node_test;
-                
-                flagNotCross3 = 1;                                          %除判断新增点与基准阵面连线是否与现有阵面相交外，还需要判断新增的2个点S1 S2的连线是否与现有阵面相交
-                flagNotCross4 = 1;
-                if( node_select(2)~= -1 )
-                    flagNotCross3 = IsNotCross(node_select(1), node2_base, node_select(2), ...
-                        frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp, 1);
-                    
-                    flagNotCross4 = IsNotCross(node_select(1), node2_base, node_select(2), ...
-                        faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp, 1);
-                end
-                
-                if flagNotCross3 == 1 &&  flagNotCross4 == 1             %如果不相交，则可以
-                    break;
-                else
-                    node_select(ii) = -1;           %如果相交，则要再次选择                          
+            if ii == 2            
+                new_cell = [node1_base, node2_base, node_select(1),node_test];
+                cellNodeTopo_Tmp = [cellNodeTopo;new_cell];
+                flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);
+                if flagInCell2 == 1
+                    continue;
                 end
             end
+            
+            if ii == 1
+                flagDiag   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_test);
+            elseif ii == 2
+                flagDiag   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, [node_select(1),node_test]);
+            end
+            if flagDiag == 1
+                continue;
+            end
+
+            if node_test == node_best
+                flagClose = IsPointClose2Edge([Grid_stack;AFT_stack_sorted], xCoord_tmp, yCoord_tmp, node_test);
+                if flagClose == 1
+                    continue;
+                end
+            end
+
+            node_select(ii) = node_test;
+            
+            flagNotCross3 = 1;                                          %除判断新增点与基准阵面连线是否与现有阵面相交外，还需要判断新增的2个点S1 S2的连线是否与现有阵面相交
+            flagNotCross4 = 1;
+            if( node_select(2)~= -1 )
+                flagNotCross3 = IsNotCross(node_select(1), node2_base, node_select(2), ...
+                    frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp, 1);
+                
+                flagNotCross4 = IsNotCross(node_select(1), node2_base, node_select(2), ...
+                    faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp, 1);
+            end
+            
+            if flagNotCross3 == 1 &&  flagNotCross4 == 1             %如果不相交，则可以
+                break;
+            else
+                node_select(ii) = -1;           %如果相交，则要再次选择
+            end
+%             if flagNotCross1 == 1 && flagNotCross2 == 1 && flagLeftCell == 1 && flagSpecial == 1 && flagInCell == 0
+%                 node_select(ii) = node_test;
+%                 
+%                 flagNotCross3 = 1;                                          %除判断新增点与基准阵面连线是否与现有阵面相交外，还需要判断新增的2个点S1 S2的连线是否与现有阵面相交
+%                 flagNotCross4 = 1;
+%                 if( node_select(2)~= -1 )
+%                     flagNotCross3 = IsNotCross(node_select(1), node2_base, node_select(2), ...
+%                         frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp, 1);
+%                     
+%                     flagNotCross4 = IsNotCross(node_select(1), node2_base, node_select(2), ...
+%                         faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp, 1);
+%                 end
+%                 
+%                 if flagNotCross3 == 1 &&  flagNotCross4 == 1             %如果不相交，则可以
+%                     break;
+%                 else
+%                     node_select(ii) = -1;           %如果相交，则要再次选择
+%                 end
+%             end
         end
         
         if node_select(ii) ~= -1
             break;
-        end        
+        end
     end
     
     if node_select(ii) ~= -1
@@ -223,8 +282,8 @@ if sum(node_select==-1)>0   %如果找不到合适的点，则无法生成四边形
     coordX = -1;
     coordY = -1;
 else
-    quality = QualityCheckQuad(node1_base, node2_base, node_select(1), node_select(2), xCoord_AFT, yCoord_AFT, Sp);
-    if quality < 0.8
+    [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(1), node_select(2), xCoord_AFT, yCoord_AFT, Sp);
+    if abs( quality - 1.0 ) > epsilon
         node_select = [-1,-1];
         coordX = -1;
         coordY = -1;

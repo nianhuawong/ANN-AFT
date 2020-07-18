@@ -46,7 +46,7 @@ if flag_best == 0
         iCell = new_cell(i,:);
         for j = i+1:size(new_cell,1)
             jCell = new_cell(j,:);
-            if( sum(jCell([3,2]) == iCell([2,3])) == 2)
+            if( sum(jCell([3,2]) == iCell([2,3])) == 2 || sum(jCell([2,3]) == iCell([2,3])) == 2)
                 new_cell(j,:)=-1;
             end
         end

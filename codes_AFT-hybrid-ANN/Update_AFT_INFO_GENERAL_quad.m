@@ -1,4 +1,9 @@
-function AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, node1, node2, node3, node4, nCells_AFT , xCoord_AFT, yCoord_AFT)
+function AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, node1, node2, node3, node4, nCells_AFT, xCoord_AFT, yCoord_AFT)
+
+flagConvexPoly = IsConvexPloygon(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT);
+if flagConvexPoly == 0 
+    return;
+end
 
 dist12 = DISTANCE(node1, node2, xCoord_AFT, yCoord_AFT);
 dist23 = DISTANCE(node2, node3, xCoord_AFT, yCoord_AFT);
