@@ -1,8 +1,8 @@
 clc;clear;
-startIn = 16;
-samples = 10;
+startIn = 26;
+samples = 3;
 % filePath = 'f:/ANN_Grid/grid/naca0012/naca-';
-filePath = 'f:/ANN_Grid/grid/inv_cylinder/quad/cy-';
+filePath = './inv_cylinder/quad/cy-';
 savePath = strcat(filePath, 'all.mat');
 input = [];
 target = [];
