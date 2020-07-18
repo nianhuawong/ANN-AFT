@@ -56,12 +56,16 @@ while size(AFT_stack_sorted,1)>0
     %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
     size0 = size(AFT_stack_sorted,1);
     %%
-    if nCells_AFT > 708
+    if nCells_AFT > 0
         kkk = 1;
-%         [direction, row] = FrontExist(401,415, AFT_stack_sorted);
-%         if row~=-1
-%             kkk = 1;
-%         end
+        [direction, row] = FrontExist(2350,1913, AFT_stack_sorted);
+        if row~=-1
+            kkk = 1;
+        end
+        
+         if row==-1
+            kkk = 1;
+        end       
     end
         
 %     cellNodeTopo = CellTopology(Grid_stack, AFT_stack_sorted, nCells_AFT);

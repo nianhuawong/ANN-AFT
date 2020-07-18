@@ -172,6 +172,12 @@ for i = 1 : length(nodeCandidate)
             end
         end
         
+        cellNodeTopo_Tmp = [node1_base, node2_base, node_test];
+        flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);
+        if flagInCell2 == 1
+            continue;
+        end
+        
         node_select = node_test;
         break;
 %         if flagNotCross1 == 1 && flagNotCross2 == 1 && flagLeftCell == 1 && flagInCell == 0 && flagDiag == 0

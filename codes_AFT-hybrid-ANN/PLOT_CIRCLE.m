@@ -7,7 +7,7 @@ plot(xb,yb,'*')
 hold on;
 
 if  flag_label(node_best) == 0 && num_label == 1
-    text(xb+0.05*ds,yb,num2str(node_best), 'Color', 'red', 'FontSize', 14);
+    text(xb+0.05*ds,yb,num2str(node_best), 'Color', 'red', 'FontSize', 9);
     flag_label(node_best) = 1;
 end
 
