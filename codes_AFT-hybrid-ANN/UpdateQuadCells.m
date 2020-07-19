@@ -1,4 +1,5 @@
 function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, xCoord_AFT, yCoord_AFT, node_select, flag_best) 
+global epsilon;
 %%
     %阵面及左单元编号更新
     node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
@@ -223,7 +224,7 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
             node4 = new_cell(i,4);
            if node4 > 0
                [quality,~] = QualityCheckQuad(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT, -1);
-               if quality < 0.5
+               if abs( 1.0- quality ) > epsilon
                    new_cell(i,:)=-1;
                end
            end
@@ -242,18 +243,18 @@ function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCel
             if (node4 > 0)
                 if outGridType == 0
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
-                        node1, node2, node3, node4, nCells_AFT , xCoord_AFT, yCoord_AFT);
+                        node1, node2, node3, node4, nCells_AFT, xCoord_AFT, yCoord_AFT);
                 elseif outGridType == 1
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
-                        node1, node2, node3,nCells_AFT, xCoord_AFT, yCoord_AFT);
+                        node1, node2, node3, nCells_AFT, xCoord_AFT, yCoord_AFT);
                     
                     nCells_AFT = nCells_AFT + 1;
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
-                        node1, node3, node4,nCells_AFT , xCoord_AFT, yCoord_AFT);
+                        node1, node3, node4, nCells_AFT, xCoord_AFT, yCoord_AFT);
                 end
             elseif (node4 < 0)
                 AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
-                    node1, node2, node3, nCells_AFT , xCoord_AFT, yCoord_AFT);
+                    node1, node2, node3, nCells_AFT, xCoord_AFT, yCoord_AFT);
             end
        %%
 %            if (node4 > 0)

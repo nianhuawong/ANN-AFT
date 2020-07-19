@@ -95,7 +95,7 @@ end
     xCoord_tmp = [xCoord; x_new'];
     yCoord_tmp = [yCoord; y_new'];
     nodeNum = length(xCoord);
-    [quality,~] = QualityCheckQuad(node1, node2, nodeNum+1, nodeNum+2, xCoord_tmp, yCoord_tmp, Sp);
+    [quality,~] = QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
     
 if abs( quality - 1.0 ) > epsilon          
     %%

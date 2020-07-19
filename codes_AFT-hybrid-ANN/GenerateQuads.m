@@ -187,7 +187,7 @@ for ii = 1:2
             end  
             
             if ii == 2 && node_select(1) ~= -1           
-                new_cell = [node1_base, node2_base, node_select(1),node_test];
+                new_cell = [node1_base, node2_base, node_test, node_select(1)];
 %                 cellNodeTopo_Tmp = [cellNodeTopo;new_cell];
                 cellNodeTopo_Tmp = new_cell;
                 flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);                
@@ -284,7 +284,7 @@ if sum(node_select==-1)>0   %如果找不到合适的点，则无法生成四边形
     coordX = -1;
     coordY = -1;
 else
-    [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(1), node_select(2), xCoord_AFT, yCoord_AFT, Sp);
+    [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(2), node_select(1), xCoord_AFT, yCoord_AFT, Sp);
     if abs( quality - 1.0 ) > epsilon
         node_select = [-1,-1];
         coordX = -1;

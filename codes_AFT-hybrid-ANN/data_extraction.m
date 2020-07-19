@@ -2,7 +2,7 @@ clear;close all;
 tic
 format long
 %%
-global num_label flag_label cellNodeTopo;
+global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
 al          = 3.0;      % 在几倍范围内搜索
@@ -58,14 +58,19 @@ while size(AFT_stack_sorted,1)>0
     %%
     if nCells_AFT > 0
         kkk = 1;
-        [direction, row] = FrontExist(2350,1913, AFT_stack_sorted);
-        if row~=-1
+        node1_base = AFT_stack_sorted(1,1);
+        node2_base = AFT_stack_sorted(1,2);
+        if node1_base == 271 && node2_base == 1612 || node1_base == 67 && node2_base == 68
             kkk = 1;
         end
-        
-         if row==-1
-            kkk = 1;
-        end       
+% %         [direction, row] = FrontExist(2350,1913, AFT_stack_sorted);
+%         if row~=-1
+%             kkk = 1;
+%         end
+%         
+%          if row==-1
+%             kkk = 1;
+%         end       
     end
         
 %     cellNodeTopo = CellTopology(Grid_stack, AFT_stack_sorted, nCells_AFT);
@@ -74,7 +79,7 @@ while size(AFT_stack_sorted,1)>0
         Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
         
     xCoord_tmp = [xCoord_AFT;coordX];
-    yCoord_tmp = [yCoord_AFT;coordY];
+    yCoord_tmp = [yCoord_AFT;coordY]; 
     
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);
@@ -91,11 +96,11 @@ while size(AFT_stack_sorted,1)>0
         yCoord_AFT = [yCoord_AFT;coordY];
         node_best = node_best + sum(flag_best);       
         
-        tmp = nCells_AFT;
+%         tmp = nCells_AFT;
         [AFT_stack_sorted,nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, ...
             xCoord_AFT, yCoord_AFT, node_select, flag_best); 
         
-        nCells_quad = nCells_quad + nCells_AFT - tmp;
+%         nCells_quad = nCells_quad + nCells_AFT - tmp;
         
     elseif sum(node_select) == -2 || flagConvexPoly == 0 || row1 ~= -1 || row2 ~= -1 || row3 ~= -1     
         [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
@@ -112,10 +117,10 @@ while size(AFT_stack_sorted,1)>0
             yCoord_AFT = [yCoord_AFT;coordY];
             node_best = node_best + 1;
         end  
-            tmp = nCells_AFT;
+%             tmp = nCells_AFT;
             [AFT_stack_sorted,nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, ...
                 node_select, flag_best);     
-            nCells_tri = nCells_tri + nCells_AFT - tmp;
+%             nCells_tri = nCells_tri + nCells_AFT - tmp;
     end
 
     %% ==============================================

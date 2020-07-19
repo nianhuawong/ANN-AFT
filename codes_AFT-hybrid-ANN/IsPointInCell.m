@@ -41,9 +41,9 @@ for i = 1:nCells
         
         area0 = AreaQuadrangle(node1, node2, node3, node4);
         area1 = AreaTriangle(node0, node1, node2);
-        area2 = AreaTriangle(node0, node2, node4);
-        area3 = AreaTriangle(node0, node4, node3);
-        area4 = AreaTriangle(node0, node3, node1);  
+        area2 = AreaTriangle(node0, node2, node3);
+        area3 = AreaTriangle(node0, node3, node4);
+        area4 = AreaTriangle(node0, node4, node1);  
         
         if abs(area0-area1-area2-area3-area4) <1e-5
             flagInCell = 1;

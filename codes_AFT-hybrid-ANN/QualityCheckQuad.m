@@ -1,11 +1,11 @@
 function [quality,h] = QualityCheckQuad(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT, Sp)
 
-v_ac =   [xCoord_AFT(node3)-xCoord_AFT(node1), yCoord_AFT(node3)-yCoord_AFT(node1)];
-v_bd = - [xCoord_AFT(node2)-xCoord_AFT(node4), yCoord_AFT(node2)-yCoord_AFT(node4)];
+v_ac = [xCoord_AFT(node3)-xCoord_AFT(node1), yCoord_AFT(node3)-yCoord_AFT(node1)];
+v_db = [xCoord_AFT(node2)-xCoord_AFT(node4), yCoord_AFT(node2)-yCoord_AFT(node4)];
 
 dd1 = sqrt( v_ac(1)^2 + v_ac(2)^2 );
-dd2 = sqrt( v_bd(1)^2 + v_bd(2)^2 );
-angle = acos( v_ac * v_bd' / dd1 / dd2 );
+dd2 = sqrt( v_db(1)^2 + v_db(2)^2 );
+angle = acos( v_ac * v_db' / dd1 / dd2 );
 Area = 0.5 * dd1 * dd2 * sin(angle);
 h = sqrt(Area);
 if Sp == -1
@@ -22,7 +22,7 @@ dist41  = DISTANCE(node4, node1, xCoord_AFT, yCoord_AFT);
 v12 = [xCoord_AFT(node2)-xCoord_AFT(node1), yCoord_AFT(node2)-yCoord_AFT(node1)];
 v23 = [xCoord_AFT(node3)-xCoord_AFT(node2), yCoord_AFT(node3)-yCoord_AFT(node2)];
 v34 = [xCoord_AFT(node4)-xCoord_AFT(node3), yCoord_AFT(node4)-yCoord_AFT(node3)];
-v41 = [xCoord_AFT(node4)-xCoord_AFT(node1), yCoord_AFT(node4)-yCoord_AFT(node1)];
+v41 = [xCoord_AFT(node1)-xCoord_AFT(node4), yCoord_AFT(node1)-yCoord_AFT(node4)];
 
 d12 = sqrt( v12(1)^2 + v12(2)^2 );
 d23 = sqrt( v23(1)^2 + v23(2)^2 );
@@ -41,7 +41,7 @@ else
     %
     %     quality = Sp * quality / 0.5;
     
-    quality = dist13 * sin(angle1/180*pi) / Sp + dist24 * sin(angle2/180*pi) / Sp + d34 / d12;
+    quality = dist41 * sin(angle1/180*pi) / Sp + dist23 * sin(angle2/180*pi) / Sp + d34 / d12;
     quality = quality / 3.0;
 end
 
