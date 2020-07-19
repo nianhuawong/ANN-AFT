@@ -76,16 +76,12 @@ while size(AFT_stack_sorted,1)>0
     %%
     [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT,...
         Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
-        
-    xCoord_tmp = [xCoord_AFT;coordX];
-    yCoord_tmp = [yCoord_AFT;coordY]; 
-    flagConvexPoly = IsConvexPloygon(node1_base, node2_base, node_select(2), node_select(1), xCoord_tmp, yCoord_tmp);
-    
+            
     [~, row1] = FrontExist(node1_base,node_select(1), Grid_stack);    
     [~, row2] = FrontExist(node2_base,node_select(2), Grid_stack);
     [~, row3] = FrontExist(node_select(1),node_select(2), Grid_stack);
 
-    if ( sum(node_select) ~= -2 && flagConvexPoly == 1 ) && row1 == -1 && row2 == -1 && row3 == -1
+    if ( sum(node_select) ~= -2 ) && row1 == -1 && row2 == -1 && row3 == -1
         xCoord_AFT = [xCoord_AFT;coordX];
         yCoord_AFT = [yCoord_AFT;coordY];
         node_best = node_best + sum(flag_best);       
@@ -93,7 +89,7 @@ while size(AFT_stack_sorted,1)>0
         [AFT_stack_sorted,nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, ...
             xCoord_AFT, yCoord_AFT, node_select, flag_best);       
         
-    elseif sum(node_select) == -2 || flagConvexPoly == 0 || row1 ~= -1 || row2 ~= -1 || row3 ~= -1     
+    elseif sum(node_select) == -2 || row1 ~= -1 || row2 ~= -1 || row3 ~= -1     
         [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
             Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
         
