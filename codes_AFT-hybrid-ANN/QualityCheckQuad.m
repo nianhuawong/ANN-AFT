@@ -8,10 +8,9 @@ dd2 = sqrt( v_db(1)^2 + v_db(2)^2 ) + 1e-40;
 angle = acos( v_ac * v_db' / dd1 / dd2 );
 Area = 0.5 * dd1 * dd2 * sin(angle);
 h = sqrt(Area);
-if Sp == -1
-    Sp = h;
-else
-    Sp = max([h,Sp]);
+
+if Sp > 0 
+    h = max([h,Sp]); 
 end
 
 dist12  = DISTANCE(node1, node2, xCoord_AFT, yCoord_AFT);

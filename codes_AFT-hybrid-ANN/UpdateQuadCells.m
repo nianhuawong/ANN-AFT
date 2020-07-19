@@ -235,6 +235,11 @@ global epsilon cellNodeTopo;
                if abs( 1.0- quality ) > epsilon
                    new_cell(i,:)=-1;
                end
+           elseif node4 < 0
+               [quality,~] = QualityCheckTri(node1, node2, node3, xCoord_AFT, yCoord_AFT, -1);
+                if abs( 1.5- quality ) > epsilon
+                   new_cell(i,:)=-1;
+               end               
            end
         end
         II = new_cell(:,1) == -1;
