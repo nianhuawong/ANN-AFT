@@ -43,19 +43,8 @@ Qp = zeros(length(nodeCandidate),1);
 xCoord_tmp = [xCoord_AFT; x_best];
 yCoord_tmp = [yCoord_AFT; y_best];
 for i = 1 : length(nodeCandidate)
-    node3 = nodeCandidate(i);
-   
-%     a = DISTANCE( node1_base, node2_base, xCoord_tmp, yCoord_tmp);  %基准阵面与候选点形成三角形
-%     b = DISTANCE( node1_base, node3, xCoord_tmp, yCoord_tmp);       %质量参数Qp为内切圆和 外接圆半径之比
-%     c = DISTANCE( node3, node2_base, xCoord_tmp, yCoord_tmp);
-%     
-%     theta = acos( ( a^2 + b^2 - c^2 ) / ( 2.0 * a * b + 1e-40 ) );
-%     area = 0.5 * a * b * sin(theta);              %三角形面积
-%     r = 2.0 * area / ( ( a + b + c ) + 1e-40 );   %内切圆半径
-%     R = a * b * c / 4.0 / ( area + 1e-40 );       %外接圆半径
-%     
-%     Qp(i) =   3.0 * r / ( R +  1e-40 );
-
+    node3 = nodeCandidate(i); 
+    
     [quality,~] = QualityCheckTri(node1_base, node2_base, node3, xCoord_tmp, yCoord_tmp, Sp);
     Qp(i) = quality;
     if( node3 == node_best )            %为了尽量选择现有阵面上的点，将Pbest的质量降低一点
