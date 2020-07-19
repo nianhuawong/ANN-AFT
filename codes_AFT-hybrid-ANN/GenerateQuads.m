@@ -150,24 +150,7 @@ for ii = 1:2
             flagLeftCell = IsLeftCell(node1_base, node2_base, node_test, xCoord_tmp, yCoord_tmp);
             if flagLeftCell == 0
                 continue;
-            end
-            
-%             neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted, node2_base);
-%             neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted, node1_base);
-%             
-%             neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
-%             neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);
-%             
-%             flagSpecial = 0;
-%             if( size(find(neighbor11==node_test),2) == 0 && ii == 1 )
-%                 flagSpecial = 1;
-%             end
-%             if( size(find(neighbor22==node_test),2) == 0 && ii == 2)
-%                 flagSpecial = 1;
-%             end
-%             if flagSpecial == 0
-%                 continue;
-%             end
+            end          
            
             flagInCell = IsPointInCell(cellNodeTopo, xCoord_tmp, yCoord_tmp, node_test);
             if flagInCell == 1
