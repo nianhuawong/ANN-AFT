@@ -38,6 +38,6 @@ angle3 = angle3 / pi * 180;
 angle4 = angle4 / pi * 180;
 
 % if angle1 > pi || angle2 > pi || angle3 > pi || angle4 > pi
-if ( abs( 360 - ( angle1 + angle2 + angle3 + angle4 ) )  > 0.1 )   %非凸四边形内角和不为360°
+if ( abs( 360 - ( angle1 + angle2 + angle3 + angle4 ) )  > 1e-5 )   %非凸四边形内角和不为360°
     flagConvexPoly = 0;
 end

@@ -3,8 +3,8 @@ function [quality,h] = QualityCheckQuad(node1, node2, node3, node4, xCoord_AFT, 
 v_ac = [xCoord_AFT(node3)-xCoord_AFT(node1), yCoord_AFT(node3)-yCoord_AFT(node1)];
 v_db = [xCoord_AFT(node2)-xCoord_AFT(node4), yCoord_AFT(node2)-yCoord_AFT(node4)];
 
-dd1 = sqrt( v_ac(1)^2 + v_ac(2)^2 );
-dd2 = sqrt( v_db(1)^2 + v_db(2)^2 );
+dd1 = sqrt( v_ac(1)^2 + v_ac(2)^2 ) + 1e-40;
+dd2 = sqrt( v_db(1)^2 + v_db(2)^2 ) + 1e-40;
 angle = acos( v_ac * v_db' / dd1 / dd2 );
 Area = 0.5 * dd1 * dd2 * sin(angle);
 h = sqrt(Area);
@@ -34,7 +34,7 @@ angle2 = acos( -v12 * v23' / ( d12 + 1e-40 ) / ( d23  + 1e-40 ) ) * 180 / pi;
 angle3 = acos( -v23 * v34' / ( d23 + 1e-40 ) / ( d34  + 1e-40 ) ) * 180 / pi;
 angle4 = acos( -v34 * v41' / ( d34 + 1e-40 ) / ( d41  + 1e-40 ) ) * 180 / pi;
 
-if ( abs( 360 - ( angle1 + angle2 + angle3 + angle4 ) )  > 0.1 )   %非凸四边形内角和不为360°
+if ( abs( 360 - ( angle1 + angle2 + angle3 + angle4 ) )  > 1e-5 )   %非凸四边形内角和不为360°
     quality = 0;
 else
     %     quality = 1.0 / ( ( 2.0 * dist13/dist12 - Sp ) +( 2.0 * dist24/dist12 - Sp ) + abs(v12 * v13') + abs(v12 * v24'));
