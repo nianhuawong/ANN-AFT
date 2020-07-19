@@ -54,12 +54,12 @@ while size(AFT_stack_sorted,1)>0
      
     size0 = size(AFT_stack_sorted,1);
     %% 
-%     if nCells_AFT > 252
+%     if nCells_AFT > 0
 %         kkk = 1;
-%         if node1_base == 1294 && node2_base == 1122 || node1_base == 1124 && node2_base == 1121|| ...
-%                 node1_base == 1294 && node2_base == 1295
-%             kkk = 1;
-%         end
+        if node1_base == 397 && node2_base == 398 || node1_base == 382 && node2_base == 397|| ...
+                node1_base == 398 && node2_base == 395
+            kkk = 1;
+        end
 % %         if row~=-1
 % %             kkk = 1;
 % %         end        

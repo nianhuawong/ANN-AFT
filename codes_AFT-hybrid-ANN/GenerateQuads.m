@@ -181,6 +181,18 @@ for ii = 1:2
                 if flagClose == 1
                     continue;
                 end
+                
+%                 flagClose2 = 0; flagClose3 = 0; flagClose4 = 0;
+%                 if ii == 1
+%                     flagClose2 = IsEdgeClose2Point([node1_base,node_test], xCoord_tmp, yCoord_tmp, node2_base);
+%                 elseif ii == 2 && node_select(1) ~= -1
+%                     flagClose3 = IsEdgeClose2Point([node2_base,node_test], xCoord_tmp, yCoord_tmp, node1_base);
+%                     flagClose4 = IsEdgeClose2Point([node_select(1),node_test], xCoord_tmp, yCoord_tmp, -1);
+%                 end
+%                 
+%                 if flagClose2 == 1 || flagClose3 == 1 || flagClose4 == 1
+%                     continue;
+%                 end
             end
 
             node_select(ii) = node_test;
