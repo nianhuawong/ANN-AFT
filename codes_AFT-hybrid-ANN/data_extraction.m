@@ -1,14 +1,14 @@
 clear;close all;tic;format long;
 %%
-global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri;
+global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
-Sp          = 1;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866
+Sp          = 1;        % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866，传统阵面推进才需要
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;   % 暂停时长
-stencilType = 'random';
-epsilon     = 0.4;     % 四边形网格质量要求, 值越大要求越低
+stencilType = 'random';  % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
+epsilon     = 0.4;       % 四边形网格质量要求, 值越大要求越低
 nn_fun      = @net_cylinder_quad3;  % nn_fun = @net_naca0012_quad;
 num_label   = 0;
 flag_label  = zeros(1,10000);
@@ -67,7 +67,7 @@ while size(AFT_stack_sorted,1)>0
        
     %% 优先生成四边形，如果生成的四边形质量太差，则重新生成三角形
     [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT,...
-        Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
+        Sp, coeff, al, node_best, Grid_stack, nn_fun);
             
     if  sum(node_select) ~= -2 
         xCoord_AFT = [xCoord_AFT;coordX];
@@ -79,12 +79,12 @@ while size(AFT_stack_sorted,1)>0
         
     elseif sum(node_select) == -2
         [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-            Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
+            Sp, coeff, al, node_best, Grid_stack, nn_fun);
         
         while node_select == -1 
             al = 2 * al;
             [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-                Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
+                Sp, coeff, al, node_best, Grid_stack, nn_fun);
         end
         
         if( flag_best == 1 )

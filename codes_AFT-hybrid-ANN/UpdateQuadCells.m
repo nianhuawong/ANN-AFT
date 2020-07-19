@@ -51,14 +51,12 @@ global epsilon cellNodeTopo;
     %新增点和阵面之后，除了基准阵面形成的单元，还有可能会自动构成多个单元，需要判断。
     %在已有阵面中查找自动构成的单元，判断方法为邻点的邻点 与邻点相邻，则构成封闭单元
     if(flag_best(1)== 0 || flag_best(2)== 0 )
-        neighbor1 =[];
 %         if( flag_best(1)== 0) %没有选择pbest，而是选择了现有点，有可能导致新增几个单元
             neighbor1 = NeighborNodes(node_select(1), AFT_stack_sorted,-1);%找出现有点的相邻点
             neighbor1 = [node1_base, neighbor1];
             neighbor1 = unique(neighbor1);
 %         end
         
-        neighbor2 =[];
 %         if( flag_best(2) == 0 ) %没有选择pbest，而是选择了现有点，有可能导致新增几个单元
             neighbor2 = NeighborNodes(node_select(2), AFT_stack_sorted,-1);%找出现有点的相邻点
             neighbor2 = [node2_base, neighbor2];

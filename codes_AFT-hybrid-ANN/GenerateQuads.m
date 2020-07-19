@@ -1,42 +1,34 @@
 function [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon)
-global cellNodeTopo;
-
+    Sp, coeff, al, node_best, Grid_stack, nn_fun )
+global cellNodeTopo stencilType epsilon;
 node_select = [-1,-1];
 flag_best   = [1 1];
-% [x_best_quad, y_best_quad] = ADD_POINT_quad(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
-[x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-                                                    Grid_stack, stencilType, epsilon );
 
-%%
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
+ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
+%%
+% [x_best_quad, y_best_quad] = ADD_POINT_quad(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
+[x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
+                                                    Grid_stack, stencilType, epsilon);
+                                                
+%     PLOT_CIRCLE(x_best_quad, y_best_quad, al, Sp, ds, node_best);
+%%
 %如果生成的2个点距离非常小，则认为是1个点，或者新点连线与阵面的夹角接近90°，生成三角形
 if  length(x_best_quad) == 1 && length(y_best_quad) == 1
     node_select = [-1,-1];
     coordX = -1;
     coordY = -1;
     return;
-end
-    
-% if nCells_AFT == 24
-%     kkk = 1;
-% end
+end    
 
 for ii = 1:2
     node_best = node_best + 1;      %新增最佳点Pbest的序号
     x_best = x_best_quad(ii);       %新增最佳点Pbest的坐标
     y_best = y_best_quad(ii);
     
-    %%
-    % 查询临近点
-%     node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
-%     node2_base = AFT_stack_sorted(1,2);
-    ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
-    
-%     PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
-    
+    %% 
     %在现有阵面中，查找临近点，作为候选点，与 新增点或基准阵面中点 的距离小于al*Sp*ds的点，要遍历除自己外的所有阵面
     nodeCandidate = node_best;     
     for i = 2:size(AFT_stack_sorted,1)
@@ -160,27 +152,23 @@ for ii = 1:2
                 continue;
             end
             
-            neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted, node2_base);
-            neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted, node1_base);
-            
-            neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
-            neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);
-            
-            flagSpecial = 0;
-            if( size(find(neighbor11==node_test),2) == 0 && ii == 1 )
-                flagSpecial = 1;
-            end
-            if( size(find(neighbor22==node_test),2) == 0 && ii == 2)
-                flagSpecial = 1;
-            end
-            if flagSpecial == 0
-                continue;
-            end
-            
-            %             flagSpecial_2 = 0;
-            %             if flagSpecial == 1
-            %
-            %             end
+%             neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted, node2_base);
+%             neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted, node1_base);
+%             
+%             neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
+%             neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);
+%             
+%             flagSpecial = 0;
+%             if( size(find(neighbor11==node_test),2) == 0 && ii == 1 )
+%                 flagSpecial = 1;
+%             end
+%             if( size(find(neighbor22==node_test),2) == 0 && ii == 2)
+%                 flagSpecial = 1;
+%             end
+%             if flagSpecial == 0
+%                 continue;
+%             end
+           
             flagInCell = IsPointInCell(cellNodeTopo, xCoord_tmp, yCoord_tmp, node_test);
             if flagInCell == 1
                 continue;
@@ -229,25 +217,6 @@ for ii = 1:2
             else
                 node_select(ii) = -1;           %如果相交，则要再次选择
             end
-%             if flagNotCross1 == 1 && flagNotCross2 == 1 && flagLeftCell == 1 && flagSpecial == 1 && flagInCell == 0
-%                 node_select(ii) = node_test;
-%                 
-%                 flagNotCross3 = 1;                                          %除判断新增点与基准阵面连线是否与现有阵面相交外，还需要判断新增的2个点S1 S2的连线是否与现有阵面相交
-%                 flagNotCross4 = 1;
-%                 if( node_select(2)~= -1 )
-%                     flagNotCross3 = IsNotCross(node_select(1), node2_base, node_select(2), ...
-%                         frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp, 1);
-%                     
-%                     flagNotCross4 = IsNotCross(node_select(1), node2_base, node_select(2), ...
-%                         faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp, 1);
-%                 end
-%                 
-%                 if flagNotCross3 == 1 &&  flagNotCross4 == 1             %如果不相交，则可以
-%                     break;
-%                 else
-%                     node_select(ii) = -1;           %如果相交，则要再次选择
-%                 end
-%             end
         end
         
         if node_select(ii) ~= -1

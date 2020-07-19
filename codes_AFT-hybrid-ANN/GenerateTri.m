@@ -1,19 +1,20 @@
 function [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon)
-global cellNodeTopo;
+    Sp, coeff, al, node_best, Grid_stack, nn_fun)
+global cellNodeTopo stencilType epsilon;
+node_select = -1;
+flag_best   = 1;
 
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
 ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
+%%
 % [x_best, y_best] = ADD_POINT_tri(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
 [x_best, y_best, ~] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon );
 x_best = x_best(1);
 y_best = y_best(1);
 
-%%
 node_best = node_best + 1;      %新增最佳点Pbest的序号
-
 % PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
 
 nodeCandidate = node_best;
@@ -26,12 +27,12 @@ for i = 2:size(AFT_stack_sorted,1)
     x_p2 = xCoord_AFT(node2);
     y_p2 = yCoord_AFT(node2);
     
-    %         if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
-    if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+    if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+%     if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
         nodeCandidate(end+1) = node1;
     end
-    %         if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
-    if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+    if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+%     if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
         nodeCandidate(end+1) = node2;
     end
 end
@@ -117,9 +118,7 @@ for i = 1 : length(nodeCandidate)
     %%     %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
     for j = 1:length(node_test_list)
         node_test = node_test_list(j);
-        %         if node_test == 81 && node1_base == 79 && node2_base == 86
-        %             kk = 1;
-        %         end
+
         flagNotCross1 = IsNotCross(node1_base, node2_base, node_test, frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp ,0);
         if flagNotCross1 == 0
             continue;
@@ -136,24 +135,19 @@ for i = 1 : length(nodeCandidate)
             continue;
         end
         
-        neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted, node2_base);
-        neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted, node1_base);
-        
-        neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
-        neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);
-        
-        flagSpecial = 0;
-        if( size(find(neighbor11==node_test),2) == 0 && size(find(neighbor22==node_test),2) == 0)
-            flagSpecial = 1;
-        end
-        %          if flagSpecial == 0
-        %             continue;
-        %         end
-        
-        %         if flagNotCross1 == 1 && flagNotCross2 == 1 && flagLeftCell == 1 && flagSpecial == 1
-        %             node_select = node_test;
-        %             break;
-        %         end
+%         neighbor1 = NeighborNodes(node1_base, AFT_stack_sorted, node2_base);
+%         neighbor2 = NeighborNodes(node2_base, AFT_stack_sorted, node1_base);
+%         
+%         neighbor11 = NeighborOfNeighborNodes(neighbor1, AFT_stack_sorted);
+%         neighbor22 = NeighborOfNeighborNodes(neighbor2, AFT_stack_sorted);
+%         
+%         flagSpecial = 0;
+%         if( size(find(neighbor11==node_test),2) == 0 && size(find(neighbor22==node_test),2) == 0)
+%             flagSpecial = 1;
+%         end
+%          if flagSpecial == 0
+%             continue;
+%         end
         
         flagInCell = IsPointInCell(cellNodeTopo, xCoord_tmp, yCoord_tmp, node_test);
         if flagInCell == 1
@@ -180,10 +174,6 @@ for i = 1 : length(nodeCandidate)
         
         node_select = node_test;
         break;
-%         if flagNotCross1 == 1 && flagNotCross2 == 1 && flagLeftCell == 1 && flagInCell == 0 && flagDiag == 0
-%             node_select = node_test;
-%             break;
-%         end
     end
     
     if node_select ~= -1
