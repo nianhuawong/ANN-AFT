@@ -10,7 +10,7 @@ coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;   % 暂停时长
 stencilType = 'random';
-epsilon     = 0.3;     % 四边形网格质量要求, 值越大要求越低
+epsilon     = 0.4;     % 四边形网格质量要求, 值越大要求越低
 nn_fun      = @net_cylinder_quad3;
 num_label   = 0;
 flag_label  = zeros(1,10000);
@@ -18,8 +18,8 @@ cellNodeTopo = [];
 % nn_fun = @net_naca0012_quad;
 %%
 % [AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad3.cas', gridType);
-[AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-40.cas', gridType);
-% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+% [AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-20.cas', gridType);
+[AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -56,11 +56,12 @@ while size(AFT_stack_sorted,1)>0
     %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
     size0 = size(AFT_stack_sorted,1);
     %% 
-    if nCells_AFT > 0
-%         kkk = 1;
+    if nCells_AFT > 252
+        kkk = 1;
         node1_base = AFT_stack_sorted(1,1);
         node2_base = AFT_stack_sorted(1,2);
-        if node1_base == 508 && node2_base == 525 || node1_base == 443 && node2_base == 525
+        if node1_base == 1294 && node2_base == 1122 || node1_base == 1124 && node2_base == 1121|| ...
+                node1_base == 1294 && node2_base == 1295
             kkk = 1;
         end
 % %         [direction, row] = FrontExist(2350,1913, AFT_stack_sorted);

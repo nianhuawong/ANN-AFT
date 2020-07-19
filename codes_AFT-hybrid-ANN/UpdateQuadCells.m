@@ -52,18 +52,18 @@ global epsilon;
     %在已有阵面中查找自动构成的单元，判断方法为邻点的邻点 与邻点相邻，则构成封闭单元
     if(flag_best(1)== 0 || flag_best(2)== 0 )
         neighbor1 =[];
-        if( flag_best(1)== 0) %没有选择pbest，而是选择了现有点，有可能导致新增几个单元
+%         if( flag_best(1)== 0) %没有选择pbest，而是选择了现有点，有可能导致新增几个单元
             neighbor1 = NeighborNodes(node_select(1), AFT_stack_sorted,-1);%找出现有点的相邻点
             neighbor1 = [node1_base, neighbor1];
             neighbor1 = unique(neighbor1);
-        end
+%         end
         
         neighbor2 =[];
-        if( flag_best(2) == 0 ) %没有选择pbest，而是选择了现有点，有可能导致新增几个单元
+%         if( flag_best(2) == 0 ) %没有选择pbest，而是选择了现有点，有可能导致新增几个单元
             neighbor2 = NeighborNodes(node_select(2), AFT_stack_sorted,-1);%找出现有点的相邻点
             neighbor2 = [node2_base, neighbor2];
             neighbor2 = unique(neighbor2);
-        end
+%         end
         %%
         % %邻点的邻点 和 邻点 中若是有互相相邻的，则形成新单元
         new_cell = [];
@@ -175,7 +175,9 @@ global epsilon;
                 jCell(jCell<0) = [];%
                 jCell = unique(jCell);  %                 
 %                     if( sum(unique(jCell) == unique(iCell)) == 4 )
-                    if( length(iCell) == length(jCell) && ( sum(jCell == iCell) == 4 || sum(jCell == iCell) == 3) )
+                    if( length(iCell) == length(jCell) && length(iCell) == 4 && ( sum(jCell == iCell) == 4 ) )
+                        new_cell(j,:)=-1;
+                    elseif ( length(iCell) == length(jCell) && length(iCell) == 3 && ( sum(jCell == iCell) == 3 ) )
                         new_cell(j,:)=-1;
                     end
             end
@@ -228,6 +230,18 @@ global epsilon;
                    new_cell(i,:)=-1;
                end
            end
+        end
+        II = new_cell(:,1) == -1;
+        new_cell(II,:)=[];
+        
+        %% 还要判断是否有点落在新单元内部
+        for i = 1 : size(new_cell,1)
+            iCell = new_cell(i,:);
+            
+            flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, xCoord_AFT);
+            if flagInCell == 1
+                new_cell(i,:)=-1;
+            end
         end
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];

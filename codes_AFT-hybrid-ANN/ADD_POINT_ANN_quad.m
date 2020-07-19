@@ -44,10 +44,10 @@ if strcmp(stencilType, 'all')
     x_new = [out_pointX1, out_pointX2];
     y_new = [out_pointY1, out_pointY2];
 else
-%     neighborNode1 = neighborNode1(1);
-%     neighborNode2 = neighborNode2(1);
-    neighborNode1 = neighborNode1(randi(length(neighborNode1),1,1));
-    neighborNode2 = neighborNode2(randi(length(neighborNode2),1,1));
+    neighborNode1 = neighborNode1(1);
+    neighborNode2 = neighborNode2(1);
+%     neighborNode1 = neighborNode1(randi(length(neighborNode1),1,1));
+%     neighborNode2 = neighborNode2(randi(length(neighborNode2),1,1));
     input_node = [neighborNode1, node1, node2, neighborNode2];
     
     % input = [xCoord(input_node); yCoord(input_node);wdist]';

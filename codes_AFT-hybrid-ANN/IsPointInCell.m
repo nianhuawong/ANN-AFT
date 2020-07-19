@@ -7,6 +7,8 @@ nCells = size(cellNodeTopo,1);
 for i = 1:nCells
     cell = cellNodeTopo(i,:);
     cell(cell==0) = [];
+    cell(cell==-11) = [];
+    cell(cell==-22) = [];
     
     if sum( node_test == cell ) ~= 0
         flagInCell = 0;
@@ -17,7 +19,13 @@ end
 for i = 1:nCells
     cell = cellNodeTopo(i,:);
     cell(cell==0) = []; 
-        
+    cell(cell==-11) = [];
+    cell(cell==-22) = [];
+    
+    if i == 1433
+        kkk = 1;
+    end
+    
     if length(cell)==3
         node1 = [xCoord(cell(1)),yCoord(cell(1))];
         node2 = [xCoord(cell(2)),yCoord(cell(2))];
