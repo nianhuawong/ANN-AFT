@@ -1,6 +1,4 @@
-clear;close all;
-tic
-format long
+clear;close all;tic;format long;
 %%
 global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
@@ -11,15 +9,15 @@ outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;   % 暂停时长
 stencilType = 'random';
 epsilon     = 0.4;     % 四边形网格质量要求, 值越大要求越低
-nn_fun      = @net_cylinder_quad3;
+nn_fun      = @net_cylinder_quad3;  % nn_fun = @net_naca0012_quad;
 num_label   = 0;
 flag_label  = zeros(1,10000);
 cellNodeTopo = [];
-% nn_fun = @net_naca0012_quad;
+
 %%
 % [AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad3.cas', gridType);
-% [AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-20.cas', gridType);
-[AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+[AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
+% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-coarse.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -51,6 +49,8 @@ AFT_stack_sorted = sortrows(AFT_stack, 5);
 %%
 while size(AFT_stack_sorted,1)>0
 %     Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid);
+    node1_base = AFT_stack_sorted(1,1);         
+    node2_base = AFT_stack_sorted(1,2);  
     
     %%
     %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
@@ -58,8 +58,6 @@ while size(AFT_stack_sorted,1)>0
     %% 
     if nCells_AFT > 252
         kkk = 1;
-        node1_base = AFT_stack_sorted(1,1);
-        node2_base = AFT_stack_sorted(1,2);
         if node1_base == 1294 && node2_base == 1122 || node1_base == 1124 && node2_base == 1121|| ...
                 node1_base == 1294 && node2_base == 1295
             kkk = 1;
@@ -81,9 +79,6 @@ while size(AFT_stack_sorted,1)>0
         
     xCoord_tmp = [xCoord_AFT;coordX];
     yCoord_tmp = [yCoord_AFT;coordY]; 
-    
-    node1_base = AFT_stack_sorted(1,1);         
-    node2_base = AFT_stack_sorted(1,2);
     flagConvexPoly = IsConvexPloygon(node1_base, node2_base, node_select(2), node_select(1), xCoord_tmp, yCoord_tmp);
     
     [~, row1] = FrontExist(node1_base,node_select(1), Grid_stack);    

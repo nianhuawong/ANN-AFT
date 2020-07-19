@@ -1,5 +1,5 @@
 function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, xCoord_AFT, yCoord_AFT, node_select, flag_best) 
-global epsilon;
+global epsilon cellNodeTopo;
 %%
     %阵面及左单元编号更新
     node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
@@ -64,8 +64,8 @@ global epsilon;
             neighbor2 = [node2_base, neighbor2];
             neighbor2 = unique(neighbor2);
 %         end
-        %%
-        % %邻点的邻点 和 邻点 中若是有互相相邻的，则形成新单元
+
+ %%邻点的邻点 和 邻点 中若是有互相相邻的，则形成新单元
         new_cell = [];
         for i = 1:length(neighbor1)
             neighborNode = neighbor1(i); %邻点
@@ -165,7 +165,7 @@ global epsilon;
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         
-        %%         去掉重复的单元
+%% 去掉重复的单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
             iCell(iCell<0) = [];%
@@ -186,39 +186,47 @@ global epsilon;
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         
-        %%         还要去掉已经有的单元
+%% 还要去掉已经有的单元
+%         for i = 1 : size(new_cell,1)
+%             iCell = new_cell(i,:);
+%             if(iCell(4)==-11)    %三角形
+%                 if(size(find(iCell==node1_base),2) && size(find(iCell==node2_base),2) ...
+%                         && size(find(iCell==node_select(1)),2) || ...
+%                         size(find(iCell==node1_base),2) && size(find(iCell==node_select(1)),2) ...
+%                         && size(find(iCell==node_select(2)),2) || ...
+%                         size(find(iCell==node2_base),2) && size(find(iCell==node_select(1)),2) ...
+%                         && size(find(iCell==node_select(2)),2) )
+%                     new_cell(i,:)=-1;
+%                 end
+%             elseif(iCell(4)==-22) %三角形
+%                 if(size(find(iCell==node1_base),2) && size(find(iCell==node2_base),2) ...
+%                         && size(find(iCell==node_select(2)),2) || ...
+%                         size(find(iCell==node1_base),2) && size(find(iCell==node_select(1)),2) ...
+%                         && size(find(iCell==node_select(2)),2) || ...
+%                         size(find(iCell==node2_base),2) && size(find(iCell==node_select(1)),2) ...
+%                         && size(find(iCell==node_select(2)),2) )
+%                     new_cell(i,:)=-1;
+%                 end
+%             else               %四边形
+%                 if(size(find(iCell==node1_base),2) && size(find(iCell==node2_base),2) ...
+%                         && size(find(iCell==node_select(1)),2)&& size(find(iCell==node_select(2)),2))
+%                     new_cell(i,:)=-1;
+%                 end
+%             end
+%         end
+        
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
-            if(iCell(4)==-11)    %三角形
-                if(size(find(iCell==node1_base),2) && size(find(iCell==node2_base),2) ...
-                        && size(find(iCell==node_select(1)),2) || ...
-                        size(find(iCell==node1_base),2) && size(find(iCell==node_select(1)),2) ...
-                        && size(find(iCell==node_select(2)),2) || ...
-                        size(find(iCell==node2_base),2) && size(find(iCell==node_select(1)),2) ...
-                        && size(find(iCell==node_select(2)),2) )
-                    new_cell(i,:)=-1;
-                end
-            elseif(iCell(4)==-22) %三角形
-                if(size(find(iCell==node1_base),2) && size(find(iCell==node2_base),2) ...
-                        && size(find(iCell==node_select(2)),2) || ...
-                        size(find(iCell==node1_base),2) && size(find(iCell==node_select(1)),2) ...
-                        && size(find(iCell==node_select(2)),2) || ...
-                        size(find(iCell==node2_base),2) && size(find(iCell==node_select(1)),2) ...
-                        && size(find(iCell==node_select(2)),2) )
-                    new_cell(i,:)=-1;
-                end
-            else               %四边形
-                if(size(find(iCell==node1_base),2) && size(find(iCell==node2_base),2) ...
-                        && size(find(iCell==node_select(1)),2)&& size(find(iCell==node_select(2)),2))
-                    new_cell(i,:)=-1;
-                end
+            [~, row] = CellExist(iCell(1), iCell(2), iCell(3), iCell(4), cellNodeTopo);
+            if row ~= -1
+                new_cell(i,:)=-1;
             end
-        end
+        end        
         
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         
-        %% 还要去掉质量不好的单元
+%% 还要去掉质量不好的单元
         for i = 1 : size(new_cell,1)
             node1 = new_cell(i,1);
             node2 = new_cell(i,2);
@@ -234,7 +242,7 @@ global epsilon;
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         
-        %% 还要判断是否有点落在新单元内部
+%% 还要判断是否有点落在新单元内部
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
             
@@ -246,14 +254,13 @@ global epsilon;
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
         
-        %%         将新单元加入数据结构
+%% 将新单元加入数据结构
         for i = 1:size(new_cell,1)
             nCells_AFT = nCells_AFT + 1;
             node1 = new_cell(i,1);
             node2 = new_cell(i,2);
             node3 = new_cell(i,3);
-            node4 = new_cell(i,4);
-            %%
+            node4 = new_cell(i,4);  
             if (node4 > 0)
                 if outGridType == 0
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
@@ -290,7 +297,4 @@ global epsilon;
   %%     
         end
     end
-
-    %%
-%     AFT_stack_updated = AFT_stack_sorted;
-    end
+end
