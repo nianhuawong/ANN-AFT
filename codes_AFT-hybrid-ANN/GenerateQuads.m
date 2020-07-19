@@ -271,6 +271,18 @@ end
 
 
 %%
+%选择的边不能在Grid_stack里存在，即不能为非活跃面
+[~, row1] = FrontExist(node1_base,node_select(1), Grid_stack);
+[~, row2] = FrontExist(node2_base,node_select(2), Grid_stack);
+[~, row3] = FrontExist(node_select(1),node_select(2), Grid_stack);
+if row1 ~= -1 || row2 ~= -1 || row3 ~= -1
+    node_select = [-1,-1];
+    coordX = -1;
+    coordY = -1;
+    return;
+end
+
+%如果选择了同一个点，不可以生成四边形
 if node_select(1) == node_select(2)
     node_select = [-1,-1];
     coordX = -1;
@@ -278,20 +290,23 @@ if node_select(1) == node_select(2)
     return;
 end
 
+%如果找不到合适的点，则无法生成四边形
+if sum(node_select==-1)>0   
+    node_select = [-1,-1];
+    coordX = -1;
+    coordY = -1;
+    return;
+end
+
 % 判断四边形质量，如果质量太差，就生成三角形单元
-if sum(node_select==-1)>0   %如果找不到合适的点，则无法生成四边形
+[quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(2), node_select(1), xCoord_AFT, yCoord_AFT, Sp);
+if abs( quality - 1.0 ) > epsilon
     node_select = [-1,-1];
     coordX = -1;
     coordY = -1;
 else
-    [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(2), node_select(1), xCoord_AFT, yCoord_AFT, Sp);
-    if abs( quality - 1.0 ) > epsilon
-        node_select = [-1,-1];
-        coordX = -1;
-        coordY = -1;
-    else
-        coordX = xCoord_AFT(end-sum(flag_best)+1:end);
-        coordY = yCoord_AFT(end-sum(flag_best)+1:end);
-    end
+    coordX = xCoord_AFT(end-sum(flag_best)+1:end);
+    coordY = yCoord_AFT(end-sum(flag_best)+1:end);
 end
+
 end

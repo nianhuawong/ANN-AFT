@@ -44,8 +44,6 @@ end
 %%
 
 AFT_stack_sorted = sortrows(AFT_stack, 5);
-% AFT_stack_sorted = AFT_stack_sorted(end:-1:1,:);
-% AFT_stack_sorted = sortrows(AFT_stack, 5, 'descend');
 %%
 while size(AFT_stack_sorted,1)>0
 %     Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid);
@@ -53,35 +51,25 @@ while size(AFT_stack_sorted,1)>0
     node2_base = AFT_stack_sorted(1,2);  
     
     %%
-    %优先生成四边形，如果生成的四边形质量太差，则重新生成三角形 
+     
     size0 = size(AFT_stack_sorted,1);
     %% 
-    if nCells_AFT > 252
-        kkk = 1;
-        if node1_base == 1294 && node2_base == 1122 || node1_base == 1124 && node2_base == 1121|| ...
-                node1_base == 1294 && node2_base == 1295
-            kkk = 1;
-        end
-% %         [direction, row] = FrontExist(2350,1913, AFT_stack_sorted);
-%         if row~=-1
+%     if nCells_AFT > 252
+%         kkk = 1;
+%         if node1_base == 1294 && node2_base == 1122 || node1_base == 1124 && node2_base == 1121|| ...
+%                 node1_base == 1294 && node2_base == 1295
 %             kkk = 1;
 %         end
-%         
-%          if row==-1
-%             kkk = 1;
-%         end       
-    end
-        
-%     cellNodeTopo = CellTopology(Grid_stack, AFT_stack_sorted, nCells_AFT);
-    %%
+% %         if row~=-1
+% %             kkk = 1;
+% %         end        
+%     end
+       
+    %% 优先生成四边形，如果生成的四边形质量太差，则重新生成三角形
     [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT,...
         Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
             
-    [~, row1] = FrontExist(node1_base,node_select(1), Grid_stack);    
-    [~, row2] = FrontExist(node2_base,node_select(2), Grid_stack);
-    [~, row3] = FrontExist(node_select(1),node_select(2), Grid_stack);
-
-    if ( sum(node_select) ~= -2 ) && row1 == -1 && row2 == -1 && row3 == -1
+    if  sum(node_select) ~= -2 
         xCoord_AFT = [xCoord_AFT;coordX];
         yCoord_AFT = [yCoord_AFT;coordY];
         node_best = node_best + sum(flag_best);       
@@ -89,7 +77,7 @@ while size(AFT_stack_sorted,1)>0
         [AFT_stack_sorted,nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, ...
             xCoord_AFT, yCoord_AFT, node_select, flag_best);       
         
-    elseif sum(node_select) == -2 || row1 ~= -1 || row2 ~= -1 || row3 ~= -1     
+    elseif sum(node_select) == -2
         [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
             Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, epsilon);
         
@@ -129,8 +117,6 @@ while size(AFT_stack_sorted,1)>0
     [AFT_stack_sorted, Grid_stack] = DeleteInactiveFront(AFT_stack_sorted, Grid_stack);
 
     AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
-%     AFT_stack_sorted = AFT_stack_sorted(end:-1:1,:);
-    % AFT_stack_sorted = sortrows(AFT_stack, 5, 'descend');
 end
 disp(['阵面推进完成，单元数：', num2str(nCells_AFT)]);
 disp(['阵面推进完成，quad单元数：', num2str(nCells_quad)]);
