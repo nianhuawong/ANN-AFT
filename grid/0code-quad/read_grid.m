@@ -1,4 +1,4 @@
-function [AFT_stack, Coord, Grid_stack] = read_grid(fileName, gridType)
+function [AFT_stack, Coord, Grid_stack, wallNodes] = read_grid(fileName, gridType)
 grid = importfile1(fileName);
 %%
 %读入基本信息
@@ -51,6 +51,7 @@ for j = length(facePos) : -1 : 2
 end
 %%
 % 全局网格显示
+wallNodes = [];
 Grid_stack = zeros(nFaces,7);
 for i = 1:nFaces
     Grid_stack(i,1) = node1(i,1);
@@ -60,7 +61,11 @@ for i = 1:nFaces
     Grid_stack(i,5) = DISTANCE(Grid_stack(i,1), Grid_stack(i,2), xCoord, yCoord);
     Grid_stack(i,6) = i;
     Grid_stack(i,7) = bcType(i);
+    if bcType(i) == 3
+        wallNodes(end+1:end+2) = [Grid_stack(i,1),Grid_stack(i,2)];
+    end
 end
+wallNodes = unique(wallNodes);
 % PLOT(Grid_stack, xCoord, yCoord);
 % hold off
 %%

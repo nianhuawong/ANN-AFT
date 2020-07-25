@@ -1,6 +1,6 @@
 function [input,target] = data_extraction_fun(gridName, gridType, fileName, stencilType, targetType, mode, perturb)
 
-[~, Coord, Grid_stack] = read_grid(gridName, gridType);
+[~, Coord, Grid_stack, wallNodes] = read_grid(gridName, gridType);
 
 xCoord = Coord(:,1);
 yCoord = Coord(:,2);
@@ -100,6 +100,10 @@ end
 
 %%
 PLOT(Grid_stack, xCoord, yCoord)
+axis off
+% axis([-0.7 0.7 -0.5 0.5])
+DelaunayMesh(xCoord,yCoord,wallNodes);
+%%
 % hold on;
 % PlotStencil(nFaces,stencilPoint,targetPoint)
 if perturb == 1
