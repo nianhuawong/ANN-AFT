@@ -1,20 +1,10 @@
 function AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, node1, node2, node3, nCells_AFT , xCoord_AFT, yCoord_AFT)
+global cellNodeTopo;
+cellNodeTopo(end+1,:) = [node1, node2, node3];
 
 dist12 = DISTANCE(node1, node2, xCoord_AFT, yCoord_AFT);
 dist13 = DISTANCE(node1, node3, xCoord_AFT, yCoord_AFT);
 dist23 = DISTANCE(node2, node3, xCoord_AFT, yCoord_AFT);
-%%
-[Ymin, Imin] = min([dist12, dist13, dist23]);
-Ymean = mean([dist12, dist13, dist23]);
-if( Ymean / Ymin > 1e1 )
-    if(Imin==1)
-        dist12 = 1e3 * dist12;
-    elseif Imin == 2
-        dist13 = 1e3 * dist13;
-    elseif Imin == 3 
-        dist23 = 1e3 * dist23;
-    end
-end
 %%
 flag1 = IsLeftCell(node1, node2, node3, xCoord_AFT, yCoord_AFT);
 [direction, row] = FrontExist(node1,node2, AFT_stack_sorted);    

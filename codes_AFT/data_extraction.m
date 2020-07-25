@@ -1,20 +1,26 @@
-clear;clc;close all;
-tic
-format long
+clear;clc;close all;tic;format long;
 %%
+global num_label flag_label cellNodeTopo epsilon;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1.0;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866         
 al          = 3.0;      % 在几倍范围内搜索
-coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
+coeff       = 0.85;      % 尽量选择现有点的参数，Pbest质量参数的系数
+epsilon     = 0.9;
 dt          = 0.00001;   % 暂停时长
-stencilType = 'random';
+stencilType = 'all';
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
-nn_fun = @net_naca0012_quadBC;
+nn_fun = @net_airfoil_quadBC; %net_naca0012_quadBC_c
+num_label   = 0;
+flag_label  = zeros(1,10000);
+cellNodeTopo = [];
 %%
-[AFT_stack,Coord,~]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-40.cas', gridType);
-% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
-% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri.cas', gridType);
-%
+% [AFT_stack,Coord,~, wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
+% [AFT_stack,Coord,~, wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
+% [AFT_stack,Coord,~, wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
+% [AFT_stack,Coord,~, wallNodes]  = read_grid('../grid/simple/quad_quad2.cas', gridType);
+% [AFT_stack,Coord,~, wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+[AFT_stack,Coord,~, wallNodes]  = read_grid('../grid/RAE2822/rae2822.cas', gridType);
+% [AFT_stack,Coord,~]  = read_grid('../grid/ANW/anw.cas', gridType);
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
 xCoord_AFT = Coord(1:node_num,1);                %初始阵面点坐标
@@ -30,14 +36,12 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 
 %%  先将边界阵面推进
 for i =1:size(AFT_stack,1)
-%     if AFT_stack(i,7) == 3
-        AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
-    %     AFT_stack(i,5) = 1e5* AFT_stack(i,5);
-%     end
+    if AFT_stack(i,7) == 3      
+         AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
+    end
 end
+
 AFT_stack_sorted = sortrows(AFT_stack, 5); 
-% AFT_stack_sorted = AFT_stack;
-% AFT_stack_sorted = sortrows(AFT_stack, 5,'descend');
 
 while size(AFT_stack_sorted,1)>0
     
@@ -64,7 +68,6 @@ while size(AFT_stack_sorted,1)>0
     size1 = size(AFT_stack_sorted,1);
     PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, size1-size0, flag_best);
     pause(dt);
-    hold on;
     
     interval = 100;
     if(mod(nCells_AFT,interval)==0)
@@ -73,38 +76,22 @@ while size(AFT_stack_sorted,1)>0
         disp(['nCells = ', num2str(nCells_AFT)]);
         disp(['阵面实时长度：', num2str(size(AFT_stack_sorted,1))]);
         disp(['新增阵面数：',num2str(size1-size0)]);
+        toc;
     end
   %%  
   %找出非活跃阵面，并删除
-  for i = 1: size(AFT_stack_sorted,1)
-      if((AFT_stack_sorted(i,3) ~= -1) && (AFT_stack_sorted(i,4) ~= -1))  %左单元和右单元编号均不为-1
-          Grid_stack(iFace,:) = AFT_stack_sorted(i,:);
-          iFace = iFace + 1;
-          AFT_stack_sorted(i,:)=-1;
-      end
-  end
-  
-  AFT_stack_sorted( AFT_stack_sorted(:,1) == -1, : ) = [];
-    
+    [AFT_stack_sorted, Grid_stack] = DeleteInactiveFront(AFT_stack_sorted, Grid_stack);
 
-  AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
-  %         AFT_stack_sorted = sortrows(AFT_stack_sorted, 5, 'descend');
-  
-  if(node_select == -1)
-      %%未找到node_select的情况，应该比较少见
-      disp('未找到node_select的情况...,无法推进，请检查！');
-      node_best = node_best - 1;
-      
-      tmp = AFT_stack_sorted(1,:);
-      AFT_stack_sorted(1,:) = AFT_stack_sorted(2,:);
-      AFT_stack_sorted(2,:) = tmp;
-  end
+    AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
 end
-
 disp(['阵面推进完成，单元数：', num2str(nCells_AFT)]);
 disp(['阵面推进完成，节点数：', num2str(length(xCoord_AFT))]);
 disp(['阵面推进完成，面个数：', num2str(size(Grid_stack,1))]);
+toc;
+%%
+DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
 toc
+
     
     
 

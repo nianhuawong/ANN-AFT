@@ -34,6 +34,7 @@ if strcmp(stencilType, 'all')
     
     out_pointX = sum(new_point(:,1)) / size(new_point,1);
     out_pointY = sum(new_point(:,2)) / size(new_point,1);
+    Sp = sum(new_point(:,3)) / size(new_point,1);
     
     x_new = out_pointX;
     y_new = out_pointY;
@@ -59,13 +60,13 @@ normal(2) =  ( xCoord(node2) - xCoord(node1) ) / ds;
 v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
 h = abs( v_ac * normal' );
 
-% if h / Sp < 0.5
 Sp = max([h,Sp]);
+% Sp = 0.5 * ( Sp + h );
     v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;
     v_ad = ( v_ac * v_ab' ) .* v_ab;
     v_de = Sp .* normal;
     pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
     x_new = pointE(1);
     y_new = pointE(2);
-% end
+end
 

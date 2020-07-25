@@ -1,4 +1,5 @@
 function  [AFT_stack_sorted, nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best)
+global epsilon;
 %阵面及左单元编号更新
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
@@ -52,7 +53,7 @@ if flag_best == 0
         end
     end
     
-    II = find(new_cell(:,1) == -1);
+    II = new_cell(:,1) == -1;
     new_cell(II,:)=[];
     
     %还要去掉已经有的单元
@@ -63,7 +64,21 @@ if flag_best == 0
         end
     end
     
-    II = find(new_cell(:,1) == -1);
+    II = new_cell(:,1) == -1;
+    new_cell(II,:)=[];
+    
+    %还要去掉质量不好的单元
+    for i = 1 : size(new_cell,1)
+        node1 = new_cell(i,1);
+        node2 = new_cell(i,2);
+        node3 = new_cell(i,3);
+        
+        [quality,~] = QualityCheckTri(node1, node2, node3, xCoord_AFT, yCoord_AFT, -1);
+        if abs( 1.5-quality ) > epsilon
+            new_cell(i,:)=-1;
+        end
+    end
+    II = new_cell(:,1) == -1;
     new_cell(II,:)=[];
     
     %将新单元加入数据结构
