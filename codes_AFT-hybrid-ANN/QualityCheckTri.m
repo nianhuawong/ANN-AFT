@@ -15,8 +15,8 @@ v_13 = [xCoord_AFT(node3)-xCoord_AFT(node1), yCoord_AFT(node3)-yCoord_AFT(node1)
 normal = normal_vector(node1, node2, xCoord_AFT, xCoord_AFT); 
 h = abs( v_13 * normal' );
 
-if Sp > 0 
+% if Sp > 0 
     h = max([h,Sp]); 
-end
+% end
 
 end

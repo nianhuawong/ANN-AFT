@@ -14,18 +14,19 @@ for i = 1:num
     xx = [xCoord(node1),xCoord(node2)];
     yy = [yCoord(node1),yCoord(node2)];
 
-    plot( xx, yy, '-b');
+    plot( xx, yy, '-r');
     hold on;
     
     if flag_label(node1) == 0 && num_label == 1
-        text(xCoord(node1)+0.05*dist,yCoord(node1),num2str(node1), 'Color', 'red', 'FontSize', 7)
+        text(xCoord(node1)+0.05*dist,yCoord(node1),num2str(node1), 'Color', 'red', 'FontSize', 9)
         flag_label(node1) = 1;
     end
     if flag_label(node2) == 0 && num_label == 1
-        text(xCoord(node2)+0.05*dist,yCoord(node2),num2str(node2), 'Color', 'red', 'FontSize', 7)
+        text(xCoord(node2)+0.05*dist,yCoord(node2),num2str(node2), 'Color', 'red', 'FontSize', 9)
         flag_label(node2) = 1;
     end
 end
 % axis equal
+axis off;
 
     

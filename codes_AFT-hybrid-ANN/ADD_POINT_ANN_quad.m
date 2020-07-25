@@ -40,6 +40,7 @@ if strcmp(stencilType, 'all')
     out_pointX2 = sum(new_point(:,2)) / size(new_point,1);
     out_pointY1 = sum(new_point(:,3)) / size(new_point,1);
     out_pointY2 = sum(new_point(:,4)) / size(new_point,1);
+    Sp = sum(new_point(:,5)) / size(new_point,1);
     
     x_new = [out_pointX1, out_pointX2];
     y_new = [out_pointY1, out_pointY2];
@@ -99,13 +100,13 @@ end
     
 if abs( quality - 1.0 ) > epsilon          
     %%
-    v_base = [xCoord(node2)-xCoord(node1), yCoord(node2)-yCoord(node1)];
-    v_newpoint = [x_new(2)-x_new(1), y_new(2)-y_new(1)];
-    
-    dd1 = sqrt( v_base(1)^2 + v_base(2)^2 );
-    dd2 = sqrt( v_newpoint(1)^2 + v_newpoint(2)^2 );
-    angle = acos( v_base * v_newpoint'/ dd1 / dd2 );
-    angle = angle / pi * 180;
+%     v_base = [xCoord(node2)-xCoord(node1), yCoord(node2)-yCoord(node1)];
+%     v_newpoint = [x_new(2)-x_new(1), y_new(2)-y_new(1)];
+%     
+%     dd1 = sqrt( v_base(1)^2 + v_base(2)^2 );
+%     dd2 = sqrt( v_newpoint(1)^2 + v_newpoint(2)^2 );
+%     angle = acos( v_base * v_newpoint'/ dd1 / dd2 );
+%     angle = angle / pi * 180;
     
 %     if  dd2 / dd1 < 0.2 || abs( ( abs(angle) - 90 ) ) < 30 || abs(h-Sp)/h > 0.2
         x_new = 0.5 * ( x_new(1) + x_new(2) );
@@ -116,8 +117,9 @@ if abs( quality - 1.0 ) > epsilon
         
         v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
         h = abs( v_ac * normal' );
-        
+
         Sp = max([h,Sp]);
+%         Sp = h;
         
         v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;
         v_ad = ( v_ac * v_ab' ) .* v_ab;

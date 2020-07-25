@@ -1,5 +1,5 @@
 function  [AFT_stack_sorted, nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best)
-global epsilon cellNodeTopo;
+global epsilon cellNodeTopo outGridType;
 %阵面及左单元编号更新
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
@@ -11,7 +11,6 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
 %新增点和阵面之后，除了基准阵面形成的单元，还有可能会自动构成多个单元，需要判断。
 %在已有阵面中查找自动构成的单元，判断方法为邻点的邻点如果相邻，则构成封闭单元
 %新增点的邻点
-% if(node_select ~= node_best)
 % if flag_best == 0
 %     neighbor = [node1_base, node2_base];
 %     for i = 1: size(AFT_stack_sorted,1)
@@ -160,7 +159,26 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
         end      
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
-        
+%% 去掉重复的单元 可能会重复考虑四边形和三角形
+        for i = 1 : size(new_cell,1)
+            iCell = new_cell(i,:);
+            for j = i+1:size(new_cell,1)
+                jCell = new_cell(j,:);
+                tmp = intersect(iCell,jCell);
+                tmp( tmp< 0 ) = [];
+                if length(tmp)==3
+                    iCell(iCell<0)=[];
+                    jCell(jCell<0)=[];
+                    if length(iCell) == 4
+                        new_cell(i,:)=-1;
+                    elseif length(jCell) == 4
+                        new_cell(j,:)=-1;
+                    end
+                end
+            end
+        end
+        II = new_cell(:,1) == -1;
+        new_cell(II,:)=[];        
 %% 还要去掉已经有的单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
@@ -192,12 +210,12 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
         end
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
-        
+
 %% 还要判断是否有点落在新单元内部
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
             
-            flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, xCoord_AFT);
+            flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, yCoord_AFT);
             if flagInCell == 1
                 new_cell(i,:)=-1;
             end

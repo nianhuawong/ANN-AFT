@@ -9,8 +9,12 @@ angle = acos( v_ac * v_db' / dd1 / dd2 );
 Area = 0.5 * dd1 * dd2 * sin(angle);
 h = sqrt(Area);
 
-if Sp > 0 
+% if Sp > 0 
     h = max([h,Sp]); 
+% end
+
+if Sp < 0 
+    Sp = h;
 end
 
 dist12  = DISTANCE(node1, node2, xCoord_AFT, yCoord_AFT);
@@ -35,14 +39,23 @@ angle4 = acos( -v34 * v41' / ( d34 + 1e-40 ) / ( d41  + 1e-40 ) ) * 180 / pi;
 
 if ( abs( 360 - ( angle1 + angle2 + angle3 + angle4 ) )  > 1e-5 )   %非凸四边形内角和不为360°
     quality = 0;
-else
-    %     quality = 1.0 / ( ( 2.0 * dist13/dist12 - Sp ) +( 2.0 * dist24/dist12 - Sp ) + abs(v12 * v13') + abs(v12 * v24'));
-    %
-    %     quality = Sp * quality / 0.5;
+else  
+%     quality = dist41 * sin(angle1/180*pi) / Sp + dist23 * sin(angle2/180*pi) / Sp + d34 / d12;    
+%     quality = quality / 3.0;
     
-    quality = dist41 * sin(angle1/180*pi) / Sp + dist23 * sin(angle2/180*pi) / Sp + d34 / d12;
-    quality = quality / 3.0;
-end
+%     quality = abs( d41/d12 - Sp ) + abs( d12/d41 - Sp ) + ...
+%               abs( d23/d12 - Sp ) + abs( d12/d23 - Sp ) + ...
+%               abs( acos( abs(v12 * v41') / d12 / d41 ) - pi / 2.0 ) + ...
+%               abs( acos( abs(v12 * v23') / d12 / d23 ) - pi / 2.0 ) + ...
+%               (d34 / d12 + d12 / d34 - 2.0);
+%     quality = 1.0 / quality
 
+    quality = dist41 * sin(angle1/180*pi) / Sp + dist23 * sin(angle2/180*pi) / Sp + ...
+              abs( acos( abs(v12 * v41') / d12 / d41 ) / pi / 2.0 ) + ...
+              abs( acos( abs(v12 * v23') / d12 / d23 ) / pi / 2.0 ) + ...
+              d34 / d12;
+    quality = quality / 5.0;    
+          
+end
 
 end

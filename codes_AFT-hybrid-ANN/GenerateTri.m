@@ -10,9 +10,14 @@ ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
 %%
 % [x_best, y_best] = ADD_POINT_tri(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
-[x_best, y_best, ~] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon );
-x_best = x_best(1);
-y_best = y_best(1);
+[x_best_ann, y_best_ann, ~] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon );
+if length(x_best_ann) == 2
+    x_best = 0.5 * ( x_best_ann(1) + x_best_ann(2) );
+    y_best = 0.5 * ( y_best_ann(1) + y_best_ann(2) );
+elseif length(x_best_ann) == 1
+  x_best =  x_best_ann;
+  y_best =  y_best_ann;
+end
 
 node_best = node_best + 1;      %新增最佳点Pbest的序号
 % PLOT_CIRCLE(x_best, y_best, al, Sp, ds, node_best);
@@ -78,10 +83,12 @@ for i = 2:size(Grid_stack,1)
     x_p2 = xCoord_AFT(node2);
     y_p2 = yCoord_AFT(node2);
     
-    if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+%     if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+    if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
         nodeCandidate2(end+1) = node1;
     end
-    if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+%     if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+    if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
         nodeCandidate2(end+1) = node2;
     end
 end
@@ -111,7 +118,8 @@ for i = 1 : length(nodeCandidate)
     for j = 1:length(node_test_list)
         node_test = node_test_list(j);
 
-        flagNotCross1 = IsNotCross(node1_base, node2_base, node_test, frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp ,0);
+        flagNotCross1 = IsNotCross(node1_base, node2_base, node_test, ...
+            frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp ,0);
         if flagNotCross1 == 0
             continue;
         end
@@ -150,11 +158,16 @@ for i = 1 : length(nodeCandidate)
 %             end            
         end
         
-        cellNodeTopo_Tmp = [node1_base, node2_base, node_test];
-        flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);
-        if flagInCell2 == 1
-            continue;
-        end
+%         cellNodeTopo_Tmp = [node1_base, node2_base, node_test];
+%         if node_test == node_best
+%             flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);
+%         else
+%             flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_AFT, yCoord_AFT);
+%         end
+% 
+%         if flagInCell2 == 1
+%             continue;
+%         end
         
         node_select = node_test;
         break;

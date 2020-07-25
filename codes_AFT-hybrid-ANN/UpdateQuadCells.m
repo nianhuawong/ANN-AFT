@@ -1,5 +1,5 @@
-function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, xCoord_AFT, yCoord_AFT, node_select, flag_best) 
-global epsilon cellNodeTopo;
+function [AFT_stack_sorted, nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best) 
+global epsilon cellNodeTopo outGridType;
 %%
     %阵面及左单元编号更新
     node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
@@ -183,7 +183,26 @@ global epsilon cellNodeTopo;
         
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
-        
+%% 去掉重复的单元 可能会重复考虑四边形和三角形
+        for i = 1 : size(new_cell,1)
+            iCell = new_cell(i,:);
+            for j = i+1:size(new_cell,1)
+                jCell = new_cell(j,:);
+                tmp = intersect(iCell,jCell);
+                tmp( tmp< 0 ) = [];
+                if length(tmp)==3
+                    iCell(iCell<0)=[];
+                    jCell(jCell<0)=[];
+                    if length(iCell) == 4
+                        new_cell(i,:)=-1;
+                    elseif length(jCell) == 4
+                        new_cell(j,:)=-1;
+                    end
+                end
+            end
+        end
+        II = new_cell(:,1) == -1;
+        new_cell(II,:)=[];         
 %% 还要去掉已经有的单元
 %         for i = 1 : size(new_cell,1)
 %             iCell = new_cell(i,:);
@@ -249,7 +268,7 @@ global epsilon cellNodeTopo;
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
             
-            flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, xCoord_AFT);
+            flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, yCoord_AFT);
             if flagInCell == 1
                 new_cell(i,:)=-1;
             end

@@ -73,6 +73,19 @@ for ii = 1:2
        % Qp(i) = 1.0 / ( ( 2.0 * b/a - Sp ) + abs(v_base * v_new' ) );   %四边形网格的质量参数新增边长度最好等于基准阵面，新增边与基准阵面的夹角最好接近90°
 %         Qp(i) = 1.0 / ( abs( b/a - Sp ) + abs( a/b - Sp ) );
         Qp(i) = 1.0 / ( abs( b/a - Sp ) + abs( a/b - Sp ) + abs( acos( abs(v_base * v_new') / a / b ) - pi / 2.0 )  ); 
+%====================================================
+%         if ii == 1
+%             b1 = [xCoord_tmp(node1_base),yCoord_tmp(node1_base)];
+%             b2 = [xCoord_tmp(node2_base),yCoord_tmp(node2_base)];
+%             c1 = [xCoord_tmp(node3),yCoord_tmp(node3)];
+%             c2 = c1 + b2 - b1;
+%             node4 = length(xCoord_tmp) + 1;
+%             [quality, ~] = QualityCheckQuad(node1_base, node2_base, node4, node3, [xCoord_tmp; c2(1)], [yCoord_tmp; c2(2)], Sp);
+%         elseif ii == 2
+%             [quality, ~] = QualityCheckQuad(node1_base, node2_base, node3, node_select(1), xCoord_tmp, yCoord_tmp, Sp);
+%         end
+%         Qp(i) = 1.0 / (1.0-quality);           
+%====================================================   
         if( node3 == node_best )            %为了尽量选择现有阵面上的点，将Pbest的质量降低一点
             Qp(i) = coeff * Qp(i);
         end
@@ -104,10 +117,12 @@ for ii = 1:2
         x_p2 = xCoord_AFT(node2);
         y_p2 = yCoord_AFT(node2);
         
-        if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+%         if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+        if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
             nodeCandidate2(end+1) = node1;
         end
-        if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+%         if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+        if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
             nodeCandidate2(end+1) = node2;
         end
     end
@@ -157,15 +172,20 @@ for ii = 1:2
                 continue;
             end  
             
-            if ii == 2 && node_select(1) ~= -1           
-                new_cell = [node1_base, node2_base, node_test, node_select(1)];
-%                 cellNodeTopo_Tmp = [cellNodeTopo;new_cell];
-                cellNodeTopo_Tmp = new_cell;
-                flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);                
-                if flagInCell2 == 1
-                    continue;
-                end
-            end
+%             if ii == 2 && node_select(1) ~= -1           
+%                 new_cell = [node1_base, node2_base, node_test, node_select(1)];
+% %                 cellNodeTopo_Tmp = [cellNodeTopo;new_cell];
+%                 cellNodeTopo_Tmp = new_cell;
+%                 if node_test == node_best
+%                     flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_tmp, yCoord_tmp);  
+%                 else
+%                     flagInCell2 = IsAnyPointInCell(cellNodeTopo_Tmp, xCoord_AFT, yCoord_AFT);  
+%                 end                                  
+%                               
+%                 if flagInCell2 == 1
+%                     continue;
+%                 end
+%             end
             
             if ii == 1
                 flagDiag   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_test);

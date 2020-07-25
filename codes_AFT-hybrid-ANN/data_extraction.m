@@ -1,6 +1,6 @@
 clear;close all;tic;format long;
 %%
-global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType;
+global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType outGridType;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1;        % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866，传统阵面推进才需要
 al          = 3.0;      % 在几倍范围内搜索
@@ -8,16 +8,20 @@ coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;   % 暂停时长
 stencilType = 'random';  % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
-epsilon     = 0.4;       % 四边形网格质量要求, 值越大要求越低
-nn_fun      = @net_cylinder_quad3;  % nn_fun = @net_naca0012_quad;
+epsilon     = 0.5;       % 四边形网格质量要求, 值越大要求越低
+nn_fun      = @net_airfoil_hybrid;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
 num_label   = 0;
 flag_label  = zeros(1,10000);
 cellNodeTopo = [];
-
 %%
-% [AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad3.cas', gridType);
-[AFT_stack,Coord,Grid]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
-% [AFT_stack,Coord,~]  = read_grid('../grid/naca0012/tri/naca0012-tri-coarse.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/quad_quad3.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad-c.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/RAE2822/rae2822.cas', gridType);
+[AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/ANW/anw.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -54,16 +58,17 @@ while size(AFT_stack_sorted,1)>0
      
     size0 = size(AFT_stack_sorted,1);
     %% 
-%     if nCells_AFT > 0
-%         kkk = 1;
-        if node1_base == 397 && node2_base == 398 || node1_base == 382 && node2_base == 397|| ...
+    if nCells_AFT >= -10
+        if node1_base == 168 && node2_base == 111 || node1_base == 1955 && node2_base == 1954|| ...
                 node1_base == 398 && node2_base == 395
             kkk = 1;
         end
+        PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+        kkk = 1;
 % %         if row~=-1
 % %             kkk = 1;
 % %         end        
-%     end
+    end
        
     %% 优先生成四边形，如果生成的四边形质量太差，则重新生成三角形
     [node_select,coordX, coordY, flag_best] = GenerateQuads(AFT_stack_sorted, xCoord_AFT, yCoord_AFT,...
@@ -74,7 +79,7 @@ while size(AFT_stack_sorted,1)>0
         yCoord_AFT = [yCoord_AFT;coordY];
         node_best = node_best + sum(flag_best);       
        
-        [AFT_stack_sorted,nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, outGridType, ...
+        [AFT_stack_sorted,nCells_AFT] = UpdateQuadCells(AFT_stack_sorted, nCells_AFT, ...
             xCoord_AFT, yCoord_AFT, node_select, flag_best);       
         
     elseif sum(node_select) == -2
@@ -111,6 +116,7 @@ while size(AFT_stack_sorted,1)>0
         disp(['nCells_tri  = ', num2str(nCells_tri)]);
         disp(['阵面实时长度：', num2str(size(AFT_stack_sorted,1))]);
         disp(['新增阵面数：',num2str(size1-size0)]);
+        toc;
     end
     %%
     %找出非活跃阵面，并删除
@@ -123,6 +129,9 @@ disp(['阵面推进完成，quad单元数：', num2str(nCells_quad)]);
 disp(['阵面推进完成，tri单元数：', num2str(nCells_tri)]);
 disp(['阵面推进完成，节点数：', num2str(length(xCoord_AFT))]);
 disp(['阵面推进完成，面个数：', num2str(size(Grid_stack,1))]);
+toc
+%%
+DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
 toc
 
 
