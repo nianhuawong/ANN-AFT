@@ -42,8 +42,8 @@ if strcmp(stencilType, 'all')
     out_pointY2 = sum(new_point(:,4)) / size(new_point,1);
     Sp = sum(new_point(:,5)) / size(new_point,1);
     
-    x_new = [out_pointX1, out_pointX2];
-    y_new = [out_pointY1, out_pointY2];
+    x_new = [out_pointX1;out_pointX2];
+    y_new = [out_pointY1;out_pointY2];
 else
     neighborNode1 = neighborNode1(1);
     neighborNode2 = neighborNode2(1);
@@ -57,8 +57,8 @@ else
     new_point = nn_fun(input);
 %     x_new = new_point(1);
 %     y_new = new_point(2); 
-    x_new = new_point(1:2);
-    y_new = new_point(3:4); 
+    x_new = new_point(1:2)';
+    y_new = new_point(3:4)'; 
     Sp    = new_point(5);
 end
 %%
@@ -93,8 +93,8 @@ end
 %  
 %     plot(x_new,y_new,'*')
     
-    xCoord_tmp = [xCoord; x_new'];
-    yCoord_tmp = [yCoord; y_new'];
+    xCoord_tmp = [xCoord; x_new];
+    yCoord_tmp = [yCoord; y_new];
     nodeNum = length(xCoord);
     [quality,~] = QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
     

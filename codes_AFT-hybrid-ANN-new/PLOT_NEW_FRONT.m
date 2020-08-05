@@ -28,5 +28,6 @@ for i = 1:num
 end
 % axis equal
 axis off;
+hold on;
 
     

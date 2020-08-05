@@ -1,18 +1,90 @@
-function [x_new, y_new] = ADD_POINT_quad(AFT_stack, xCoord, yCoord, Sp)
+function [x_new, y_new,d] = ADD_POINT_quad(AFT_stack, xCoord, yCoord, Sp)
+global epsilon;
+theta1 = 110;
+theta2 = 200;
+
 node1 = AFT_stack(1,1);
 node2 = AFT_stack(1,2);
 
-node1Coord = [xCoord(node1),yCoord(node1)];
-node2Coord = [xCoord(node2),yCoord(node2)];
+A = [xCoord(node1),yCoord(node1)];
+B = [xCoord(node2),yCoord(node2)];
 
-dist = AFT_stack(1,5);
+neighborNode1 = NeighborNodes(node1, AFT_stack, node2);
+neighborNode2 = NeighborNodes(node2, AFT_stack, node1);
 
-normal = zeros(1,2);
-normal(1) = -( yCoord(node2) - yCoord(node1) ) / dist;
-normal(2) =  ( xCoord(node2) - xCoord(node1) ) / dist;
+C = [xCoord(neighborNode1(1)),yCoord(neighborNode1(1))];
+D = [xCoord(neighborNode2(1)),yCoord(neighborNode2(1))];
 
-new_point1 = node1Coord + normal * Sp * dist;
-new_point2 = node2Coord + normal * Sp * dist;
+AC = C - A;
+AB = B - A;
+BD = D - B;
 
-x_new = [new_point1(1),new_point2(1)];
-y_new = [new_point1(2),new_point2(2)];
+ds_AB = DISTANCE(node1, node2, xCoord, yCoord);
+ds_AC = sqrt( AC(1)^2 + AC(2)^2 );
+ds_BD = sqrt( BD(1)^2 + BD(2)^2 );
+% d = min(1.25*ds_AB, max(0.8*ds_AB,Sp));
+d = 0.5 * ( ds_AB + DISTANCE(1, 2, [A(1), C(1)], [A(2), C(2)]) );
+
+%%
+theta = acos( AB * AC' / ds_AB / ds_AC ) * 180 / pi;
+theta = real(theta);
+
+flagLeftCell = IsLeftCell(node1, node2, neighborNode1(1), xCoord, yCoord);
+if flagLeftCell == 0
+   theta = 360 - theta;
+end
+    
+if theta < theta1 
+    x_new1 = C(1);
+    y_new1 = C(2);
+elseif theta1 <= theta && theta < theta2
+    normal = normal_vector(1, 2, [C(1),B(1)], [C(2),B(2)]);
+    tmp = A + normal .* d;
+    x_new1 = tmp(1);
+    y_new1 = tmp(2);
+elseif theta >= theta2
+    normal = normal_vector(node1, node2, xCoord, yCoord);
+    tmp = A + normal .* d;
+    x_new1 = tmp(1);
+    y_new1 = tmp(2);    
+end
+%%
+d = 0.5 * ( ds_AB + DISTANCE(1, 2, [B(1), D(1)], [B(2), D(2)]) );
+
+theta = acos( -AB * BD' / ds_AB / ds_BD ) * 180 / pi;
+theta = real(theta);
+
+flagLeftCell = IsLeftCell(node1, node2, neighborNode2(1), xCoord, yCoord);
+if flagLeftCell == 0
+   theta = 360 - theta;
+end
+
+if theta < theta1 
+    x_new2 = D(1);
+    y_new2 = D(2);
+elseif theta1 <= theta && theta < theta2
+    normal = normal_vector(1, 2, [A(1),D(1)], [A(2),D(2)]);
+    tmp = B + normal .* d;
+    x_new2 = tmp(1);
+    y_new2 = tmp(2);
+elseif theta >= theta2
+    normal = normal_vector(node1, node2, xCoord, yCoord);
+    tmp = B + normal .* d;
+    x_new2 = tmp(1);
+    y_new2 = tmp(2);    
+end
+x_new = [x_new1;x_new2];
+y_new = [y_new1;y_new2];
+
+% xCoord_tmp = [xCoord; x_new];
+% yCoord_tmp = [yCoord; y_new];
+% nodeNum = length(xCoord);
+% [quality,~]=QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
+% if abs( quality - 1.0 ) > epsilon
+%     x_new = 0.5 * ( x_new(1) + x_new(2) );
+%     y_new = 0.5 * ( y_new(1) + y_new(2) );
+% end
+
+% % plot(x_new, y_new,'bx');
+% hold on;
+   

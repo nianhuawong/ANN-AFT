@@ -31,7 +31,7 @@ global epsilon cellNodeTopo outGridType;
     %%
     nCells_AFT = nCells_AFT + 1;    
     if outGridType == 0    %输出四边形单元
-        AFT_stack_sorted = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, ...
+        [AFT_stack_sorted,nCells_AFT] = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, ...
             node2_base, node_select, nCells_AFT, xCoord_AFT, yCoord_AFT);
     elseif outGridType == 1  %将一个四边形剖分成2个直角三角形
         AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
@@ -256,7 +256,8 @@ global epsilon cellNodeTopo outGridType;
                end
            elseif node4 < 0
                [quality,~] = QualityCheckTri(node1, node2, node3, xCoord_AFT, yCoord_AFT, -1);
-                if abs( 1.5- quality ) > epsilon
+%                 if abs( 1.5- quality ) > epsilon
+               if abs( 1.0- quality ) > epsilon
                    new_cell(i,:)=-1;
                end               
            end
@@ -285,7 +286,7 @@ global epsilon cellNodeTopo outGridType;
             node4 = new_cell(i,4);  
             if (node4 > 0)
                 if outGridType == 0
-                    AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
+                    [AFT_stack_sorted,nCells_AFT] = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
                         node1, node2, node3, node4, nCells_AFT, xCoord_AFT, yCoord_AFT);
                 elseif outGridType == 1
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
