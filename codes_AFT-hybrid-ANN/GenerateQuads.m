@@ -9,9 +9,9 @@ node2_base = AFT_stack_sorted(1,2);
 ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
 %%
-% [x_best_quad, y_best_quad] = ADD_POINT_quad(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
-[x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-                                                    Grid_stack, stencilType, epsilon);
+[x_best_quad, y_best_quad] = ADD_POINT_quad(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp);
+% [x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
+%                                                     Grid_stack, stencilType, epsilon);
                                                 
 %     PLOT_CIRCLE(x_best_quad, y_best_quad, al, Sp, ds, node_best);
 %%

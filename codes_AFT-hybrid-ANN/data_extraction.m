@@ -10,18 +10,18 @@ dt          = 0.00001;   % 暂停时长
 stencilType = 'random';  % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
 epsilon     = 0.5;       % 四边形网格质量要求, 值越大要求越低
 nn_fun      = @net_airfoil_hybrid;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
-num_label   = 0;
+num_label   = 1;
 flag_label  = zeros(1,10000);
 cellNodeTopo = [];
 %%
-% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
+[AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/quad_quad3.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad-c.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/RAE2822/rae2822.cas', gridType);
-[AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/ANW/anw.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/ANW/anw.cas', gridType);
 %%
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
@@ -46,7 +46,7 @@ for i =1:size(AFT_stack,1)
 %     end
 end
 %%
-
+% AFT_stack_sorted = AFT_stack;
 AFT_stack_sorted = sortrows(AFT_stack, 5);
 %%
 while size(AFT_stack_sorted,1)>0
@@ -58,9 +58,9 @@ while size(AFT_stack_sorted,1)>0
      
     size0 = size(AFT_stack_sorted,1);
     %% 
-    if nCells_AFT >= -10
-        if node1_base == 168 && node2_base == 111 || node1_base == 1955 && node2_base == 1954|| ...
-                node1_base == 398 && node2_base == 395
+    if nCells_AFT == -10
+        if node1_base == 106 && node2_base == 313 || node1_base == 126 && node2_base == 313|| ...
+                node1_base == 313 && node2_base == 314
             kkk = 1;
         end
         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);

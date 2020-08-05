@@ -19,4 +19,7 @@ h = abs( v_13 * normal' );
     h = max([h,Sp]); 
 % end
 
+%% 三角形网格质量的另一种求法
+% quality = 4.0 * sqrt(3.0) * area / ( a * a + b * b + c * c );
+
 end

@@ -1,10 +1,11 @@
-function AFT_stack_sorted = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, node2_base, node_select, nCells_AFT , xCoord_AFT, yCoord_AFT)
+function [AFT_stack_sorted, nCells_AFT]= Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, node2_base, node_select, nCells_AFT , xCoord_AFT, yCoord_AFT)
 global cellNodeTopo nCells_quad;
 cellNodeTopo(end+1,:) = [node1_base, node2_base, node_select(2), node_select(1)];
 nCells_quad = nCells_quad + 1;
 
 flagConvexPoly = IsConvexPloygon(node1_base, node2_base, node_select(2), node_select(1), xCoord_AFT, yCoord_AFT);
 if flagConvexPoly == 0 
+    nCells_AFT = nCells_AFT -1;
     return;
 end
 
