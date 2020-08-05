@@ -18,7 +18,7 @@ triplot(tri,xCoord,yCoord);
 axis equal;
 axis off
 
-axis([-0.7 0.7 -0.5 0.5])
+% axis([-0.7 0.7 -0.5 0.5])
 % axis([-1 1 -1 1])
 
 disp(['Delaunay网格生成结束，单元数：', num2str(size(tri,1))]);

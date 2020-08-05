@@ -1,11 +1,12 @@
-function [x_new, y_new] = ADD_POINT_ANN(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType)
+function [x_new, y_new, Sp] = ADD_POINT_ANN(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType)
 node1 = AFT_stack(1,1);
 node2 = AFT_stack(1,2);
+ds_base = DISTANCE( node1, node2, xCoord, yCoord);
 
-xNode = 0.5 * ( xCoord(node1) + xCoord(node2) );
-yNode = 0.5 * ( yCoord(node1) + yCoord(node2) );
-Coord = [xCoord,yCoord];
-wdist = ComputeWallDistOfNode(AFT_stack, Coord, xNode, yNode);
+% xNode = 0.5 * ( xCoord(node1) + xCoord(node2) );
+% yNode = 0.5 * ( yCoord(node1) + yCoord(node2) );
+% Coord = [xCoord,yCoord];
+% wdist = ComputeWallDistOfNode(AFT_stack, Coord, xNode, yNode);
 
 neighborNode1 = NeighborNodes(node1, AFT_stack, node2);
 neighborNode2 = NeighborNodes(node2, AFT_stack, node1);
@@ -28,16 +29,17 @@ if strcmp(stencilType, 'all')
             input_node = [neighborNode11, node1, node2, neighborNode22];
             % input = [xCoord(input_node); yCoord(input_node);wdist]';
             input = [xCoord(input_node); yCoord(input_node)]';
-            new_point(end+1,:) = nn_fun(input);
+            input = Standardlize(input);
+            
+            new_point(end+1,:) = nn_fun(input');
         end
     end
+    new_point(:,1:2) = AntiStandardlize( new_point(:,1:2), [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);      
     
-    out_pointX = sum(new_point(:,1)) / size(new_point,1);
-    out_pointY = sum(new_point(:,2)) / size(new_point,1);
-    Sp = sum(new_point(:,3)) / size(new_point,1);
-    
-    x_new = out_pointX;
-    y_new = out_pointY;
+    x_new = sum(new_point(:,1)) / size(new_point,1);
+    y_new = sum(new_point(:,2)) / size(new_point,1);
+%     Sp = sum(new_point(:,3)) / size(new_point,1);
+    Sp = sum(new_point(:,3)) / size(new_point,1) * ds_base;
 else
     neighborNode1 = neighborNode1(1);
     neighborNode2 = neighborNode2(1);
@@ -46,27 +48,33 @@ else
     % input = [xCoord(input_node); yCoord(input_node);wdist]';
     input = [xCoord(input_node); yCoord(input_node)]';
     
-    new_point = nn_fun(input);
+    input = Standardlize(input);   
+    new_point = nn_fun(input');  
+    [new_point(1), new_point(2)] = AntiTransform( new_point(1:2), [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);  
+    
     x_new = new_point(1);
     y_new = new_point(2);
-    Sp = new_point(3);
+%     Sp = new_point(3);
+    Sp = new_point(3) * ds_base;
 end
-
-ds = DISTANCE(node1, node2, xCoord, yCoord);
+% plot( [xCoord(node1), xCoord(node2)], [yCoord(node1), yCoord(node2)], 'b-' );
+% plot(x_new, y_new,'*');
+%%
 normal = zeros(1,2);
-normal(1) = -( yCoord(node2) - yCoord(node1) ) / ds;
-normal(2) =  ( xCoord(node2) - xCoord(node1) ) / ds;
-
+normal(1) = -( yCoord(node2) - yCoord(node1) ) / ds_base;
+normal(2) =  ( xCoord(node2) - xCoord(node1) ) / ds_base;
 v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
 h = abs( v_ac * normal' );
 
+% % Sp = h;
 Sp = max([h,Sp]);
-% Sp = 0.5 * ( Sp + h );
-    v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;
-    v_ad = ( v_ac * v_ab' ) .* v_ab;
-    v_de = Sp .* normal;
-    pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
-    x_new = pointE(1);
-    y_new = pointE(2);
+% % Sp = 0.5 * ( Sp + h );
+
+v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds_base;
+v_ad = ( v_ac * v_ab' ) .* v_ab;
+v_de = Sp .* normal;
+pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
+x_new = pointE(1);
+y_new = pointE(2);
 end
 
