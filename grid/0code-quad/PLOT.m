@@ -22,5 +22,6 @@ end
 % end
 
 axis equal
+% hold off
 
     

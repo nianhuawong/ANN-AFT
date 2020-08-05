@@ -1,5 +1,5 @@
 function [input,target] = data_extraction_fun(gridName, gridType, fileName, stencilType, targetType, mode, perturb)
-
+global standardlize;
 [~, Coord, Grid_stack, wallNodes] = read_grid(gridName, gridType);
 
 xCoord = Coord(:,1);
@@ -31,7 +31,8 @@ for i = 1:nFaces
     if targetType == 1
         normal = normal_vector(node1_base, node2_base, xCoord, yCoord);
         v_ac = [xCoord(targetPoint_Tmp(i,1))-xCoord(node1_base), yCoord(targetPoint_Tmp(i,1))-yCoord(node1_base)];
-        stepSize_Tmp(i) = abs( v_ac * normal' );
+%         stepSize_Tmp(i) = abs( v_ac * normal' );
+        stepSize_Tmp(i) = abs( v_ac * normal' ) / Grid_stack(i,5);
     elseif targetType == 2
         v_ad =   [xCoord(targetPoint_Tmp(i,2))-xCoord(node1_base), yCoord(targetPoint_Tmp(i,2))-yCoord(node1_base)];
         v_cb = - [xCoord(targetPoint_Tmp(i,1))-xCoord(node2_base), yCoord(targetPoint_Tmp(i,1))-yCoord(node2_base)];
@@ -39,7 +40,8 @@ for i = 1:nFaces
         dd2 = sqrt( v_cb(1)^2 + v_cb(2)^2 );
         angle = acos( v_ad * v_cb' / dd1 / dd2 );
         Area = 0.5 * dd1 * dd2 * sin(angle);
-        stepSize_Tmp(i) = sqrt(Area);
+%         stepSize_Tmp(i) = sqrt(Area);
+        stepSize_Tmp(i) = sqrt(Area) / Grid_stack(i,5);
     end
 end
 %%
@@ -52,7 +54,7 @@ frontAngle = [];
 stepSize = [];
 for i = 1:nFaces                %对于某个阵面
 %% 引入物面距离作为参数
-    wdist_Tmp = ComputeWallDistOfFace(i, Grid_stack, Coord);
+%     wdist_Tmp = ComputeWallDistOfFace(i, Grid_stack, Coord);
        
     node1_base = node1(i);     %确定其一个node
     node2_base = node2(i);
@@ -67,9 +69,9 @@ for i = 1:nFaces                %对于某个阵面
         stencilPoint_Tmp = SelectStencilPointRandomly   (node1_base,node2_base,neighborNode1,neighborNode2);
         stencilPoint(end+1,:) = stencilPoint_Tmp;
         targetPoint  = targetPoint_Tmp;
-        wdist(end+1) = wdist_Tmp;
-		frontLength(end+1) = Grid_stack(i,5);
-		frontAngle(end+1)  = angle_Tmp;
+%         wdist(end+1) = wdist_Tmp;
+% 		frontLength(end+1) = Grid_stack(i,5);
+% 		frontAngle(end+1)  = angle_Tmp;
         stepSize = stepSize_Tmp;
 
     else % 或者将所有的可能都做成模板     
@@ -78,10 +80,28 @@ for i = 1:nFaces                %对于某个阵面
         stencilPoint(end+1:end+ntmp,:) = stencilPoint_Tmp;
 %         targetPoint(end+1:end+ntmp) = ones(1,ntmp) * targetPoint_Tmp(i);
         targetPoint(end+1:end+ntmp,:) = ones(ntmp,1) * targetPoint_Tmp(i,:);
-        wdist(end+1:end+ntmp) = wdist_Tmp;
-		frontLength(end+1:end+ntmp) = Grid_stack(i,5);
-		frontAngle(end+1:end+ntmp)  = angle_Tmp;
+%         wdist(end+1:end+ntmp) = wdist_Tmp;
+% 		frontLength(end+1:end+ntmp) = Grid_stack(i,5);
+% 		frontAngle(end+1:end+ntmp)  = angle_Tmp;
         stepSize(end+1:end+ntmp,:) = ones(ntmp,1) * stepSize_Tmp(i,:);
+        
+        %物面上前后缘的模板多复制50份
+%         if ( sum( wallNodes == node1_base )~=0 ||  sum( wallNodes == node2_base )~=0 ) ...
+%                 && ( xCoord(node1_base) <= -0.45 || xCoord(node1_base) >= 0.45 )
+%             ntmp = size(stencilPoint_Tmp,1);
+% %             PLOT_FRONT(Grid_stack, xCoord, yCoord, i);
+% %             kkk = 1;
+%             for kkk = 1:30                
+%                 stencilPoint(end+1:end+ntmp,:) = stencilPoint_Tmp;
+%                 %         targetPoint(end+1:end+ntmp) = ones(1,ntmp) * targetPoint_Tmp(i);
+%                 targetPoint(end+1:end+ntmp,:) = ones(ntmp,1) * targetPoint_Tmp(i,:);
+% %                 wdist(end+1:end+ntmp) = wdist_Tmp;
+% %                 frontLength(end+1:end+ntmp) = Grid_stack(i,5);
+% %                 frontAngle(end+1:end+ntmp)  = angle_Tmp;
+%                 stepSize(end+1:end+ntmp,:) = ones(ntmp,1) * stepSize_Tmp(i,:);
+%             end
+%         end
+        
     end
     
    %%     
@@ -100,9 +120,9 @@ end
 
 %%
 PLOT(Grid_stack, xCoord, yCoord)
-axis off
+% axis off
 % axis([-0.7 0.7 -0.5 0.5])
-DelaunayMesh(xCoord,yCoord,wallNodes);
+% DelaunayMesh(xCoord,yCoord,wallNodes);
 %%
 % hold on;
 % PlotStencil(nFaces,stencilPoint,targetPoint)
@@ -142,6 +162,45 @@ if mode == 4
     target =[xCoord(targetPoint),yCoord(targetPoint),stepSize];
 else
     target =[xCoord(targetPoint),yCoord(targetPoint)];
+end
+
+if standardlize == 1
+    for i = 1:length(stencilPoint)
+        point1 = [input(i,1), input(i,5)];
+        point2 = [input(i,2), input(i,6)];
+        point3 = [input(i,3), input(i,7)];
+        point4 = [input(i,4), input(i,8)];
+        %%
+        %     close all;
+        %     figure;
+        %     plot([point1(1),point2(1)],[point1(2),point2(2)],'b*-');
+        %     hold on;
+        %     plot([point3(1),point2(1)],[point3(2),point2(2)],'g*-');
+        %     plot([point3(1),point4(1)],[point3(2),point4(2)],'b*-');
+        %%
+        
+        [input(i,1), input(i,5)] = Transform( point1, point2, point3 );
+        input(i,2) = 0.0; input(i,6) = 0;
+        input(i,3) = 1.0; input(i,7) = 0;
+        [input(i,4), input(i,8)] = Transform( point4, point2, point3 );
+        %%
+        %     plot([input(i,1),input(i,2)],[input(i,5),input(i,6)],'k*-');
+        %     plot([input(i,2),input(i,3)],[input(i,6),input(i,7)],'k*-');
+        %     plot([input(i,3),input(i,4)],[input(i,7),input(i,8)],'k*-');
+        %%
+        if targetType == 1
+            pointT = [target(i,1), target(i,2)];
+            %         plot(pointT(1), pointT(2),'bo-');
+            
+            [target(i,1), target(i,2)] = Transform( pointT, point2, point3 );
+            %         plot(target(i,1), target(i,2),'ko-');
+        elseif targetType == 2
+            pointT1 = [target(i,1), target(i,3)];
+            pointT2 = [target(i,2), target(i,4)];
+            [target(i,1), target(i,2)] = Transform( pointT1, point2, point3 );
+            [target(i,2), target(i,4)] = Transform( pointT2, point2, point3 );
+        end
+    end
 end
 
 save(fileName,'input','target')
