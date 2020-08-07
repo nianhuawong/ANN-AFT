@@ -12,6 +12,6 @@ if  flag_label(node_best) == 0 && num_label == 1
 end
 
 syms x y;
-% ezplot((x-xb)^2+(y-yb)^2==al*al*Sp*Sp*ds*ds);
+ezplot((x-xb)^2+(y-yb)^2==al*al*Sp*Sp*ds*ds);
 % fimplicit(@(x,y) (x-xb)^2+(y-yb)^2-al*al*Sp*Sp*ds*ds);
 end

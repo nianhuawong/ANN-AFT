@@ -1,4 +1,7 @@
-function wdist = ComputeWallDistOfNode(Grid_stack, Coord, xNode, yNode)
+function wdist = ComputeWallDistOfNode(Grid_stack, Coord, pointIn)
+xNode = pointIn(1);
+yNode = pointIn(2);
+
 xCoord = Coord(:,1);
 yCoord = Coord(:,2);
 node1 = Grid_stack(:,1);

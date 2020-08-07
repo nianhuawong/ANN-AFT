@@ -1,8 +1,9 @@
-function [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType )
+function [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT,...
+    Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType, Grid)
 
 % [x_best, y_best] = ADD_POINT_tri(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
 % [x_best, y_best] = ADD_POINT(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp, outGridType);
-[x_best, y_best, Sp] = ADD_POINT_ANN(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType);
+[x_best, y_best, Sp] = ADD_POINT_ANN(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, Sp,Grid);
     
 node_best = node_best + 1;      %新增最佳点Pbest的序号
 
@@ -24,13 +25,13 @@ for i = 2:size(AFT_stack_sorted,1)
     x_p2 = xCoord_AFT(node2);
     y_p2 = yCoord_AFT(node2);
     
-    if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
-%     if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+%     if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node1 ~= node1_base && node1 ~= node2_base)
+    if( (x_p1-x_best)^2 + (y_p1-y_best)^2 < al*al*Sp*Sp &&  node1 ~= node1_base && node1 ~= node2_base)
         nodeCandidate(end+1) = node1;
     end
     
-    if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
-%     if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+%     if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp*ds*ds &&  node2 ~= node1_base && node2 ~= node2_base)
+    if( (x_p2-x_best)^2 + (y_p2-y_best)^2 < al*al*Sp*Sp &&  node2 ~= node1_base && node2 ~= node2_base)
         nodeCandidate(end+1) = node2;
     end
     
