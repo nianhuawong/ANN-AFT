@@ -1,5 +1,5 @@
 function [input,target] = data_extraction_fun(gridName, gridType, fileName, stencilType, targetType, mode, perturb)
-global standardlize;
+global standardlizeCoord standardlizeSp;
 [~, Coord, Grid_stack, wallNodes] = read_grid(gridName, gridType);
 
 xCoord = Coord(:,1);
@@ -30,9 +30,14 @@ for i = 1:nFaces
       
     if targetType == 1
         normal = normal_vector(node1_base, node2_base, xCoord, yCoord);
-        v_ac = [xCoord(targetPoint_Tmp(i,1))-xCoord(node1_base), yCoord(targetPoint_Tmp(i,1))-yCoord(node1_base)];
-%         stepSize_Tmp(i) = abs( v_ac * normal' );
-        stepSize_Tmp(i) = abs( v_ac * normal' ) / Grid_stack(i,5);
+        v_ac = [xCoord(targetPoint_Tmp(i,1))-xCoord(node1_base), yCoord(targetPoint_Tmp(i,1))-yCoord(node1_base)];      
+        
+        if standardlizeSp == 1 
+            stepSize_Tmp(i) = abs( v_ac * normal' ) / Grid_stack(i,5);
+        else
+            stepSize_Tmp(i) = abs( v_ac * normal' );
+        end
+     
     elseif targetType == 2
         v_ad =   [xCoord(targetPoint_Tmp(i,2))-xCoord(node1_base), yCoord(targetPoint_Tmp(i,2))-yCoord(node1_base)];
         v_cb = - [xCoord(targetPoint_Tmp(i,1))-xCoord(node2_base), yCoord(targetPoint_Tmp(i,1))-yCoord(node2_base)];
@@ -40,8 +45,12 @@ for i = 1:nFaces
         dd2 = sqrt( v_cb(1)^2 + v_cb(2)^2 );
         angle = acos( v_ad * v_cb' / dd1 / dd2 );
         Area = 0.5 * dd1 * dd2 * sin(angle);
-%         stepSize_Tmp(i) = sqrt(Area);
-        stepSize_Tmp(i) = sqrt(Area) / Grid_stack(i,5);
+        
+        if standardlizeSp == 1
+            stepSize_Tmp(i) = sqrt(Area) / Grid_stack(i,5);
+        else
+            stepSize_Tmp(i) = sqrt(Area);
+        end
     end
 end
 %%
@@ -87,17 +96,13 @@ for i = 1:nFaces                %对于某个阵面
         
         %物面上前后缘的模板多复制50份
 %         if ( sum( wallNodes == node1_base )~=0 ||  sum( wallNodes == node2_base )~=0 ) ...
-%                 && ( xCoord(node1_base) <= -0.45 || xCoord(node1_base) >= 0.45 )
+%                 && ( xCoord(node1_base) <= -0.48 || xCoord(node1_base) >= 0.48 )
 %             ntmp = size(stencilPoint_Tmp,1);
 % %             PLOT_FRONT(Grid_stack, xCoord, yCoord, i);
 % %             kkk = 1;
-%             for kkk = 1:30                
+%             for kkk = 1:10                
 %                 stencilPoint(end+1:end+ntmp,:) = stencilPoint_Tmp;
-%                 %         targetPoint(end+1:end+ntmp) = ones(1,ntmp) * targetPoint_Tmp(i);
 %                 targetPoint(end+1:end+ntmp,:) = ones(ntmp,1) * targetPoint_Tmp(i,:);
-% %                 wdist(end+1:end+ntmp) = wdist_Tmp;
-% %                 frontLength(end+1:end+ntmp) = Grid_stack(i,5);
-% %                 frontAngle(end+1:end+ntmp)  = angle_Tmp;
 %                 stepSize(end+1:end+ntmp,:) = ones(ntmp,1) * stepSize_Tmp(i,:);
 %             end
 %         end
@@ -164,7 +169,7 @@ else
     target =[xCoord(targetPoint),yCoord(targetPoint)];
 end
 
-if standardlize == 1
+if standardlizeCoord == 1
     for i = 1:length(stencilPoint)
         point1 = [input(i,1), input(i,5)];
         point2 = [input(i,2), input(i,6)];
