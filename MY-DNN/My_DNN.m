@@ -1,11 +1,14 @@
 clc;clear;
-% load('F:/ANN_Grid/grid/inv_cylinder/tri/inv_cylinder-50.mat');
-load('F:\ANN_Grid\grid\airfoil-training\tri-fine\naca0012-t.mat');
+% load('F:/ANN_Grid/grid/inv_cylinder/tri/inv_cylinder-40.mat');
+% load('F:\ANN_Grid\grid\airfoil-training\tri-fine\naca0012-t.mat');
+load('F:\ANN_Grid\grid/naca0012/tri/naca0012-tri-quadBC.mat');
+% load('F:\ANN_Grid\grid\airfoil-training\tri\airfoil.mat');
+% load('F:\ANN_Grid\grid/naca0012/tri/naca.mat');
 net_name = 'net_naca0012_tri'; %net_naca0012_tri;net_cylinder_tri
 input = input';
 target = target';
 num_of_samples = size(input,2);
-num_of_traning_samples = round(0.8*num_of_samples);
+num_of_traning_samples = round(1.0*num_of_samples);
 
 Train = input(:,1:num_of_traning_samples);
 Label = target(:,1:num_of_traning_samples);
@@ -15,7 +18,7 @@ Tag   = target(:,num_of_traning_samples + 1:end);
 
 % mapminmax
 
-net = feedforwardnet([40],'trainlm'); %trainscg;traingda
+net = feedforwardnet([15 8],'trainlm'); %trainscg;traingda
 % net = newrb(Train,Label,SPREAD)
 % net.layers{1}.transferFcn = 'softmax'; %radbas;radbasn;poslin;tansig;logsig;purelin
 % net.layers{2}.transferFcn = 'radbas';
