@@ -10,7 +10,7 @@ ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
 %%
 % [x_best, y_best] = ADD_POINT_tri(AFT_stack_sorted(1,:), xCoord_AFT, yCoord_AFT, Sp);
-[x_best_ann, y_best_ann, ~] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon );
+[x_best_ann, y_best_ann, ~] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon, Sp );
 if length(x_best_ann) == 2
     x_best = 0.5 * ( x_best_ann(1) + x_best_ann(2) );
     y_best = 0.5 * ( y_best_ann(1) + y_best_ann(2) );

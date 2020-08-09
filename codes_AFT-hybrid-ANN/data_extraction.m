@@ -1,25 +1,29 @@
 clear;close all;tic;format long;
 %%
-global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType outGridType;
+global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType outGridType standardlize SpDefined;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1;        % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866，传统阵面推进才需要
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;   % 暂停时长
-stencilType = 'random';  % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
-epsilon     = 0.5;       % 四边形网格质量要求, 值越大要求越低
-nn_fun      = @net_airfoil_hybrid;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
-num_label   = 1;
+stencilType = 'all';  % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
+epsilon     = 0.7;       % 四边形网格质量要求, 值越大要求越低
+nn_fun      = @net_naca0012_quad_fine;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
+num_label   = 0;
 flag_label  = zeros(1,10000);
 cellNodeTopo = [];
+standardlize = 1;
+SpDefined    = 1;   % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
+stepSizeFile = '../grid/naca0012/tri/naca0012-tri-quadBC-sp.cas';
+sizeFileType = 0;
 %%
-[AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/quad_quad3.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad-c.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
-% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+[AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/RAE2822/rae2822.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/ANW/anw.cas', gridType);
 %%
@@ -45,15 +49,21 @@ for i =1:size(AFT_stack,1)
     %     AFT_stack(i,5) = 1e5* AFT_stack(i,5);
 %     end
 end
+
+if SpDefined == 1
+    [SpField, backGrid, backCoord] = StepSizeField(stepSizeFile, sizeFileType);
+end
 %%
 % AFT_stack_sorted = AFT_stack;
 AFT_stack_sorted = sortrows(AFT_stack, 5);
 %%
 while size(AFT_stack_sorted,1)>0
-%     Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid);
-    node1_base = AFT_stack_sorted(1,1);         
-    node2_base = AFT_stack_sorted(1,2);  
+    if SpDefined == 1
+        Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
+    end
     
+    node1_base = AFT_stack_sorted(1,1);         
+    node2_base = AFT_stack_sorted(1,2);   
     %%
      
     size0 = size(AFT_stack_sorted,1);

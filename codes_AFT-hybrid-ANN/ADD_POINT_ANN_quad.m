@@ -1,10 +1,11 @@
-function [x_new, y_new, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType, epsilon )
+function [x_new, y_new, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType, epsilon, Sp )
+global standardlize SpDefined;
 node1 = AFT_stack(1,1);
 node2 = AFT_stack(1,2);
 
-xNode = 0.5 * ( xCoord(node1) + xCoord(node2) );
-yNode = 0.5 * ( yCoord(node1) + yCoord(node2) );
-Coord = [xCoord,yCoord];
+% xNode = 0.5 * ( xCoord(node1) + xCoord(node2) );
+% yNode = 0.5 * ( yCoord(node1) + yCoord(node2) );
+% Coord = [xCoord,yCoord];
 % wdist = ComputeWallDistOfNode(AFT_stack, Coord, xNode, yNode); 
 neighborNode1 = NeighborNodes(node1, AFT_stack, node2);
 neighborNode2 = NeighborNodes(node2, AFT_stack, node1);
@@ -27,39 +28,57 @@ if strcmp(stencilType, 'all')
             input_node = [neighborNode11, node1, node2, neighborNode22];
             % input = [xCoord(input_node); yCoord(input_node);wdist]';
             input = [xCoord(input_node); yCoord(input_node)]';
-            new_point(end+1,:) = nn_fun(input);
+            if standardlize == 1
+                input = Standardlize(input);
+            end
+                new_point(end+1,:) = nn_fun(input');
+%                 new_point(end+1,:) = nn_fun(input);            
         end
     end
     
-%     out_pointX = sum(new_point(:,1)) / size(new_point,1);
-%     out_pointY = sum(new_point(:,2)) / size(new_point,1);
-%     x_new = out_pointX;
-%     y_new = out_pointY;   
+    if standardlize == 1
+        new_point(:,1:4) = AntiStandardlize( new_point(:,1:4), ...
+            [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);
+    end    
     
     out_pointX1 = sum(new_point(:,1)) / size(new_point,1);
     out_pointX2 = sum(new_point(:,2)) / size(new_point,1);
     out_pointY1 = sum(new_point(:,3)) / size(new_point,1);
     out_pointY2 = sum(new_point(:,4)) / size(new_point,1);
-    Sp = sum(new_point(:,5)) / size(new_point,1);
     
     x_new = [out_pointX1, out_pointX2];
     y_new = [out_pointY1, out_pointY2];
+     
+     if SpDefined == 2        
+        Sp = sum(new_point(:,5)) / size(new_point,1);
+        %     Sp = sum(new_point(:,5)) / size(new_point,1) * ds_base;
+    end   
+
 else
     neighborNode1 = neighborNode1(1);
     neighborNode2 = neighborNode2(1);
 %     neighborNode1 = neighborNode1(randi(length(neighborNode1),1,1));
 %     neighborNode2 = neighborNode2(randi(length(neighborNode2),1,1));
-    input_node = [neighborNode1, node1, node2, neighborNode2];
-    
-    % input = [xCoord(input_node); yCoord(input_node);wdist]';
+    input_node = [neighborNode1, node1, node2, neighborNode2];    
     input = [xCoord(input_node); yCoord(input_node)]';
+    if standardlize == 1
+        input = Standardlize(input);
+    end
     
-    new_point = nn_fun(input);
-%     x_new = new_point(1);
-%     y_new = new_point(2); 
+    new_point = nn_fun(input');
+    
+     if standardlize == 1
+        [new_point(1), new_point(2)] = AntiTransform( new_point(1:2),...
+            [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);
+     end
+     
     x_new = new_point(1:2);
     y_new = new_point(3:4); 
-    Sp    = new_point(5);
+    
+    if SpDefined == 2
+        Sp = new_point(5);
+        %     Sp = new_point(5) * ds_base;
+    end    
 end
 %%
 %     v_ad =   [x_new(2)-xCoord(node1), y_new(2)-yCoord(node1)];
