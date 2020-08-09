@@ -1,10 +1,11 @@
 clc;clear;
 % load('F:/ANN_Grid/grid/inv_cylinder/tri/inv_cylinder-40.mat');
-% load('F:\ANN_Grid\grid\airfoil-training\tri-fine\naca0012-t.mat');
-load('F:\ANN_Grid\grid/naca0012/tri/naca0012-tri-quadBC.mat');
+% load('../grid/airfoil-training/tri-fine/naca0012-t.mat');
+load('../grid/naca0012/quad/naca0012-quad-quadBC.mat');
+% load('F:\ANN_Grid\grid/naca0012/tri/naca0012-tri-quadBC.mat');
 % load('F:\ANN_Grid\grid\airfoil-training\tri\airfoil.mat');
 % load('F:\ANN_Grid\grid/naca0012/tri/naca.mat');
-net_name = 'net_naca0012_tri'; %net_naca0012_tri;net_cylinder_tri
+net_name = 'net_naca0012_quad_fine'; %net_naca0012_tri;net_cylinder_tri
 input = input';
 target = target';
 num_of_samples = size(input,2);
