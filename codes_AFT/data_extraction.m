@@ -108,6 +108,7 @@ disp(['阵面推进完成，节点数：', num2str(length(xCoord_AFT))]);
 disp(['阵面推进完成，面个数：', num2str(size(Grid_stack,1))]);
 toc;
 %%
+GridQualitySummary(Grid_stack, xCoord_AFT, yCoord_AFT, cellNodeTopo);
 DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
 toc
 
