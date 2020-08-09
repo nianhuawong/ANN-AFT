@@ -70,12 +70,12 @@ else
      if standardlize == 1
         [new_point(1), new_point(3)] = AntiTransform( [new_point(1), new_point(3)],...
             [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);
-        [new_point(2), new_point(4)] = AntiTransform( [new_point(2), new_point(4)],...
+        [new_point(1), new_point(3)] = AntiTransform( [new_point(1), new_point(3)],...
             [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);        
      end
      
-    x_new = new_point(1:2)';
-    y_new = new_point(3:4)'; 
+    x_new = new_point(1:2);
+    y_new = new_point(3:4); 
     
     if SpDefined == 2
         Sp = new_point(5);
