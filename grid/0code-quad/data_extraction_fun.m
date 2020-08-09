@@ -202,7 +202,7 @@ if standardlizeCoord == 1
         elseif targetType == 2
             pointT1 = [target(i,1), target(i,3)];
             pointT2 = [target(i,2), target(i,4)];
-            [target(i,1), target(i,2)] = Transform( pointT1, point2, point3 );
+            [target(i,1), target(i,3)] = Transform( pointT1, point2, point3 );
             [target(i,2), target(i,4)] = Transform( pointT2, point2, point3 );
         end
     end
