@@ -4,28 +4,28 @@ global num_label flag_label cellNodeTopo epsilon standardlize SpDefined;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1.0;      % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866         
 al          = 3.0;      % 在几倍范围内搜索
-coeff       = 0.85;      % 尽量选择现有点的参数，Pbest质量参数的系数
+coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 epsilon     = 0.9;
 dt          = 0.00001;   % 暂停时长
 stencilType = 'all';
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
-nn_fun = @net_naca0012_tri; %net_naca0012_quadBC_c;net_naca0012_tri_fine;net_airfoil_quadBC;net_rae2822_tri;net_cylinder_tri
+nn_fun = @net_naca0012_tri_fine; %net_naca0012_quadBC_c;net_naca0012_tri_fine;net_airfoil_quadBC;net_rae2822_tri;net_cylinder_tri
 num_label   = 0;
 flag_label  = zeros(1,10000);
 cellNodeTopo = [];
-standardlize = 0;
-SpDefined    = 2;   % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
-stepSizeFile = '../grid/naca0012/tri/naca0012-tri-quadBC.cas';
+standardlize = 1;
+SpDefined    = 1;   % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
+stepSizeFile = '../grid/naca0012/tri/naca0012-tri-quadBC-sp.cas';
 sizeFileType = 0;
 %%
-[AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
+% [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/simple/quad_quad2.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/airfoil-training/tri/naca0012.cas', gridType);
 % [AFT_stack,Coord, Grid,wallNodes]  = read_grid('../grid/airfoil-training/tri/rae2822.cas', gridType);
-% [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/airfoil-training/tri/anw.cas', gridType);
+[AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/airfoil-training/tri/anw.cas', gridType);
 nodeList = AFT_stack(:,1:2);
 node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
 xCoord_AFT = Coord(1:node_num,1);                %初始阵面点坐标

@@ -81,6 +81,7 @@ else
        
     elseif SpDefined == 2
         Sp = max([h,Sp]);
+% Sp = h;
     else      
         Sp = h;
     end
