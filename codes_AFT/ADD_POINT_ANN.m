@@ -55,7 +55,7 @@ else
     new_point = nn_fun(input');
     
     if standardlize == 1
-        [new_point(1), new_point(2)] = AntiTransform( new_point(1:2),...
+        [new_point(1), new_point(2)] = AntiTransform( [new_point(1), new_point(2)],...
             [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);
     end
     x_new = new_point(1);
