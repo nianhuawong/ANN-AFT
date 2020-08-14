@@ -24,10 +24,11 @@ for i =1:nFaces
 
     angle2 = acos( v_bc * v_ba' / ( d_bc + 1e-40 ) / ( d_ab  + 1e-40 ) );
     dist2 = d_bc * sin(angle2);
-    
-    if abs(dist-dist2)>1e-5
+        
+    if abs(dist-dist2)>1e-5 || i == 1965
         kkk = 1;
     end
+    
     if v_ac * v_ab' <=  0 || v_bc * v_ba' <= 0
         flagClose = 0;
     elseif dist / dd < 0.3

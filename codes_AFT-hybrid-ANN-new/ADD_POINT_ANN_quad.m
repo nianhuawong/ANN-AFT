@@ -98,7 +98,7 @@ end
     nodeNum = length(xCoord);
     [quality,~] = QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
     
-if abs( quality - 1.0 ) > epsilon          
+if quality < epsilon %abs( quality - 1.0 ) > epsilon          
     %%
 %     v_base = [xCoord(node2)-xCoord(node1), yCoord(node2)-yCoord(node1)];
 %     v_newpoint = [x_new(2)-x_new(1), y_new(2)-y_new(1)];

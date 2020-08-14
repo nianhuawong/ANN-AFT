@@ -1,14 +1,16 @@
-function flagClose = IsEdgeClose2Point(edge, xCoord, yCoord, node_ex)
+function flagClose = IsEdgeClose2Point(AFT_stack, edge, xCoord, yCoord, node_ex)
 flagClose = 0;
 nNodes = length(xCoord);
 edgeIn1 = edge(1);
 edgeIn2 = edge(2);
 
+frontNodes = unique( AFT_stack(:,1:2) );
+
 node_a = [xCoord(edgeIn1), yCoord(edgeIn1)];
 node_b = [xCoord(edgeIn2), yCoord(edgeIn2)];
 
 for i = 1:nNodes
-    if i == edgeIn1 || i == edgeIn2 || i == node_ex
+    if i == edgeIn1 || i == edgeIn2 || sum( node_ex == i )~= 0 || sum( frontNodes == i ) == 0 
         continue;
     end
     

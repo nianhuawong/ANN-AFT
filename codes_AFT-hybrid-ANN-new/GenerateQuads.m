@@ -9,8 +9,8 @@ node2_base = AFT_stack_sorted(1,2);
 ds = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
 %%
-% [x_best_quad, y_best_quad, stepSize] = ADD_POINT_quad(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp);
-[x_best_quad, y_best_quad, stepSize] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon);
+[x_best_quad, y_best_quad, Sp] = ADD_POINT_quad(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp);
+% [x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon);
                                                 
 %     PLOT_CIRCLE(x_best_quad, y_best_quad, al, Sp, ds, node_best);
 %%
@@ -31,14 +31,14 @@ y_best1 = y_best_quad(1);y_best2 = y_best_quad(2);
 al2 = 0.8;
 while sum(node_select) == -2
     
-candidateList1 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best1, y_best1], al2*stepSize);
-candidateList2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al2*stepSize);
+candidateList1 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best1, y_best1], al2*Sp);
+candidateList2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al2*Sp);
 
 candidateList1(end+1) = node_best + 1;
 candidateList2(end+1) = node_best + 2;
 
-node_tmp1 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best1, y_best1], al * Sp * ds );
-node_tmp2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al * Sp * ds );
+node_tmp1 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best1, y_best1], al * ds );
+node_tmp2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al * ds );
 
 nodeCandidate_tmp = [node_tmp1(:)', node_tmp2(:)', node1_base, node2_base];
 frontCandidate = FrontCandidate(AFT_stack_sorted, nodeCandidate_tmp);
@@ -52,11 +52,11 @@ for i = 1:M
     for j = 1:N     
         node_select2 = candidateList2(j);
         if node_select1 ~= node_select2
-            [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select2, node_select1, xCoord_tmp, yCoord_tmp, -1);
-%             Qp(i,j) = 1.0 / abs( 1.0 - quality );
+            [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select2, node_select1, xCoord_tmp, yCoord_tmp, Sp);
+%             quality = QualityCheckQuad_new(node1_base, node2_base, node_select2, node_select1, xCoord_tmp, yCoord_tmp);
             Qp(i,j) = quality;
             if node_select1 > node_best && node_select2 > node_best
-                Qp(i,j) = 0.8 * coeff * Qp(i,j);
+                Qp(i,j) = coeff * coeff * Qp(i,j);
             elseif node_select1 > node_best || node_select2 > node_best
                 Qp(i,j) = coeff * Qp(i,j);               
             end
@@ -64,46 +64,18 @@ for i = 1:M
     end
 end
 
-Qp_sort = sort(Qp(:),'descend');
+Qp_sort = sort(Qp(:),'descend'); 
 for i = 1:M*N
     [row,col] = find(Qp==Qp_sort(i));
     node_select1 = candidateList1(row(1));
     node_select2 = candidateList2(col(1));
-    flagNotCross1 = IsNotCross(node1_base, node2_base, node_select1, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
-        frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp,1);
-    if flagNotCross1 == 0
-        continue;
-    end
     
-    flagNotCross2 = IsNotCross(node1_base, node2_base, node_select1, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
-        faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp,1);
-    if flagNotCross2 == 0
-        continue;
-    end
-    
-    flagNotCross3 = IsNotCross(node1_base, node2_base, node_select2, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
-        frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp,2);
-    if flagNotCross3 == 0
-        continue;
-    end
-    
-    flagNotCross4 = IsNotCross(node1_base, node2_base, node_select2, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
-        faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp,2);
-    if flagNotCross4 == 0
-        continue;
-    end
-    
-    flagNotCross5 = IsNotCross(node_select1, node2_base, node_select2, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
-        frontCandidate, AFT_stack_sorted, xCoord_tmp, yCoord_tmp,1);
-    if flagNotCross5 == 0
-        continue;
-    end
-    
-    flagNotCross6 = IsNotCross(node_select1, node2_base, node_select2, ...        %除判断相交外，还需判断是否构成左单元，只选择构成左单元的点
-        faceCandidate, Grid_stack, xCoord_tmp, yCoord_tmp,1);
-    if flagNotCross6 == 0
-        continue;
-    end
+    flagNotCross = IsNotCrossAll(node1_base, node2_base, node_select1, node_select2,...
+                              frontCandidate, AFT_stack_sorted, faceCandidate, Grid_stack, ...
+                              xCoord_tmp, yCoord_tmp);    
+      if flagNotCross == 0
+          continue;
+      end
                        
     flagLeftCell1 = IsLeftCell(node1_base, node2_base, node_select1, xCoord_tmp, yCoord_tmp);
     flagLeftCell2 = IsLeftCell(node1_base, node2_base, node_select2, xCoord_tmp, yCoord_tmp);
@@ -122,6 +94,20 @@ for i = 1:M*N
     if flagDiag1 == 1 || flagDiag2 == 1
         continue;
     end
+
+    if node_select1 == node_best + 1 || node_select1 == node_best + 2
+        flagClose1 = IsPointClose2Edge([Grid_stack;AFT_stack_sorted], xCoord_tmp, yCoord_tmp, node_select1);
+        if flagClose1 == 1
+            continue;
+        end
+    end
+    
+    if node_select2 == node_best + 2 || node_select2 == node_best + 1
+        flagClose2 = IsPointClose2Edge([Grid_stack;AFT_stack_sorted], xCoord_tmp, yCoord_tmp, node_select2);
+        if flagClose2 == 1
+            continue;
+        end
+    end  
     
 %     flagClose1 = IsEdgeClose2Point([node1_base,node_select1], xCoord_tmp, yCoord_tmp, node2_base);
 %     if flagClose1 == 1
@@ -142,7 +128,8 @@ for i = 1:M*N
     break;
 end
 al2 = 2.0 * al2;
-if al2 > 3.0 || sum(node_select) > -2
+[quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(2), node_select(1), xCoord_tmp, yCoord_tmp, Sp);
+if ( quality > epsilon && sum(node_select) > 0 ) || al2 > 3.2
     break;
 end
 end
@@ -202,7 +189,7 @@ end
 
 % 判断四边形质量，如果质量太差，就生成三角形单元
 [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(2), node_select(1), xCoord_AFT, yCoord_AFT, Sp);
-if abs( quality - 1.0 ) > epsilon
+if quality < epsilon
     node_select = [-1,-1];
     coordX = -1;
     coordY = -1;

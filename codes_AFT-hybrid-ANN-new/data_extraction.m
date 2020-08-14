@@ -1,6 +1,6 @@
 clear;close all;tic;format long;
 %%
-global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType outGridType;
+global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType outGridType SpDefined; 
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
 Sp          = 1;        % 网格步长  % Sp = sqrt(3.0)/2.0;  %0.866，传统阵面推进才需要
 al          = 3.0;      % 在几倍范围内搜索
@@ -8,18 +8,20 @@ coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;   % 暂停时长
 stencilType = 'all';  % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
-epsilon     = 0.2;       % 四边形网格质量要求, 值越大要求越低
-nn_fun      = @net_airfoil_hybrid;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
+epsilon     = 0.6;       % 四边形网格质量要求, 值越大要求越高
+nn_fun      = @net_cylinder_quad3;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
 num_label   = 0;
 flag_label  = zeros(1,10000);
 cellNodeTopo = [];
+SpDefined    = 1;   % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
+stepSizeFile = '../grid/naca0012/tri/naca0012-tri-quadBC.cas';
 %%
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
-[AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/simple/quad_quad3.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/quad/inv_cylinder_quad-c.cas', gridType);
-% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-30.cas', gridType);
-% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+% [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-20.cas', gridType);
+[AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/RAE2822/rae2822.cas', gridType);
 % [AFT_stack,Coord,Grid,wallNodes]  = read_grid('../grid/ANW/anw.cas', gridType);
 %%
@@ -45,22 +47,31 @@ for i =1:size(AFT_stack,1)
     %     AFT_stack(i,5) = 1e5* AFT_stack(i,5);
 %     end
 end
+
+if SpDefined == 1
+    [SpField, backGrid, backCoord] = StepSizeField(stepSizeFile, 0);
+end
+
 %%
-% AFT_stack_sorted = AFT_stack;
-AFT_stack_sorted = sortrows(AFT_stack, 5);
+AFT_stack_sorted = AFT_stack;
+% AFT_stack_sorted = sortrows(AFT_stack, 5);
 %%
 while size(AFT_stack_sorted,1)>0
-    Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid);
+    if SpDefined == 1
+        Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
+    else
+        Sp = -1;
+    end
+    
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);  
     
-    %%
-     
+    %%   
     size0 = size(AFT_stack_sorted,1);
     %% 
-    if nCells_AFT >= 165
-        if node1_base == 146 && node2_base == 147 || node1_base == 126 && node2_base == 313|| ...
-                node1_base == 313 && node2_base == 314
+    if nCells_AFT >= 300
+        if node1_base == 1165 && node2_base == 1166 || node1_base == 1127 && node2_base == 1128|| ...
+                node1_base == 994 && node2_base == 1083
             kkk = 1;
         end
         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
@@ -121,7 +132,7 @@ while size(AFT_stack_sorted,1)>0
     %找出非活跃阵面，并删除
     [AFT_stack_sorted, Grid_stack] = DeleteInactiveFront(AFT_stack_sorted, Grid_stack);
 
-    AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
+%     AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
 end
 disp(['阵面推进完成，单元数：', num2str(nCells_AFT)]);
 disp(['阵面推进完成，quad单元数：', num2str(nCells_quad)]);
@@ -131,7 +142,11 @@ disp(['阵面推进完成，面个数：', num2str(size(Grid_stack,1))]);
 toc
 hold off;
 %%
-DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
+% PLOT(Grid_stack, xCoord_AFT, yCoord_AFT);
+triMesh = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
+% GridQualitySummaryDelaunay(triMesh, wallNodes);
+hold off;
+combinedMesh = CombineMesh(triMesh,wallNodes,epsilon, xCoord_AFT, yCoord_AFT);
 toc
 
 
