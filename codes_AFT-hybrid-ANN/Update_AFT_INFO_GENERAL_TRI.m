@@ -8,7 +8,7 @@ dist13 = DISTANCE(node1, node3, xCoord_AFT, yCoord_AFT);
 dist23 = DISTANCE(node2, node3, xCoord_AFT, yCoord_AFT);
 %%
 flag1 = IsLeftCell(node1, node2, node3, xCoord_AFT, yCoord_AFT);
-[direction, row] = FrontExist(node1,node2, AFT_stack_sorted);    
+[row, direction] = FrontExist(node1,node2, AFT_stack_sorted);    
 if( flag1 == 1 )        %如果为左单元        
     if( row ~= -1 )  %如果已经存在
         if(direction == 1)  %如果AFT_stack_sorted中存储方向为（node1，node2）
@@ -32,7 +32,7 @@ else  %如果为右单元
 end
 
 flag2 = IsLeftCell(node2, node3, node1, xCoord_AFT, yCoord_AFT);
-[direction, row] = FrontExist(node2,node3, AFT_stack_sorted); 
+[row, direction] = FrontExist(node2,node3, AFT_stack_sorted); 
 if( flag2 == 1 )
     if( row ~= -1 )
         if(direction == 1)
@@ -56,7 +56,7 @@ else
 end
 
 flag3 = IsLeftCell(node3, node1, node2, xCoord_AFT, yCoord_AFT);
-[direction, row] = FrontExist(node3,node1, AFT_stack_sorted); 
+[row, direction] = FrontExist(node3,node1, AFT_stack_sorted); 
 if( flag3 == 1 )
     if( row ~= -1 )
         if(direction == 1)

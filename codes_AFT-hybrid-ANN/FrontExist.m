@@ -1,4 +1,5 @@
-function [direction, row] = FrontExist(node1,node2, AFT_stack)
+% [row, direction] = FrontExist(452,331, AFT_stack_sorted)
+function [row, direction] = FrontExist(node1,node2, AFT_stack)
 row = -1;
 direction = 0;
 if node1 == -1 || node2 == -1 

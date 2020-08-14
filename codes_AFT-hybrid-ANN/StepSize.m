@@ -7,15 +7,6 @@ node1_b = [ xCoord_AFT(node1_base), yCoord_AFT(node1_base)];
 node2_b = [ xCoord_AFT(node2_base), yCoord_AFT(node2_base)];
 mid0 = 0.5 * ( node1_b + node2_b );
 
-% % wdist = ComputeWallDistOfNode(Grid, [xCoord_AFT, yCoord_AFT], mid0);
-% sp1 = 0.15;
-% sp2 = 1.0;
-% a = (sp2 - sp1) / 10.0;
-% b = sp1 - a;
-% % if ds <=3
-%     Sp = a * wdist + b;
-% % end
-
 xCoord = backCoord(:,1); yCoord = backCoord(:,2);
 dvv = zeros(1,size(backGrid,1));
 for i=1:size(backGrid,1)
@@ -30,10 +21,13 @@ for i=1:size(backGrid,1)
     vv = mid1 -mid0;
     dvv(i) = sqrt( vv(1)^2 + vv(2)^2 );
 end
-% [minv, Index] = min(dvv); 
-% Sp = SpField(Index);
+[~, index] = sort(dvv);
 
-[val, index] = sort(dvv);
-Sp = mean( SpField(index(1:3)) );
-% Sp = mean( SpField(index(1:10)) );
+Sp = 0; dist = 0;
+for i = 1:3
+    iNode = index(i);
+    Sp = Sp + SpField(iNode) * ( 1.0 / ( dvv(iNode) + 1e-7 ) );   %·´¾àÀë¼ÓÈ¨
+    dist = dist + ( 1.0 / ( dvv(iNode) + 1e-7 ) );
+end
+Sp = Sp / dist;
 end

@@ -8,6 +8,6 @@ for i = 1:length(fronts)
     xx = [xCoord(node1),xCoord(node2)];
     yy = [yCoord(node1),yCoord(node2)];
     
-    plot( xx, yy, 'b-');    
+    plot( xx, yy, 'g-');    
     hold on;
 end

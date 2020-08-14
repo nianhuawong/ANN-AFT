@@ -1,4 +1,5 @@
-function [direction, row] = CellExist(node1, node2, node3, node4, cellNodeTopo)
+%[row, direction] = CellExist(331,324,323,452, cellNodeTopo)
+function [row, direction] = CellExist(node1, node2, node3, node4, cellNodeTopo)
 row = -1;
 direction = 0;
 

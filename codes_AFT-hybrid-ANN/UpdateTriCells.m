@@ -198,13 +198,13 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
             node4 = new_cell(i,4);
            if node4 > 0
                [quality,~] = QualityCheckQuad(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT, -1);
-               if abs( 1.0- quality ) > epsilon/2.0
+               if quality < epsilon % abs( 1.0- quality ) > epsilon/2.0
                    new_cell(i,:)=-1;
                end
            elseif node4 < 0
                [quality,~] = QualityCheckTri(node1, node2, node3, xCoord_AFT, yCoord_AFT, -1);
-                if abs( 1.5- quality ) > epsilon/2.0
-%                 if abs( 1.0- quality ) > epsilon
+                if quality < epsilon % abs( 1.5- quality ) > epsilon/2.0
+%                 if quality < epsilon % abs( 1.0- quality ) > epsilon
                    new_cell(i,:)=-1;
                end
            end

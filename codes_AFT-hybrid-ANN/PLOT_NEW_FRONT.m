@@ -18,11 +18,11 @@ for i = 1:num
     hold on;
     
     if flag_label(node1) == 0 && num_label == 1
-        text(xCoord(node1)+0.05*dist,yCoord(node1),num2str(node1), 'Color', 'red', 'FontSize', 9)
+        text(xCoord(node1)+0.05*dist,yCoord(node1)+0.05*dist,num2str(node1), 'Color', 'red', 'FontSize', 9)
         flag_label(node1) = 1;
     end
     if flag_label(node2) == 0 && num_label == 1
-        text(xCoord(node2)+0.05*dist,yCoord(node2),num2str(node2), 'Color', 'red', 'FontSize', 9)
+        text(xCoord(node2)+0.05*dist,yCoord(node2)+0.05*dist,num2str(node2), 'Color', 'red', 'FontSize', 9)
         flag_label(node2) = 1;
     end
 end

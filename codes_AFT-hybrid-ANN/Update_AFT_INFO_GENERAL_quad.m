@@ -16,7 +16,7 @@ dist14 = DISTANCE(node1, node4, xCoord_AFT, yCoord_AFT);
 %%
 flag11 = IsLeftCell(node1, node2, node3, xCoord_AFT, yCoord_AFT);  %判断新增单元是否为左单元
 flag12 = IsLeftCell(node1, node2, node4, xCoord_AFT, yCoord_AFT);
-[direction, row] = FrontExist(node1, node2, AFT_stack_sorted);  %判断阵面是否已经存在及其在AFT_stack_sorted中的方向
+[row, direction] = FrontExist(node1, node2, AFT_stack_sorted);  %判断阵面是否已经存在及其在AFT_stack_sorted中的方向
 if( flag11 == 1 && flag12 == 1)  %如果为左单元
     if( row ~= -1 )   %如果已经存在
         if(direction == 1) %如果AFT_stack_sorted中存储方向为（node_select，node1_base）
@@ -43,7 +43,7 @@ end
 %对于非基准阵面，分2种情况，对已存在的阵面按照正常逻辑更新，对于新引入的阵面，按照反的逻辑来更新
 flag21 = IsLeftCell(node2, node3, node4, xCoord_AFT, yCoord_AFT);  %判断新增单元是否为（node_select，node1_base）左单元
 flag22 = IsLeftCell(node2, node3, node1, xCoord_AFT, yCoord_AFT);
-[direction, row] = FrontExist(node2, node3, AFT_stack_sorted);  %判断阵面（node_select，node1_base）是否已经存在及其在AFT_stack_sorted中的方向
+[row, direction] = FrontExist(node2, node3, AFT_stack_sorted);  %判断阵面（node_select，node1_base）是否已经存在及其在AFT_stack_sorted中的方向
 if( flag21 == 1 && flag22 == 1)  %如果为左单元
     if( row ~= -1 )   %如果已经存在
         if(direction == 1) %如果AFT_stack_sorted中存储方向为（node_select，node1_base）
@@ -68,7 +68,7 @@ end
 
 flag31 = IsLeftCell(node3, node4, node1, xCoord_AFT, yCoord_AFT);
 flag32 = IsLeftCell(node3, node4, node2, xCoord_AFT, yCoord_AFT);
-[direction, row] = FrontExist(node3, node4, AFT_stack_sorted); 
+[row, direction] = FrontExist(node3, node4, AFT_stack_sorted); 
 if( flag31 == 1 && flag32 == 1 ) %如果为左单元
     if( row ~= -1 )%如果已经存在
         if(direction == 1)%如果AFT_stack_sorted中存储方向为（node2_base, node_select）
@@ -93,7 +93,7 @@ end
 
 flag41 = IsLeftCell(node4, node1, node2, xCoord_AFT, yCoord_AFT);
 flag42 = IsLeftCell(node4, node1, node3, xCoord_AFT, yCoord_AFT);
-[direction, row] = FrontExist(node4, node1, AFT_stack_sorted); 
+[row, direction] = FrontExist(node4, node1, AFT_stack_sorted); 
 if( flag41 == 1 && flag42 == 1 ) %如果为左单元
     if( row ~= -1 )%如果已经存在
         if(direction == 1)%如果AFT_stack_sorted中存储方向为（node2_base, node_select）

@@ -26,7 +26,6 @@ if strcmp(stencilType, 'all')
         for j = 1:length(neighborNode2)
             neighborNode22 = neighborNode2(j);
             input_node = [neighborNode11, node1, node2, neighborNode22];
-            % input = [xCoord(input_node); yCoord(input_node);wdist]';
             input = [xCoord(input_node); yCoord(input_node)]';
             if standardlize == 1
                 input = Standardlize(input);
@@ -46,8 +45,8 @@ if strcmp(stencilType, 'all')
     out_pointY1 = sum(new_point(:,3)) / size(new_point,1);
     out_pointY2 = sum(new_point(:,4)) / size(new_point,1);
     
-    x_new = [out_pointX1, out_pointX2];
-    y_new = [out_pointY1, out_pointY2];
+    x_new = [out_pointX1; out_pointX2];
+    y_new = [out_pointY1; out_pointY2];
      
      if SpDefined == 2        
         Sp = sum(new_point(:,5)) / size(new_point,1);
@@ -74,8 +73,8 @@ else
             [xCoord(node1), yCoord(node1)], [xCoord(node2), yCoord(node2)]);        
      end
      
-    x_new = new_point(1:2)';
-    y_new = new_point(3:4)'; 
+    x_new = new_point(1:2);
+    y_new = new_point(3:4); 
     
     if SpDefined == 2
         Sp = new_point(5);
@@ -83,53 +82,22 @@ else
     end    
 end
 %%
-%     v_ad =   [x_new(2)-xCoord(node1), y_new(2)-yCoord(node1)];
-%     v_cb = - [x_new(1)-xCoord(node2), y_new(1)-yCoord(node2)];
-%     
-%     dd1 = sqrt( v_ad(1)^2 + v_ad(2)^2 );
-%     dd2 = sqrt( v_cb(1)^2 + v_cb(2)^2 );
-%     angle = acos( v_ad * v_cb' / dd1 / dd2 );
-%     Area = 0.5 * dd1 * dd2 * sin(angle);
-%     h = sqrt(Area);
-%     
-%     Sp = max([h,Sp]);
-    
-%     mid = 0.5 * [x_new(1)+x_new(2), y_new(1)+y_new(2)];
-    
-%     plot(x_new,y_new,'*')
-%     plot(mid(1),mid(2),'*')
-    
-%     v_new1 = [x_new(1)-mid(1), y_new(1)-mid(1)];
-%     v_new2 = [x_new(2)-mid(2), y_new(2)-mid(2)];
-%     v_new1 = Sp * v_new1;
-%     v_new2 = Sp * v_new2;
-%     
-%     tmp = v_new1 + mid;
-%     x_new(1) = tmp(1);
-%     y_new(1) = tmp(2);
-%     
-%     tmp2 = v_new2 + mid;
-%     x_new(2) = tmp2(1);
-%     y_new(2) = tmp2(2); 
-%  
+
 %     plot(x_new,y_new,'*')
     
-    xCoord_tmp = [xCoord; x_new'];
-    yCoord_tmp = [yCoord; y_new'];
+    xCoord_tmp = [xCoord; x_new];
+    yCoord_tmp = [yCoord; y_new];
     nodeNum = length(xCoord);
-    [quality,~] = QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
-    
-if abs( quality - 1.0 ) > epsilon          
-    %%
-%     v_base = [xCoord(node2)-xCoord(node1), yCoord(node2)-yCoord(node1)];
-%     v_newpoint = [x_new(2)-x_new(1), y_new(2)-y_new(1)];
-%     
-%     dd1 = sqrt( v_base(1)^2 + v_base(2)^2 );
-%     dd2 = sqrt( v_newpoint(1)^2 + v_newpoint(2)^2 );
-%     angle = acos( v_base * v_newpoint'/ dd1 / dd2 );
-%     angle = angle / pi * 180;
-    
-%     if  dd2 / dd1 < 0.2 || abs( ( abs(angle) - 90 ) ) < 30 || abs(h-Sp)/h > 0.2
+    [quality1,~] = QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
+    [quality2,~] = QualityCheckQuad(node1, node2, nodeNum+1, nodeNum+2, xCoord_tmp, yCoord_tmp, Sp);
+    if quality2 > quality1 && quality2 > 0
+        tmp = [x_new(1), y_new(1)];
+        x_new(1) = x_new(2); y_new(1) = y_new(2);
+        x_new(2) = tmp(1);   y_new(2) = tmp(2);
+    end
+    quality = max(quality1,quality2);
+    %%    
+if quality < epsilon           
         x_new = 0.5 * ( x_new(1) + x_new(2) );
         y_new = 0.5 * ( y_new(1) + y_new(2) );
         
@@ -148,7 +116,6 @@ if abs( quality - 1.0 ) > epsilon
         pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
         x_new = pointE(1);
         y_new = pointE(2);
-%     end
 end
 
 
