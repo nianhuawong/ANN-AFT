@@ -234,7 +234,7 @@ global epsilon cellNodeTopo outGridType;
         
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
-            [~, row] = CellExist(iCell(1), iCell(2), iCell(3), iCell(4), cellNodeTopo);
+            [row, ~] = CellExist(iCell(1), iCell(2), iCell(3), iCell(4), cellNodeTopo);
             if row ~= -1
                 new_cell(i,:)=-1;
             end
