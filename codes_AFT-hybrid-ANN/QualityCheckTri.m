@@ -19,7 +19,7 @@ r = 2.0 * area / ( ( a + b + c ) );                  %内切圆半径
 R = a * b * c / 4.0 / area + 1e-40;                  %外接圆半径  
 
 quality =   3.0 * r / R;
-quality =   quality / 1.5;
+% quality =   quality / 1.5;   %转换到[0,1]
 
 v_13 = [xCoord_AFT(node3)-xCoord_AFT(node1), yCoord_AFT(node3)-yCoord_AFT(node1)];
 normal = normal_vector(node1, node2, xCoord_AFT, xCoord_AFT); 

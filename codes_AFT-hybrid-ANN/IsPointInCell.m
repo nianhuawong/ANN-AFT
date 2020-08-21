@@ -23,7 +23,7 @@ for i = 1:nCells
     cell(cell==-22) = [];
     cell = unique(cell,'stable');
     
-    if i == 1433
+    if i == 545
         kkk = 1;
     end
     
@@ -57,8 +57,8 @@ for i = 1:nCells
         area4 = AreaTriangle(node0, node4, node1);  
         
         if abs(area0-area1-area2-area3-area4) <1e-5 ...
-                && abs(area0) > 1e-5 && abs(area1) > 1e-5 ...
-                && abs(area2) > 1e-5 && abs(area3) > 1e-5 && abs(area4) > 1e-5
+                && abs(area0) > 1e-8 && abs(area1) > 1e-8 ...
+                && abs(area2) > 1e-8 && abs(area3) > 1e-8 && abs(area4) > 1e-8
             flagInCell = 1;
             break;
         end

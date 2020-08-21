@@ -82,7 +82,6 @@ else
     end    
 end
 %%
-
 %     plot(x_new,y_new,'*')
     
     xCoord_tmp = [xCoord; x_new];
@@ -107,7 +106,7 @@ if quality < epsilon
         v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
         h = abs( v_ac * normal' );
 
-        Sp = max([h,Sp]);
+%         Sp = max([h,Sp]);
 %         Sp = h;
         
         v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;

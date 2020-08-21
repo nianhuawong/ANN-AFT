@@ -24,7 +24,7 @@ end
 [~, index] = sort(dvv);
 
 Sp = 0; dist = 0;
-for i = 1:3
+for i = 1:10
     iNode = index(i);
     Sp = Sp + SpField(iNode) * ( 1.0 / ( dvv(iNode) + 1e-7 ) );   %∑¥æ‡¿Îº”»®
     dist = dist + ( 1.0 / ( dvv(iNode) + 1e-7 ) );
