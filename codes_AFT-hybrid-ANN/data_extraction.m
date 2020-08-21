@@ -1,13 +1,14 @@
 global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri stencilType outGridType standardlize SpDefined useANN; 
-restart = 0;  %         是否重头开始
-if restart == 0 
+restart = 0;
+if restart == 0
 close all;tic;format long;%clear;
+%%
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.85;     % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 dt          = 0.00001;  % 暂停时长
 stencilType = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
-epsilon     = 0.50;     % 四边形网格质量要求, 值越大要求越高
+epsilon     = 0.7;     % 四边形网格质量要求, 值越大要求越高
 useANN      = 1;        % 是否使用ANN生成网格
 cd ./net;
 nn_fun      = @net_naca0012_quad_fine;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
@@ -17,11 +18,11 @@ isSorted     = 1;       %是否对阵面进行排序推进
 num_label    = 0;       %是否在图中输出点的编号
 SpDefined    = 1;       % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
 % stepSizeFile     = '../grid/simple/tri.cas';
-% stepSizeFile     = '../grid/simple/pentagon-fine.cas';
-% stepSizeFile     = '../grid/simple/quad_quad3.cas';
+% stepSizeFile     = '../grid/simple/pentagon3.cas';
+% stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/special.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
-stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas';
+stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder.cas';
+% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas';
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
@@ -47,10 +48,10 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 
 %%  先将边界阵面推进
 for i =1:size(AFT_stack,1)
-    if AFT_stack(i,7) == 3
+%     if AFT_stack(i,7) == 3
         AFT_stack(i,5) = 0.00001* AFT_stack(i,5);
     %     AFT_stack(i,5) = 1e5* AFT_stack(i,5);
-    end
+%     end
 end
 %%
 if SpDefined == 1
@@ -77,18 +78,18 @@ while size(AFT_stack_sorted,1)>0
     node2_base = AFT_stack_sorted(1,2);        
     
     %% 
-    if nCells_AFT >= 121000
-        if node1_base == 373 && node2_base == 399 || node1_base == 296 && node2_base == 429|| ...
+    if nCells_AFT >= 0
+        if node1_base == 169 && node2_base == 167 || node1_base == 375 && node2_base == 167|| ...
                 node1_base == 313 && node2_base == 314
 %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
         end
 %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);    
     end
-    
-%     if xCoord_AFT(node1_base) < 0.4 && xCoord_AFT(node1_base) > -0.4 && nCells_AFT < 300 || AFT_stack_sorted(1,7) == 9
-%         N = randi(size0,1,1); 
-%         tmp = AFT_stack_sorted(1,:); 
-%         AFT_stack_sorted(1,:) = AFT_stack_sorted(N,:);  
+
+%     if xCoord_AFT(node1_base) < 0.4 && xCoord_AFT(node1_base) > -0.4 && nCells_AFT < 300 && AFT_stack_sorted(1,7) ~= 9
+%         N = randi(size0,1,1);
+%         tmp = AFT_stack_sorted(1,:);
+%         AFT_stack_sorted(1,:) = AFT_stack_sorted(N,:);
 %         AFT_stack_sorted(N,:) = tmp;
 %         continue;
 %     end    
@@ -157,12 +158,12 @@ triMesh = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
 % GridQualitySummaryDelaunay(triMesh, wallNodes);
 hold off;
 %%
-[xCoord, yCoord] = SpringOptimize(triMesh,wallNodes,2);
+[xCoord, yCoord] = SpringOptimize(triMesh,wallNodes,3);
 % GridQualitySummaryDelaunay(triMesh, wallNodes, xCoord, yCoord)
 % hold off;
 %%
-combinedMesh = CombineMesh(triMesh,wallNodes,epsilon);
-% combinedMesh = CombineMesh(triMesh,wallNodes,epsilon, xCoord, yCoord);
+% combinedMesh = CombineMesh(triMesh,wallNodes,epsilon);
+combinedMesh = CombineMesh(triMesh,wallNodes,0.5, xCoord, yCoord);
 toc
 
 

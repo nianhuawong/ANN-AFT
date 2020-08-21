@@ -5,8 +5,28 @@ if nargin == 3
 end
 tri = triMesh.ConnectivityList;
 neighbor = neighbors(triMesh);
- 
+tri_bak = tri; 
 nCells_ori = size(tri,1);
+wallCells = [];
+for i = 1:nCells_ori
+    tmp = intersect(wallNodes,tri(i,:));
+    if length(tmp) >= 2
+        wallCells(end+1) = i;
+    end
+end
+
+nWallCells = length(wallCells);
+for i = 1:nWallCells    
+    tmp = tri(i,:);
+    tri(i,:) = tri(wallCells(i),:);
+    tri(wallCells(i),:) = tmp;
+    
+    tmp2 = neighbor(i,:);
+    neighbor(i,:) = neighbor(wallCells(i),:);
+    neighbor(wallCells(i),:) = tmp2;    
+end
+
+
 quad = zeros( round(nCells_ori/2), 4 );
 % for i = 1:nCells_ori
 %     plot(xCoord(tri(i,1)),yCoord(tri(i,1)),'r*')
@@ -16,6 +36,9 @@ quad = zeros( round(nCells_ori/2), 4 );
 % end
 count = 0;
 for i = 1:nCells_ori
+    if i==45
+        kkk = 1;
+    end
     node1 = tri(i,1);
     node2 = tri(i,2);
     node3 = tri(i,3);
@@ -32,7 +55,7 @@ for i = 1:nCells_ori
             continue;
         end
         
-        [~,~,IB] = intersect(tri(i,:),tri(TN(j),:));
+        [~,~,IB] = intersect(tri(i,:),tri_bak(TN(j),:));
         node_t = tri(TN(j),:);
         node_t(IB)=[];
         if node_t(1) == -1
@@ -53,13 +76,16 @@ for i = 1:nCells_ori
         flag2 = IsLeftCell(node3, node1, node_t, xCoord, yCoord);
         flag3 = IsLeftCell(node2, node3, node_t, xCoord, yCoord);
         if flag1 == 0
-            tmp = QualityCheckQuad_new(node1, node_t, node2, node3, xCoord, yCoord);
+            tmp = QualityCheckQuad(node1, node_t, node2, node3, xCoord, yCoord,-1);
+%             tmp = QualityCheckQuad_new(node1, node_t, node2, node3, xCoord, yCoord);
             cell_tmp = [node1, node_t, node2, node3];
         elseif flag2 == 0
-            tmp = QualityCheckQuad_new(node3, node_t, node1, node2, xCoord, yCoord);
+            tmp = QualityCheckQuad(node3, node_t, node1, node2, xCoord, yCoord,-1);
+%             tmp = QualityCheckQuad_new(node3, node_t, node1, node2, xCoord, yCoord);
             cell_tmp = [node3, node_t, node1, node2];
         elseif flag3 == 0
-            tmp = QualityCheckQuad_new(node2, node_t, node3, node1, xCoord, yCoord);
+            tmp = QualityCheckQuad(node2, node_t, node3, node1, xCoord, yCoord,-1);
+%             tmp = QualityCheckQuad_new(node2, node_t, node3, node1, xCoord, yCoord);
             cell_tmp = [node2, node_t, node3, node1];
         end      
         
@@ -72,16 +98,19 @@ for i = 1:nCells_ori
     end
     
    if node == -1  
-       if sum( wallNodes == node1 )~= 0 && sum( wallNodes == node2 )~=0 && sum( wallNodes == node3 )~=0 %&& min([node1,node2,node3])>36
+       cell_tmp1 = [node1,node2,node3];
+       tmp = intersect(wallNodes,cell_tmp1);
+       if length(tmp)>=3 && min([node1,node2,node3])>36
            
        else
            quad(count+1,:) = [node1,node2,node3,-1];
            count = count + 1;
            tri(i,:) = -1;
        end
-   else      
-       if sum( wallNodes == node1 )~= 0 && sum( wallNodes == node2 )~=0 && ...
-               sum( wallNodes == node3 )~= 0 && sum( wallNodes == node )~= 0
+   else   
+       cell_tmp1 = [node1,node2,node3,node];
+       tmp = intersect(wallNodes,cell_tmp1);
+       if length(tmp)>=3
            
        else
            quad(count+1,:) = cell;

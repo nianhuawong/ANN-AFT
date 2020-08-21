@@ -1,5 +1,5 @@
-function [x_new, y_new, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType, epsilon, Sp )
-global standardlize SpDefined;
+function [x_new, y_new, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType, Sp )
+global standardlize SpDefined epsilon;
 node1 = AFT_stack(1,1);
 node2 = AFT_stack(1,2);
 
@@ -82,6 +82,7 @@ else
     end    
 end
 %%
+
 %     plot(x_new,y_new,'*')
     
     xCoord_tmp = [xCoord; x_new];
@@ -94,9 +95,19 @@ end
         x_new(1) = x_new(2); y_new(1) = y_new(2);
         x_new(2) = tmp(1);   y_new(2) = tmp(2);
     end
+    
+    if abs(quality2) < 1e-8 && abs(quality1) < 1e-8
+        flagConvexPoly = IsConvexPloygon(node1, node2, nodeNum+1, nodeNum+2, xCoord_tmp, yCoord_tmp);
+        if flagConvexPoly == 1
+            tmp = [x_new(1), y_new(1)];
+            x_new(1) = x_new(2); y_new(1) = y_new(2);
+            x_new(2) = tmp(1);   y_new(2) = tmp(2);
+        end
+    end
+    
     quality = max(quality1,quality2);
     %%    
-if quality < epsilon           
+    if quality < epsilon
         x_new = 0.5 * ( x_new(1) + x_new(2) );
         y_new = 0.5 * ( y_new(1) + y_new(2) );
         
@@ -105,9 +116,9 @@ if quality < epsilon
         
         v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
         h = abs( v_ac * normal' );
-
+        
 %         Sp = max([h,Sp]);
-%         Sp = h;
+        %         Sp = h;
         
         v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;
         v_ad = ( v_ac * v_ab' ) .* v_ab;
@@ -115,6 +126,5 @@ if quality < epsilon
         pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
         x_new = pointE(1);
         y_new = pointE(2);
+    end
 end
-
-

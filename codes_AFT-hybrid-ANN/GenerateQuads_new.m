@@ -10,7 +10,7 @@ ds_base = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的
 
 %%
 if useANN == 1 
-    [x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, epsilon, Sp);
+    [x_best_quad, y_best_quad, Sp] = ADD_POINT_ANN_quad(nn_fun, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Grid_stack, stencilType, Sp);
 else
     [x_best_quad, y_best_quad, Sp] = ADD_POINT_quad(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp);
 end
@@ -112,20 +112,20 @@ for i = 1:M*N
         end
     end  
     
-%     flagClose1 = IsEdgeClose2Point([node1_base,node_select1], xCoord_tmp, yCoord_tmp, node2_base);
-%     if flagClose1 == 1
-%         continue;
-%     end
-%     
-%     flagClose2 = IsEdgeClose2Point([node2_base,node_select2], xCoord_tmp, yCoord_tmp, node1_base);
-%     if flagClose2 == 1
-%         continue;
-%     end
+    flagClose1 = IsEdgeClose2Point(AFT_stack_sorted,[node1_base,node_select1], xCoord_tmp, yCoord_tmp, node2_base);
+    if flagClose1 == 1
+        continue;
+    end
     
-%     flagClose3 = IsEdgeClose2Point([node_select1,node_select2], xCoord_tmp, yCoord_tmp, -1); 
-%     if flagClose3 == 1
-%         continue;
-%     end
+    flagClose2 = IsEdgeClose2Point(AFT_stack_sorted,[node2_base,node_select2], xCoord_tmp, yCoord_tmp, node1_base);
+    if flagClose2 == 1
+        continue;
+    end
+    
+    flagClose3 = IsEdgeClose2Point(AFT_stack_sorted,[node_select1,node_select2], xCoord_tmp, yCoord_tmp, -1); 
+    if flagClose3 == 1
+        continue;
+    end
     
     node_select = [node_select1,node_select2];
     break;

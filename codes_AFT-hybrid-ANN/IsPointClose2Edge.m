@@ -30,7 +30,7 @@ for i =1:nFaces
     end
     if v_ac * v_ab' <=  0 || v_bc * v_ba' <= 0
         flagClose = 0;
-    elseif dist / Sp < 0.3 %dist / dd < 0.3
+    elseif dist / Sp < 0.3  && dist / dd < 0.3
         flagClose = 1;
 %         plot(xCoord([nodeIn1,nodeIn2]),yCoord([nodeIn1,nodeIn2]),'r-')
 %         plot(xCoord(node_test),yCoord(node_test),'*')
