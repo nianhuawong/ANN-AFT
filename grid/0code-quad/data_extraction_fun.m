@@ -162,11 +162,27 @@ elseif	mode == 123
     input = [xCoord(stencilPoint),yCoord(stencilPoint),wdist',frontLength',frontAngle'];
 end
 
+
 if mode == 4
     input = [xCoord(stencilPoint),yCoord(stencilPoint)];
-    target =[xCoord(targetPoint),yCoord(targetPoint),stepSize];
+    target =[xCoord(targetPoint),yCoord(targetPoint),stepSize];    
 else
     target =[xCoord(targetPoint),yCoord(targetPoint)];
+end
+
+generateMode = zeros(size(stencilPoint,1),3);
+if mode == 5 
+    input = [xCoord(stencilPoint),yCoord(stencilPoint)];
+    target =[xCoord(targetPoint),yCoord(targetPoint)];
+    for i = 1:size(stencilPoint,1)
+        if stencilPoint(i,1) == targetPoint(i)
+            generateMode(i,2) = 1; 
+        elseif stencilPoint(i,4) == targetPoint(i)
+            generateMode(i,3) = 1;
+        else
+            generateMode(i,1) = 1;
+        end           
+    end
 end
 
 if standardlizeCoord == 1
@@ -207,7 +223,9 @@ if standardlizeCoord == 1
         end
     end
 end
-
+if mode == 5
+    target = [target,generateMode];
+end
 save(fileName,'input','target')
 
 %%
