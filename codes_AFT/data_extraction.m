@@ -1,4 +1,4 @@
-clear;clc;close all;tic;format long;
+clear;clc;close all;format long;%tic;
 %%
 global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode;
 gridType    = 0;        % 0-单一单元网格，1-混合单元网格
@@ -9,20 +9,20 @@ epsilon     = 0.9;
 dt          = 0.00001;   % 暂停时长
 stencilType = 'all';
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
-nn_fun = @naca0012_20201030; %net_naca0012_quadBC_c;net_naca0012_tri_fine;net_airfoil_quadBC;net_rae2822_tri;net_cylinder_tri
+nn_fun = @net_naca0012_20201031_2; %net_naca0012_quadBC_c;net_naca0012_tri_fine;net_airfoil_quadBC;net_rae2822_tri;net_cylinder_tri
 num_label   = 0;
-flag_label  = zeros(1,10000);
+flag_label  = zeros(1,100000);
 cellNodeTopo = [];
 standardlize = 1;
 SpDefined    = 1;   % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
-stepSizeFile = '../grid/inv_cylinder/tri/inv_cylinder-40.cas';
+stepSizeFile = '../grid/naca0012/tri/naca0012-tri.cas';
 sizeFileType = 0;
 %%
-[AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-40.cas', gridType);
+% [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/inv_cylinder/tri/inv_cylinder-100.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/simple/pentagon3.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/simple/tri.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/simple/quad_quad2.cas', gridType);
-% [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri-quadBC.cas', gridType);
+[AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/naca0012/tri/naca0012-tri.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/airfoil-training/tri/naca0012.cas', gridType);
 % [AFT_stack,Coord, Grid,wallNodes]  = read_grid('../grid/airfoil-training/tri/rae2822.cas', gridType);
 % [AFT_stack,Coord, Grid, wallNodes]  = read_grid('../grid/airfoil-training/tri/anw.cas', gridType);
@@ -57,6 +57,7 @@ end
 % AFT_stack_sorted = AFT_stack; 
 AFT_stack_sorted = sortrows(AFT_stack, 5); 
 countMode = 0;
+totalTime = 0;
 while size(AFT_stack_sorted,1)>0
     if SpDefined == 1
         Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
@@ -72,14 +73,17 @@ while size(AFT_stack_sorted,1)>0
 %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
         kkk = 1;      
     end
-
+    
+tstart = tic;
     size0 = size(AFT_stack_sorted,1);   
     [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType,Grid);   
     while node_select == -1
         al = 1.2 * al;
         [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType,Grid);
     end
-       
+telapsed = toc(tstart);    
+totalTime = totalTime + telapsed;
+
     if( flag_best == 1 )
         xCoord_AFT = [xCoord_AFT;coordX];
         yCoord_AFT = [yCoord_AFT;coordY];
@@ -89,7 +93,7 @@ while size(AFT_stack_sorted,1)>0
         
     size1 = size(AFT_stack_sorted,1);
     PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, size1-size0, flag_best);
-    pause(dt);
+%     pause(dt);
     
     interval = 500;
     if(mod(nCells_AFT,interval)==0)
@@ -99,7 +103,8 @@ while size(AFT_stack_sorted,1)>0
         disp(['阵面实时长度：', num2str(size(AFT_stack_sorted,1))]);
         disp(['新增阵面数：',num2str(size1-size0)]);
         disp(['countMode = ', num2str(countMode)]);
-        toc;
+        disp(['totalTime = ', num2str(totalTime)]);
+%         toc;
     end
   %%  
   %找出非活跃阵面，并删除
@@ -111,22 +116,23 @@ disp(['阵面推进完成，单元数：', num2str(nCells_AFT)]);
 disp(['阵面推进完成，节点数：', num2str(length(xCoord_AFT))]);
 disp(['阵面推进完成，面个数：', num2str(size(Grid_stack,1))]);
 disp(['countMode = ', num2str(countMode)]);
-toc;
+disp(['totalTime = ', num2str(totalTime)]);
+% toc;
 %%
-% GridQualitySummary(Grid_stack, xCoord_AFT, yCoord_AFT, cellNodeTopo);
-PLOT(Grid, Coord(:,1), Coord(:,2))
-triMesh_pw = DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
-GridQualitySummaryDelaunay(triMesh_pw, wallNodes);
-hold off;
-%%
-triMesh = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
-% GridQualitySummaryDelaunay(triMesh, wallNodes);
-hold off;
-%%
-[xCoord, yCoord] = SpringOptimize(triMesh,wallNodes,2);
-GridQualitySummaryDelaunay(triMesh, wallNodes, xCoord, yCoord)
-hold off;
-toc
+% % GridQualitySummary(Grid_stack, xCoord_AFT, yCoord_AFT, cellNodeTopo);
+% PLOT(Grid, Coord(:,1), Coord(:,2))
+% triMesh_pw = DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
+% GridQualitySummaryDelaunay(triMesh_pw, wallNodes);
+% hold off;
+% %%
+% triMesh = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
+% % GridQualitySummaryDelaunay(triMesh, wallNodes);
+% hold off;
+% %%
+% [xCoord, yCoord] = SpringOptimize(triMesh,wallNodes,2);
+% GridQualitySummaryDelaunay(triMesh, wallNodes, xCoord, yCoord)
+% hold off;
+% toc
 
     
     

@@ -6,6 +6,7 @@ ds_base = DISTANCE( node1, node2, xCoord, yCoord);
 
 mode = 0;
 nodeIndex = -1;
+tolerance = 0.2;
 
 % xNode = 0.5 * ( xCoord(node1) + xCoord(node2) );
 % yNode = 0.5 * ( yCoord(node1) + yCoord(node2) );
@@ -54,7 +55,7 @@ if strcmp(stencilType, 'all')
     MIN = 1000; row = -1; col = -1;
     for i = 1:size(modeArray,1)
         [modeMIN, index]=min(abs(modeArray(i,:)-1));
-        if modeMIN < MIN && modeMIN < 0.1
+        if modeMIN < MIN && modeMIN < tolerance
             row = i; 
             col = index;
             MIN = modeMIN;
@@ -94,7 +95,7 @@ else
     mode = 1;
     modeArray = new_point(3:5);
     [modeMIN, index]=min(abs(modeArray-1));
-    if modeMIN < 0.5    
+    if modeMIN < tolerance    
         if index == 2
             mode = 2; 
             nodeIndex = neighbor1;
