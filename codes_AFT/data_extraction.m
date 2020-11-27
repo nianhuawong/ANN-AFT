@@ -1,14 +1,14 @@
 clear;clc;close all;format long;
 tstart0 = tic;
 %%
-global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance;  
+global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount;  
 al          = 3.0;      % ÔÚ¼¸±¶·¶Î§ÄÚËÑË÷
 coeff       = 0.8;      % ¾¡Á¿Ñ¡ÔñÏÖÓĞµãµÄ²ÎÊı£¬PbestÖÊÁ¿²ÎÊıµÄÏµÊı
 outGridType = 0;        % 0-¸÷ÏòÍ¬ĞÔÍø¸ñ£¬1-¸÷ÏòÒìĞÔÍø¸ñ
 stencilType = 'all';    % ÔÚANNÉú³ÉµãÊ±£¬ÈçºÎÈ¡µ±Ç°ÕóÃæµÄÒıµ¼µãÄ£°å£¬¿ÉÒÔËæ»úÈ¡1¸ö£¬»òÕßËùÓĞ¿ÉÄÜ¶¼È¡£¬×îºóÆ½¾ù
 epsilon     = 0.9;      % Íø¸ñÖÊÁ¿ÒªÇó, ÖµÔ½´óÒªÇóÔ½¸ß
 useANN      = 1;        % ÊÇ·ñÊ¹ÓÃANNÉú³ÉÍø¸ñ
-tolerance   = 0.00001;      % ANN½øĞĞÄ£Ê½ÅĞ¶ÏµÄÈİ²î
+tolerance   = 0.2;      % ANN½øĞĞÄ£Ê½ÅĞ¶ÏµÄÈİ²î
 cd ./nets;
 nn_fun = @net_naca0012_20201104; 
 cd ../;
@@ -20,13 +20,15 @@ SpDefined    = 1;   % 0-Î´¶¨Òå²½³¤£¬Ö±½Ó²ÉÓÃÍø¸ñµã£»1-¶¨ÒåÁË²½³¤ÎÄ¼ş£»2-ANNÊä³öÁ
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
+% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
 % stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas';
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
+stepSizeFile     = '../grid/30p30n/30p30n-fine.cas';
 sizeFileType     = 0;   %ÊäÈë²½³¤ÎÄ¼şµÄÀàĞÍ£¬0-Èı½ÇĞÎÍø¸ñ£¬1-»ìºÏÍø¸ñ
 boundaryGrid     = stepSizeFile; 
 boundaryGridType = 0;   % 0-µ¥Ò»µ¥ÔªÍø¸ñ£¬1-»ìºÏµ¥ÔªÍø¸ñ
+crossCount       = 0;
 %%
 [AFT_stack,Coord,Grid,wallNodes]  = read_grid(stepSizeFile, sizeFileType);
 nodeList = AFT_stack(:,1:2);
@@ -132,9 +134,12 @@ DisplayResults(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1,...
         countMode,generateTime,updateTime,plotTime,'finalRes');
 
 toc(tstart0);
-PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
+% PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
 %%
 GridQualitySummary(Grid_stack, xCoord_AFT, yCoord_AFT, cellNodeTopo);
+
+disp(['crossCount    = ', num2str(crossCount)]);
+
 %%
 % PLOT(Grid, Coord(:,1), Coord(:,2))
 % triMesh_pw = DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);

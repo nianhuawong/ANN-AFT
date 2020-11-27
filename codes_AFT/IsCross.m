@@ -1,5 +1,6 @@
 function flag = IsCross(a, b, c, d)
-
+global crossCount;
+crossCount = crossCount + 1;
     flag = 0;
     
     if( (  min(a(1),b(1)) <= max(c(1),d(1)) ...  % 1.ab的最左端小于cd的最右端
