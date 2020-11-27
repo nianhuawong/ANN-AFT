@@ -34,6 +34,6 @@ end
 % Sp = SpField(Index);
 
 [val, index] = sort(dvv);
-Sp = mean( SpField(index(1)) );
+Sp = mean( SpField(index(1:3)) );
 % Sp = mean( SpField(index(1:10)) );
 end

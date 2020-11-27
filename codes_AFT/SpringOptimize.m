@@ -24,22 +24,25 @@ for NN = 1:times
         xCoord(i) = xCoord_tmp / nn;
         yCoord(i) = yCoord_tmp / nn;
     end
-end
-
-for i = 1 : size(tri,1)
-    node1 = tri(i,1);
-    node2 = tri(i,2);
-    node3 = tri(i,3);
-    if sum( wallNodes == node1 )~= 0 && sum( wallNodes == node2 )~=0 && sum( wallNodes == node3 )~=0 && min([node1,node2,node3])>36
-        tri(i,:) = -1;
+    
+    tri_plot = tri;
+    for i = 1 : size(tri_plot,1)
+        node1 = tri_plot(i,1);
+        node2 = tri_plot(i,2);
+        node3 = tri_plot(i,3);
+        if sum( wallNodes == node1 )~= 0 && sum( wallNodes == node2 )~=0 && sum( wallNodes == node3 )~=0 && min([node1,node2,node3])>36
+            tri_plot(i,:) = -1;
+        end
     end
+    II = tri_plot(:,1)==-1;
+    tri_plot(II,:) = [];
+    % figure;
+    clf
+    triplot(tri_plot,xCoord,yCoord);
+    axis equal;
+    axis off
+    % hold on;
+    % axis([-0.7 0.7 -0.5 0.5])
+    pause(0.5)
 end
-II = tri(:,1)==-1;
-tri(II,:) = [];
-figure;
-triplot(tri,xCoord,yCoord);
-axis equal;
-axis off
-hold on;
-% axis([-0.7 0.7 -0.5 0.5])
 end

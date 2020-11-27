@@ -1,12 +1,11 @@
 function [x_new, y_new, Sp, mode, nodeIndex] = ADD_POINT_ANN(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType, Sp, Grid)
-global standardlize SpDefined;
+global standardlize SpDefined tolerance;
 node1 = AFT_stack(1,1);
 node2 = AFT_stack(1,2);
 ds_base = DISTANCE( node1, node2, xCoord, yCoord);
 
 mode = 0;
 nodeIndex = -1;
-tolerance = 0.2;
 
 % xNode = 0.5 * ( xCoord(node1) + xCoord(node2) );
 % yNode = 0.5 * ( yCoord(node1) + yCoord(node2) );
@@ -26,9 +25,10 @@ if strcmp(stencilType, 'all')
     new_point = [];
     for i = 1:length(neighborNode1)
         neighbor1 = neighborNode1(i);
+        NN = length(neighborNode2);
         for j = 1:length(neighborNode2)
             neighbor2 = neighborNode2(j);
-            input_node(i*j,:) = [neighbor1, node1, node2, neighbor2]; 
+            input_node((i-1)*NN+j,:) = [neighbor1, node1, node2, neighbor2]; 
             input = [xCoord(input_node(i*j,:)); yCoord(input_node(i*j,:))]';
             if standardlize == 1
                 input = Standardlize(input);

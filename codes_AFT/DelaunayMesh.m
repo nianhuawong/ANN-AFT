@@ -2,7 +2,7 @@ function triMesh = DelaunayMesh(xCoord,yCoord,wallNodes)
 %%
 disp('================================');
 disp('======Delaunay网格生成中...======');
-figure;
+% figure;
 % tri = delaunay(xCoord,yCoord);
 triMesh = delaunayTriangulation(xCoord,yCoord);
 tri = triMesh.ConnectivityList;
@@ -16,10 +16,12 @@ for i = 1 : size(tri,1)
 end
 II = tri(:,1)==-1;
 tri(II,:) = [];
+clf;   %Clear current figure window
 triplot(tri,xCoord,yCoord);
 axis equal;
 axis off
-hold on;
+pause(1)
+% hold on;
 % axis([-0.7 0.7 -0.5 0.5])
 % axis([-1 1 -1 1])
 

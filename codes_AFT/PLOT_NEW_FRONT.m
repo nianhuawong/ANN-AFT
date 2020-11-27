@@ -15,10 +15,11 @@ for i = 1:num
     yy = [yCoord(node1),yCoord(node2)];
 
     if flag_best == 1
+%         plot( xx, yy, '.r-','MarkerSize',14);
         plot( xx, yy, 'r-');
     else
-        plot( xx, yy, 'r-');
-%         plot( xx, yy, 'b-');
+%         plot( xx, yy, '.r-','MarkerSize',14);
+        plot( xx, yy, 'b-');
     end
     hold on;
     
@@ -34,5 +35,5 @@ end
 % axis equal
 axis off;
 hold on;
-
+pause(0.000001);
     
