@@ -170,18 +170,37 @@ else
     target =[xCoord(targetPoint),yCoord(targetPoint)];
 end
 
-generateMode = zeros(size(stencilPoint,1),3);
-if mode == 5 
-    input = [xCoord(stencilPoint),yCoord(stencilPoint)];
-    target =[xCoord(targetPoint),yCoord(targetPoint)];
-    for i = 1:size(stencilPoint,1)
-        if stencilPoint(i,1) == targetPoint(i)
-            generateMode(i,2) = 1; 
-        elseif stencilPoint(i,4) == targetPoint(i)
-            generateMode(i,3) = 1;
-        else
-            generateMode(i,1) = 1;
-        end           
+if targetType == 1
+    generateMode = zeros(size(stencilPoint,1),3);
+    if mode == 5
+        input = [xCoord(stencilPoint),yCoord(stencilPoint)];
+        target =[xCoord(targetPoint),yCoord(targetPoint)];
+        for i = 1:size(stencilPoint,1)
+            if stencilPoint(i,1) == targetPoint(i)
+                generateMode(i,2) = 1;
+            elseif stencilPoint(i,4) == targetPoint(i)
+                generateMode(i,3) = 1;
+            else
+                generateMode(i,1) = 1;
+            end
+        end
+    end
+elseif targetType == 2
+    generateMode = zeros(size(stencilPoint,1),4);
+    if mode == 5
+        input = [xCoord(stencilPoint),yCoord(stencilPoint)];
+        target =[xCoord(targetPoint),yCoord(targetPoint)];
+        for i = 1:size(stencilPoint,1)
+            if stencilPoint(i,1) == targetPoint(i,1) && stencilPoint(i,4) ~= targetPoint(i,2)
+                generateMode(i,2) = 1;
+            elseif stencilPoint(i,4) == targetPoint(i,2) && stencilPoint(i,1) ~= targetPoint(i,1)
+                generateMode(i,3) = 1;
+            elseif stencilPoint(i,4) == targetPoint(i,2) && stencilPoint(i,1) == targetPoint(i,1)
+                generateMode(i,4) = 1;
+            else
+                generateMode(i,1) = 1;
+            end
+        end
     end
 end
 
