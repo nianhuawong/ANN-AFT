@@ -54,6 +54,7 @@ end
 II = areaRatio==-1;
 areaRatio( II ) = 100000;
 [minAreaRatio, pos1] = min(areaRatio);
+hold on;
 plot(xCoord(Edge(pos1,:)),yCoord(Edge(pos1,:)),'g-*');
 areaRatio( II ) = [];
 
@@ -64,12 +65,12 @@ II = qualityRatio==-1;
 qualityRatio( II ) = 100000;
 [minQualityRatio, pos2] = min(qualityRatio);
 plot(xCoord(Edge(pos2,:)),yCoord(Edge(pos2,:)),'m-o');
-hold off;
+% hold off;
 
 qualityRatio( II ) = [];
 maxQualityRatio = max(qualityRatio);
 averQualityRatio = mean(qualityRatio);
-
+disp(['===============  Delaunay网格质量统计  ===============']);
 disp(['maxAreaRatio  = ', num2str(maxAreaRatio)]);
 disp(['minAreaRatio  = ', num2str(minAreaRatio)]);
 disp(['averAreaRatio = ',  num2str(averAreaRatio)]);

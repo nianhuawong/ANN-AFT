@@ -42,6 +42,7 @@ II = areaRatio==-1;
 areaRatio( II ) = 100000;
 [minAreaRatio, pos1] = min(areaRatio);
 Edge = Grid_stack(pos1,1:2);
+hold on;
 plot(xCoord(Edge),yCoord(Edge),'g-*');
 areaRatio( II ) = [];
 
@@ -53,12 +54,12 @@ qualityRatio( II ) = 100000;
 [minQualityRatio, pos2] = min(qualityRatio);
 Edge = Grid_stack(pos2,1:2);
 plot(xCoord(Edge),yCoord(Edge),'m-o');
-hold off;
+% hold off;
 
 qualityRatio( II ) = [];
 maxQualityRatio = max(qualityRatio);
 averQualityRatio = mean(qualityRatio);
-
+disp(['===============  网格质量统计  ===============']);
 disp(['maxAreaRatio  = ', num2str(maxAreaRatio)]);
 disp(['minAreaRatio  = ', num2str(minAreaRatio)]);
 disp(['averAreaRatio = ',  num2str(averAreaRatio)]);
