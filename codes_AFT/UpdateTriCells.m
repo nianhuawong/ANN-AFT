@@ -74,7 +74,8 @@ if flag_best == 0
         node3 = new_cell(i,3);
         
         [quality,~] = QualityCheckTri(node1, node2, node3, xCoord_AFT, yCoord_AFT, -1);
-        if abs( 1.5-quality ) > epsilon
+%         if abs( 1.5-quality ) > epsilon
+        if quality < epsilon
             new_cell(i,:)=-1;
         end
     end

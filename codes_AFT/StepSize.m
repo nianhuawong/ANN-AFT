@@ -33,7 +33,7 @@ end
 % [minv, Index] = min(dvv); 
 % Sp = SpField(Index);
 
-[val, index] = sort(dvv);
+[~, index] = sort(dvv);
 Sp = mean( SpField(index(1:3)) );
 % Sp = mean( SpField(index(1:10)) );
 end

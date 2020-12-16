@@ -14,6 +14,7 @@ nn_fun = @net_naca0012_20201104;
 cd ../;
 standardlize = 1;   %是否进行坐标归一化
 isSorted     = 1;   %是否对阵面进行排序推进
+isPlotNew    = 0;   %是否plot生成过程
 num_label    = 0;   %是否在图中输出点的编号    
 SpDefined    = 1;   % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
 % stepSizeFile     = '../grid/simple/quad2.cas';
@@ -62,7 +63,8 @@ end
 if isSorted == 0
     AFT_stack_sorted = AFT_stack;
 elseif isSorted == 1
-    AFT_stack_sorted = sortrows(AFT_stack, 5);
+%     AFT_stack_sorted = sortrows(AFT_stack, 5);
+    AFT_stack_sorted = Sort_AFT(AFT_stack);
 end
 
 countMode = 0;
@@ -74,23 +76,23 @@ while size(AFT_stack_sorted,1)>0
     
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);      
-    if nCells_AFT >= 5671
-        if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
-                node1_base == 580 && node2_base == 468
-            kkk = 1;      
-%             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
-        end
-%         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
-        kkk = 1;      
-    end
+%     if nCells_AFT >= 100
+%         if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
+%                 node1_base == 580 && node2_base == 468
+%             kkk = 1;      
+% %             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+%         end
+% %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+%         kkk = 1;      
+%     end
 
     size0 = size(AFT_stack_sorted,1);   
     
     tstart1 = tic;
-    [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType,Grid);   
+    [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);   
     while node_select == -1
         al = 1.2 * al;
-        [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType,Grid);
+        [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);
     end
     telapsed1 = toc(tstart1);
     generateTime = generateTime + telapsed1;
@@ -110,51 +112,51 @@ while size(AFT_stack_sorted,1)>0
     tstart3 = tic;
     size1 = size(AFT_stack_sorted,1);
     numberOfNewFronts = size1-size0;
-    PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, numberOfNewFronts, flag_best);
-    
+    if isPlotNew == 1
+        PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, numberOfNewFronts, flag_best);
+    end
     telapsed3 = toc(tstart3);
     plotTime = plotTime + telapsed3;
     
     interval = 500;
     if(mod(nCells_AFT,interval)==0)
-        DisplayResults(nCells_AFT, size(AFT_stack_sorted,1), -1, numberOfNewFronts,...
-        countMode,generateTime,updateTime,plotTime,'midRes');
-        toc(tstart0);
+        DisplayResults(nCells_AFT, size(AFT_stack_sorted,1), -1, numberOfNewFronts, generateTime,updateTime,plotTime,tstart0,'midRes');
     end
   %%  
   %找出非活跃阵面，并删除
     [AFT_stack_sorted, Grid_stack] = DeleteInactiveFront(AFT_stack_sorted, Grid_stack);
 
     if isSorted == 1      
-        AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
+%         AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
+        AFT_stack_sorted = Sort_AFT(AFT_stack_sorted);
     end
 end
 
-DisplayResults(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1,...
-        countMode,generateTime,updateTime,plotTime,'finalRes');
+DisplayResults(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1, generateTime,updateTime,plotTime,tstart0,'finalRes');
+if isPlotNew == 0   
+    PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
+end
 
-toc(tstart0);
-% PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
-%%
-GridQualitySummary(Grid_stack, xCoord_AFT, yCoord_AFT, cellNodeTopo);
+%% 原始网格输出网格质量
+% GridQualitySummary(cellNodeTopo, xCoord_AFT, yCoord_AFT,Grid_stack);
 
-disp(['crossCount    = ', num2str(crossCount)]);
-
-%%
+%% PW网格质量
 % PLOT(Grid, Coord(:,1), Coord(:,2))
-% triMesh_pw = DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
-% GridQualitySummaryDelaunay(triMesh_pw, wallNodes);
-% hold off;
-%%
-% triMesh = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
-% % GridQualitySummaryDelaunay(triMesh, wallNodes);
-% hold off;
-%%
+[triMesh_pw,invalidCellIndex_pw]= DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
+GridQualitySummaryDelaunay(triMesh_pw, invalidCellIndex_pw);
 
-% [xCoord, yCoord] = SpringOptimize(triMesh,wallNodes,3);
-% GridQualitySummaryDelaunay(triMesh, wallNodes, xCoord, yCoord)
-% hold off;
-% toc
+%% Delaunay对角线变换之后，输出网格质量
+[triMesh,invalidCellIndex] = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
+% GridQualitySummaryDelaunay(triMesh, invalidCellIndex);
+
+%%
+[xCoord,yCoord] = SpringOptimize(triMesh,invalidCellIndex,wallNodes,3);
+GridQualitySummaryDelaunay(triMesh, invalidCellIndex, xCoord, yCoord)
+
+%% 用变形优化后的网格合并
+combinedMesh = CombineMesh(triMesh,wallNodes,0.5, xCoord, yCoord);
+GridQualitySummary(combinedMesh, xCoord, yCoord);
+
 
     
     
