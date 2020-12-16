@@ -1,39 +1,17 @@
-function [node_select,coordX, coordY, flag_best] = GenerateTri_mode(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack)
-global stencilType useANN outGridType nn_fun_tri countMode_tri;
-mode = 0;
+function [node_select,coordX, coordY, flag_best] = GenerateTri_mode1(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, x_best, y_best)
+global countMode_tri;
+countMode_tri = countMode_tri + 1;
+node_select = -1;
 %%
-if useANN == 1 
-    [x_best, y_best, Sp, mode, nodeIndex] = ADD_POINT_ANN_tri(nn_fun_tri, AFT_stack_sorted, xCoord_AFT, yCoord_AFT, stencilType, Sp);
-else
-    mode = 1;
-    [x_best, y_best] = ADD_POINT_tri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, outGridType);
-end
 node_best = node_best + 1;      %新增最佳点Pbest的序号
 
 node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
 node2_base = AFT_stack_sorted(1,2);
 % ds_base = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 % PLOT_CIRCLE(x_best, y_best, al, Sp, ds_base, node_best);
-%%
-if mode == 2 || mode == 3
-     %在现有阵面中，查找临近点，作为候选点，与 新增点或基准阵面中点 的距离小于al*Sp的点，要遍历除自己外的所有阵面
-    nodeCandidate_AFT = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best, y_best], al * Sp );
-    nodeCandidate_AFT = [nodeCandidate_AFT, node_best];
-    %%
-    % 查询临近阵元，为避免与邻近阵面相交
-    frontCandidate = FrontCandidate(AFT_stack_sorted, [nodeCandidate_AFT, node1_base, node2_base]);
-    flagNotCross1 = IsNotCross(node1_base, node2_base, nodeIndex, frontCandidate, AFT_stack_sorted, xCoord_AFT, yCoord_AFT ,0);
-            
-     flagLeftCell = IsLeftCell(node1_base, node2_base, nodeIndex, xCoord_AFT, yCoord_AFT);
-    if flagLeftCell == 0 || flagNotCross1 == 0
-        node_select = -1;
-    else
-        node_select =  nodeIndex;
-        countMode_tri = countMode_tri + 1;
-    end
-end
 
-if mode == 1 || node_select == -1
+%%
+if node_select == -1
     nodeCandidate_AFT = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best, y_best], al * Sp );
     nodeCandidate_AFT = [nodeCandidate_AFT, node_best];
     % 查询临近阵元，为避免与邻近阵面相交
@@ -90,10 +68,10 @@ if mode == 1 || node_select == -1
             end
             
             if node_test == node_best
-%                 flagClose = IsPointClose2Edge([Grid_stack;AFT_stack_sorted], xCoord_tmp, yCoord_tmp, node_test,Sp);
-%                 if flagClose == 1
-%                     continue;
-%                 end
+                flagClose = IsPointClose2Edge([Grid_stack;AFT_stack_sorted], xCoord_tmp, yCoord_tmp, node_test,Sp);
+                if flagClose == 1
+                    continue;
+                end
                 
 %                 flagClose2 = IsEdgeClose2Point([node1_base,node_test], xCoord_tmp, yCoord_tmp, node2_base);
 %                 flagClose3 = IsEdgeClose2Point([node2_base,node_test], xCoord_tmp, yCoord_tmp, node1_base);

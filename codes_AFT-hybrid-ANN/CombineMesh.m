@@ -136,7 +136,7 @@ for i = 1:size(quad,1)
         edge = [edge1;edge2;edge3];
     end
     
-    plot(xCoord(edge),yCoord(edge),'r-')
+    plot(xCoord(edge),yCoord(edge),'b-')
     hold on;
     
 end

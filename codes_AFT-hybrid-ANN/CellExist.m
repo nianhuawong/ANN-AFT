@@ -10,7 +10,7 @@ searchCell = unique(searchCell);
 for i =1:size(cellNodeTopo,1)
     iCell = cellNodeTopo(i,:);
     iCell(iCell<=0) = [];
-    iCell = unique(iCell);
+%     iCell = unique(iCell);
     
     if length(searchCell) == length(iCell) && length(iCell) == 3 && sum(searchCell==iCell) == 3
         row = i;

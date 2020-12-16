@@ -1,4 +1,4 @@
-function [xCoord,yCoord] = SpringOptimize(triMesh,wallNodes,times)
+function [xCoord,yCoord] = SpringOptimize(triMesh,invalidCells,wallNodes,times)
 xCoord = triMesh.Points(:,1);
 yCoord = triMesh.Points(:,2);
 
@@ -26,19 +26,20 @@ for NN = 1:times
     end
 end
 
-for i = 1 : size(tri,1)
-    node1 = tri(i,1);
-    node2 = tri(i,2);
-    node3 = tri(i,3);
-    cell_tmp1 = [node1,node2,node3];
-    tmp = intersect(wallNodes,cell_tmp1);
-    if length(tmp)>=3 && min([node1,node2,node3])>36     
-%     if sum( wallNodes == node1 )~= 0 && sum( wallNodes == node2 )~=0 && sum( wallNodes == node3 )~=0 %&& min([node1,node2,node3])>36
-        tri(i,:) = -1;
-    end
-end
-II = tri(:,1)==-1;
-tri(II,:) = [];
+% for i = 1 : size(tri,1)
+%     node1 = tri(i,1);
+%     node2 = tri(i,2);
+%     node3 = tri(i,3);
+%     cell_tmp1 = [node1,node2,node3];
+%     tmp = intersect(wallNodes,cell_tmp1);
+%     if length(tmp)>=3 && min([node1,node2,node3])>nNodesOnOuterBoundary     
+% %     if sum( wallNodes == node1 )~= 0 && sum( wallNodes == node2 )~=0 && sum( wallNodes == node3 )~=0 %&& min([node1,node2,node3])>36
+%         tri(i,:) = -1;
+%     end
+% end
+% II = tri(:,1)==-1;
+% tri(II,:) = [];
+tri(invalidCells,:) = [];
 figure;
 triplot(tri,xCoord,yCoord);
 axis equal;

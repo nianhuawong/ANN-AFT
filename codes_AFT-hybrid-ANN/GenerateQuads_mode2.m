@@ -18,7 +18,7 @@ yCoord_tmp = [yCoord_AFT; y_best2];
 al2 = 0.8;
 while sum(node_select==-1) ~=0
     
-candidateList2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al * Sp );
+candidateList2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al2 * Sp );
 candidateList2(end+1) = node_best + 1;      %候选点集
 
 node_tmp1 = node_select(1);                 %相交性判断时可能涉及到的点

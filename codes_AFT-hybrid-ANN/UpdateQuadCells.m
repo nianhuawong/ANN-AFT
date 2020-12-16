@@ -30,10 +30,10 @@ global epsilon cellNodeTopo outGridType;
 %     end
     %%
     nCells_AFT = nCells_AFT + 1;    
-    if outGridType == 0    %输出四边形单元
+    if outGridType == 1    %输出四边形单元
         [AFT_stack_sorted,nCells_AFT] = Update_AFT_INFO_quad(AFT_stack_sorted, node1_base, ...
             node2_base, node_select, nCells_AFT, xCoord_AFT, yCoord_AFT);
-    elseif outGridType == 1  %将一个四边形剖分成2个直角三角形
+    elseif outGridType == 0  %将一个四边形剖分成2个直角三角形
         AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
             node2_base, node_select(2),nCells_AFT, xCoord_AFT, yCoord_AFT);
         
@@ -266,16 +266,16 @@ global epsilon cellNodeTopo outGridType;
         new_cell(II,:)=[];
         
 %% 还要判断是否有点落在新单元内部
-        for i = 1 : size(new_cell,1)
-            iCell = new_cell(i,:);
-            
-            flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, yCoord_AFT);
-            if flagInCell == 1
-                new_cell(i,:)=-1;
-            end
-        end
-        II = new_cell(:,1) == -1;
-        new_cell(II,:)=[];
+%         for i = 1 : size(new_cell,1)
+%             iCell = new_cell(i,:);
+%             
+%             flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, yCoord_AFT);
+%             if flagInCell == 1
+%                 new_cell(i,:)=-1;
+%             end
+%         end
+%         II = new_cell(:,1) == -1;
+%         new_cell(II,:)=[];
         
 %% 将新单元加入数据结构
         for i = 1:size(new_cell,1)
@@ -285,10 +285,10 @@ global epsilon cellNodeTopo outGridType;
             node3 = new_cell(i,3);
             node4 = new_cell(i,4);  
             if (node4 > 0)
-                if outGridType == 0
+                if outGridType == 1
                     [AFT_stack_sorted,nCells_AFT] = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
                         node1, node2, node3, node4, nCells_AFT, xCoord_AFT, yCoord_AFT);
-                elseif outGridType == 1
+                elseif outGridType == 0
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
                         node1, node2, node3, nCells_AFT, xCoord_AFT, yCoord_AFT);
                     

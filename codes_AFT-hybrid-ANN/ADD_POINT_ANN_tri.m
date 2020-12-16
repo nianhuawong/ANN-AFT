@@ -1,10 +1,8 @@
-function [x_new, y_new, Sp, mode, nodeIndex] = ADD_POINT_ANN_tri(nn_fun, AFT_stack, xCoord, yCoord, Grid_stack, stencilType, Sp)
+function [x_new, y_new, Sp, mode, nodeIndex] = ADD_POINT_ANN_tri(nn_fun, AFT_stack, xCoord, yCoord, stencilType, Sp)
 global standardlize SpDefined tolerance;
 node1 = AFT_stack(1,1);
 node2 = AFT_stack(1,2);
 ds_base = DISTANCE( node1, node2, xCoord, yCoord);
-
-mode = 0;
 nodeIndex = -1;
 
 % xNode = 0.5 * ( xCoord(node1) + xCoord(node2) );
@@ -17,23 +15,24 @@ nodeIndex = -1;
 
 neighborNode1 = NeighborNodes(node1, AFT_stack, node2);
 neighborNode2 = NeighborNodes(node2, AFT_stack, node1);
-
-neighborNode1 = unique(neighborNode1);
-neighborNode2 = unique(neighborNode2);
-    
+ 
+MM = length(neighborNode1);
+NN = length(neighborNode2);
 if strcmp(stencilType, 'all')     
-    new_point = [];
-    for i = 1:length(neighborNode1)
-        neighbor1 = neighborNode1(i);
-        NN = length(neighborNode2);
-        for j = 1:length(neighborNode2)
+    new_point = zeros(MM*NN,5);
+    input_node = zeros(MM*NN,4);
+    for i = 1:MM       
+        for j = 1:NN
+            neighbor1 = neighborNode1(i);
             neighbor2 = neighborNode2(j);
+            
             input_node((i-1)*NN+j,:) = [neighbor1, node1, node2, neighbor2]; 
-            input = [xCoord(input_node(i*j,:)); yCoord(input_node(i*j,:))]';
+            input = [xCoord(input_node((i-1)*NN+j,:)); yCoord(input_node((i-1)*NN+j,:))]';
+            
             if standardlize == 1
                 input = Standardlize(input);
             end
-                new_point(end+1,:) = nn_fun(input);
+                new_point((i-1)*NN+j,:) = nn_fun(input);
 %                 new_point(end+1,:) = nn_fun(input);            
         end
     end

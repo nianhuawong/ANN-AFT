@@ -1,12 +1,9 @@
-function [node_select,coordX, coordY, flag_best] = GenerateQuads_mode(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
-    Sp, coeff, al, node_best, Grid_stack )
+function [node_select,coordX, coordY, flag_best] = GenerateQuads_mode(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, Grid_stack )%, node_best
 global stencilType useANN countMode_quad nn_fun_quad;
+node_best   = length( xCoord_AFT );
 node_select = [-1,-1];
 flag_best   = [0, 0];
 flag_tri    = 0;
-% node1_base = AFT_stack_sorted(1,1);         %阵面的基准点
-% node2_base = AFT_stack_sorted(1,2);
-% ds_base = DISTANCE(node1_base, node2_base, xCoord_AFT, yCoord_AFT);  %基准阵面的长度
 
 %%
 if useANN == 1 
@@ -20,12 +17,12 @@ end
 % PLOT_CIRCLE(x_best_quad, y_best_quad, al, Sp, ds_base, node_best);
 %%
 if  length(x_best_quad) == 1 && length(y_best_quad) == 1
-%     node_select = [-1,-1];
-%     coordX = -1;
-%     coordY = -1;
-    flag_tri = 1;
+%     [node_select,coordX, coordY, flag_best] = GenerateTri_mode1(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, x_best_quad, y_best_quad);
+%     return;
+    flag_tri = 1; 
 end
-    %% 优先生成四边形，如果生成的四边形质量太差，则重新生成三角形
+%% 
+%优先生成四边形，如果生成的四边形质量太差，则重新生成三角形
 if flag_tri == 0
     if mode == 1
         [node_select,coordX, coordY, flag_best] = GenerateQuads_mode1(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, ...
@@ -43,9 +40,6 @@ if flag_tri == 0
 end
 
 if sum(node_select==-1)>0   
-%     node_select = [-1,-1];
-%     coordX = -1;
-%     coordY = -1;
     flag_tri = 1;
 end
 

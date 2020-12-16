@@ -24,18 +24,25 @@ if strcmp(stencilType, 'all')
     neighborNode1 = unique(neighborNode1);
     neighborNode2 = unique(neighborNode2);
     
-    new_point = [];
-    for i = 1:length(neighborNode1)
-        neighbor1 = neighborNode1(i);
-        NN = length(neighborNode2);
-        for j = 1:length(neighborNode2)
+    MM = length(neighborNode1);
+    NN = length(neighborNode2);
+    
+    new_point = zeros(MM*NN,8);
+    input_node = zeros(MM*NN,4);
+    for i = 1:MM
+        for j = 1:NN
+            neighbor1 = neighborNode1(i);
             neighbor2 = neighborNode2(j);
+            
             input_node((i-1)*NN+j,:) = [neighbor1, node1, node2, neighbor2];
-            input = [xCoord(input_node(i*j,:)); yCoord(input_node(i*j,:))]';
+            input = [xCoord(input_node((i-1)*NN+j,:)); yCoord(input_node((i-1)*NN+j,:))]';
+            
             if standardlize == 1
                 input = Standardlize(input);
             end
-                new_point(end+1,:) = nn_fun(input);         
+            
+            new_point((i-1)*NN+j,:) = nn_fun(input);
+%                 new_point(end+1,:) = nn_fun(input);       
         end
     end
     
@@ -138,21 +145,20 @@ quality = max(quality1,quality2);
 if quality < epsilon
     x_new = 0.5 * ( x_new(1) + x_new(2) );
     y_new = 0.5 * ( y_new(1) + y_new(2) );
-    %
-    %         ds = DISTANCE(node1, node2, xCoord, yCoord);
-    %         normal = normal_vector(node1, node2, xCoord, yCoord);
-    %
-    %         v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
-    %         h = abs( v_ac * normal' );
-    %
-    % %         Sp = max([h,Sp]);
-    %         %         Sp = h;
-    %
-    %         v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;
-    %         v_ad = ( v_ac * v_ab' ) .* v_ab;
-    %         v_de = Sp .* normal;
-    %         pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
-    %         x_new = pointE(1);
-    %         y_new = pointE(2);
+    
+%     ds = DISTANCE(node1, node2, xCoord, yCoord);
+%     normal = normal_vector(node1, node2, xCoord, yCoord);
+%     
+%     v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
+%     %h = abs( v_ac * normal' );    
+%     %Sp = max([h,Sp]);
+%     %Sp = h;
+%     
+%     v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds;
+%     v_ad = ( v_ac * v_ab' ) .* v_ab;
+%     v_de = Sp .* normal;
+%     pointE = v_ad + v_de + [xCoord(node1), yCoord(node1)];
+%     x_new = pointE(1);
+%     y_new = pointE(2);
 end
 end

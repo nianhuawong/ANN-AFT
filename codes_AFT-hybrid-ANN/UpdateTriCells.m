@@ -77,7 +77,6 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
 %             node1, node2, node3, nCells_AFT , xCoord_AFT, yCoord_AFT);
 %     end
 % end
-
 %%
     if(flag_best== 0)
         neighbor1 = NeighborNodes(node_select(1), AFT_stack_sorted,-1);%找出现有点的相邻点
@@ -96,14 +95,17 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
                         new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, -11];
                     end
                     
-                    for k = 1:size(AFT_stack_sorted,1)
-                        if( AFT_stack_sorted(k,1) == neighborNodeOfNeighbor && AFT_stack_sorted(k,2)~= neighborNode )   %邻点的邻点所在阵面k
-                            if(find(neighbor1==AFT_stack_sorted(k,2)))   %邻点的邻点的邻点AFT_stack_sorted(k,2)
-                                new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,2)];
-                            end
-                        elseif ( AFT_stack_sorted(k,2) == neighborNodeOfNeighbor && AFT_stack_sorted(k,1)~= neighborNode )   %邻点的邻点所在阵面k
-                            if(find(neighbor1==AFT_stack_sorted(k,1)))   %邻点的邻点的邻点AFT_stack_sorted(k,1)
-                                new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,1)];
+                    if outGridType == 1  %% 生成混合网格
+                        %还要判断邻点的邻点的邻点是否相邻，相邻则构成四边形
+                        for k = 1:size(AFT_stack_sorted,1)
+                            if( AFT_stack_sorted(k,1) == neighborNodeOfNeighbor && AFT_stack_sorted(k,2)~= neighborNode )   %邻点的邻点所在阵面k
+                                if(find(neighbor1==AFT_stack_sorted(k,2)))   %邻点的邻点的邻点AFT_stack_sorted(k,2)
+                                    new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,2)];
+                                end
+                            elseif ( AFT_stack_sorted(k,2) == neighborNodeOfNeighbor && AFT_stack_sorted(k,1)~= neighborNode )   %邻点的邻点所在阵面k
+                                if(find(neighbor1==AFT_stack_sorted(k,1)))   %邻点的邻点的邻点AFT_stack_sorted(k,1)
+                                    new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,1)];
+                                end
                             end
                         end
                     end
@@ -114,21 +116,23 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
                         new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, -11];
                     end
                     
-                    for k = 1:size(AFT_stack_sorted,1)
-                        if( AFT_stack_sorted(k,1) == neighborNodeOfNeighbor && AFT_stack_sorted(k,2)~= neighborNode )%邻点的邻点所在阵面
-                            if(find(neighbor1==AFT_stack_sorted(k,2)))
-                                new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,2)];
-                            end
-                        elseif (AFT_stack_sorted(k,2) == neighborNodeOfNeighbor && AFT_stack_sorted(k,1)~= neighborNode )
-                            if(find(neighbor1==AFT_stack_sorted(k,1)))
-                                new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,1)];
+                    if outGridType == 1  %% 生成混合网格
+                        for k = 1:size(AFT_stack_sorted,1)
+                            if( AFT_stack_sorted(k,1) == neighborNodeOfNeighbor && AFT_stack_sorted(k,2)~= neighborNode )%邻点的邻点所在阵面
+                                if(find(neighbor1==AFT_stack_sorted(k,2)))
+                                    new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,2)];
+                                end
+                            elseif (AFT_stack_sorted(k,2) == neighborNodeOfNeighbor && AFT_stack_sorted(k,1)~= neighborNode )
+                                if(find(neighbor1==AFT_stack_sorted(k,1)))
+                                    new_cell(end+1,:) = [node_select(1), neighborNode, neighborNodeOfNeighbor, AFT_stack_sorted(k,1)];
+                                end
                             end
                         end
                     end
                 end
             end
         end
-        %%
+        
 %% 去掉无效单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
@@ -140,7 +144,7 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
         end
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
-        
+   
 %% 去掉重复的单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
@@ -159,6 +163,7 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
         end      
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
+
 %% 去掉重复的单元 可能会重复考虑四边形和三角形
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
@@ -178,7 +183,8 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
             end
         end
         II = new_cell(:,1) == -1;
-        new_cell(II,:)=[];        
+        new_cell(II,:)=[];    
+
 %% 还要去掉已经有的单元
         for i = 1 : size(new_cell,1)
             iCell = new_cell(i,:);
@@ -189,7 +195,7 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
         end    
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
-        
+
 %% 还要去掉质量不好的单元
         for i = 1 : size(new_cell,1)
             node1 = new_cell(i,1);
@@ -212,18 +218,18 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
         II = new_cell(:,1) == -1;
         new_cell(II,:)=[];
 
-%% 还要判断是否有点落在新单元内部
-        for i = 1 : size(new_cell,1)
-            iCell = new_cell(i,:);
-            
-            flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, yCoord_AFT);
-            if flagInCell == 1
-                new_cell(i,:)=-1;
-            end
-        end
-        II = new_cell(:,1) == -1;
-        new_cell(II,:)=[];
-        
+% %% 还要判断是否有点落在新单元内部
+%         for i = 1 : size(new_cell,1)
+%             iCell = new_cell(i,:);
+%             
+%             flagInCell = IsAnyPointInCell(iCell, xCoord_AFT, yCoord_AFT);
+%             if flagInCell == 1
+%                 new_cell(i,:)=-1;
+%             end
+%         end
+%         II = new_cell(:,1) == -1;
+%         new_cell(II,:)=[];
+
 %% 将新单元加入数据结构
         for i = 1:size(new_cell,1)
             nCells_AFT = nCells_AFT + 1;
@@ -233,10 +239,10 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
             node4 = new_cell(i,4);
 
             if (node4 > 0)
-                if outGridType == 0
+                if outGridType == 1
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_quad(AFT_stack_sorted, ...
                         node1, node2, node3, node4, nCells_AFT, xCoord_AFT, yCoord_AFT);
-                elseif outGridType == 1
+                elseif outGridType == 0
                     AFT_stack_sorted = Update_AFT_INFO_GENERAL_TRI(AFT_stack_sorted, ...
                         node1, node2, node3, nCells_AFT, xCoord_AFT, yCoord_AFT);
                     

@@ -16,8 +16,8 @@ y_best1 = y_best_quad(1);y_best2 = y_best_quad(2);
 al2 = 0.8;
 while sum(node_select==-1) ~=0
     
-candidateList1 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best1, y_best1], al * Sp );
-candidateList2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al * Sp );
+candidateList1 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best1, y_best1], al2 * Sp );
+candidateList2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al2 * Sp );
 
 candidateList1(end+1) = node_best + 1;  %∫Ú—°µ„ºØ
 candidateList2(end+1) = node_best + 2;
