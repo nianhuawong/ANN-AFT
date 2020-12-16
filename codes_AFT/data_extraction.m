@@ -110,7 +110,7 @@ while size(AFT_stack_sorted,1)>0
     tstart3 = tic;
     size1 = size(AFT_stack_sorted,1);
     numberOfNewFronts = size1-size0;
-%     PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, numberOfNewFronts, flag_best);
+    PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, numberOfNewFronts, flag_best);
     
     telapsed3 = toc(tstart3);
     plotTime = plotTime + telapsed3;
