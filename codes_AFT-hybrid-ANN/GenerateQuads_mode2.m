@@ -15,7 +15,7 @@ y_best2 = y_best_quad(2);
 xCoord_tmp = [xCoord_AFT; x_best2];
 yCoord_tmp = [yCoord_AFT; y_best2];
 
-al2 = 0.8;
+al2 = 0.8;%参考文献中的值，只要考虑0.8d范围的候选点
 while sum(node_select==-1) ~=0
     
 candidateList2 = NodeCandidate(AFT_stack_sorted, node1_base, node2_base, xCoord_AFT, yCoord_AFT, [x_best2, y_best2], al2 * Sp );
@@ -68,14 +68,14 @@ for i = 1:N
     
     flagInCell1 = 0;
 %     flagInCell1 = IsPointInCell(cellNodeTopo, xCoord_tmp, yCoord_tmp, node_select1);
-    flagInCell2 = IsPointInCell(cellNodeTopo, xCoord_tmp, yCoord_tmp, node_select2);
+    flagInCell2 = IsPointInCell(cellNodeTopo, xCoord_tmp, yCoord_tmp, node_select2,nodeCandidate_tmp);
     if flagInCell1 == 1 || flagInCell2 == 1
         continue;
     end
     
     flagDiag1 = 0;  
-%     flagDiag1   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_select1);
-    flagDiag2   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, [node_select1,node_select2]);
+%     flagDiag1   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_select1,nodeCandidate_tmp);
+    flagDiag2   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, [node_select1,node_select2],nodeCandidate_tmp);
     if flagDiag1 == 1 || flagDiag2 == 1
         continue;
     end
@@ -87,27 +87,28 @@ for i = 1:N
 %         end
 %     end
     
-    if node_select2 == node_best + 2 || node_select2 == node_best + 1
-        flagClose2 = IsPointClose2Edge([Grid_stack;AFT_stack_sorted], xCoord_tmp, yCoord_tmp, node_select2, Sp);
-        if flagClose2 == 1
-            continue;
-        end
-    end  
+%     if node_select2 == node_best + 2 || node_select2 == node_best + 1
+%         flagClose1 = IsPointClose2Edge(Grid_stack, faceCandidate,xCoord_tmp, yCoord_tmp, node_select2, Sp);
+%         flagClose2 = IsPointClose2Edge(AFT_stack_sorted, frontCandidate, xCoord_tmp, yCoord_tmp, node_select2, Sp);        
+%         if flagClose1 == 1 || flagClose2 == 1
+%             continue;
+%         end
+%     end  
     
 %     flagClose1 = IsEdgeClose2Point(AFT_stack_sorted,[node1_base,node_select1], xCoord_tmp, yCoord_tmp, node2_base);
 %     if flagClose1 == 1
 %         continue;
 %     end
     
-    flagClose2 = IsEdgeClose2Point(AFT_stack_sorted,[node2_base,node_select2], xCoord_tmp, yCoord_tmp, node1_base);
-    if flagClose2 == 1
-        continue;
-    end
-    
-    flagClose3 = IsEdgeClose2Point(AFT_stack_sorted,[node_select1,node_select2], xCoord_tmp, yCoord_tmp, -1); 
-    if flagClose3 == 1
-        continue;
-    end
+%     flagClose2 = IsEdgeClose2Point(AFT_stack_sorted,[node2_base,node_select2], xCoord_tmp, yCoord_tmp, node1_base);
+%     if flagClose2 == 1
+%         continue;
+%     end
+%     
+%     flagClose3 = IsEdgeClose2Point(AFT_stack_sorted,[node_select1,node_select2], xCoord_tmp, yCoord_tmp, -1); 
+%     if flagClose3 == 1
+%         continue;
+%     end
     
     node_select = [node_select1,node_select2];
     break;

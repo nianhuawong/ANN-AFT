@@ -1,10 +1,12 @@
-function flagClose = IsPointClose2Edge(AFT_stack, xCoord, yCoord, node_test, Sp)
+function flagClose = IsPointClose2Edge(AFT_stack,faceCandidate, xCoord, yCoord, node_test, Sp)
 flagClose = 0;
-nFaces = size(AFT_stack,1);
+nFaces = size(faceCandidate,2);
 node_t = [xCoord(node_test), yCoord(node_test)];
 for i =1:nFaces
-    nodeIn1 = AFT_stack(i,1);
-    nodeIn2 = AFT_stack(i,2);
+    iFace = faceCandidate(i);
+    nodeIn1 = AFT_stack(iFace,1);
+    nodeIn2 = AFT_stack(iFace,2);
+    
     dd = DISTANCE( nodeIn1, nodeIn2, xCoord, yCoord);
     
     node1 = [xCoord(nodeIn1), yCoord(nodeIn1)];

@@ -27,7 +27,7 @@ ds_BD = sqrt( BD(1)^2 + BD(2)^2 );
 dref = 0.5 * ( ds_AB + DISTANCE(1, 2, [A(1), C(1)], [A(2), C(2)]) );
 % d = min(1.25*ds_AB, max([0.8*ds_AB, Sp, dref]));
 d = Sp;
-% d = min(1.25*ds_AB, max(0.8*ds_AB,Sp));
+% d = min(1.25*ds_AB, max(0.8*ds_AB,Sp));%文献中推荐的步长控制
 %%
 theta = acos( AB * AC' / ds_AB / ds_AC ) * 180 / pi;
 theta = real(theta);

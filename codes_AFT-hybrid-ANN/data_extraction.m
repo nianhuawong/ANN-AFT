@@ -18,21 +18,21 @@ nn_fun_tri  = @net_naca0012_20201104;
 cd ../;
 standardlize = 1;       %是否进行坐标归一化
 isSorted     = 1;       %是否对阵面进行排序推进
-isPlotNew    = 0;       %是否plot生成过程
-num_label    = 0;       %是否在图中输出点的编号
+isPlotNew    = 1;       %是否plot生成过程
+num_label    = 1;       %是否在图中输出点的编号
 SpDefined    = 1;       % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/special.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-10.cas';
-% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-coarse.cas';
+stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
+% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas';
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-stepSizeFile     = '../grid/30p30n/30p30n-fine.cas';
+% stepSizeFile     = '../grid/30p30n/30p30n-fine.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
-boundaryGrid     = stepSizeFile; 
-boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
+% boundaryGrid     = stepSizeFile; 
+% boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
 crossCount       = 0;
 %%
 [AFT_stack,Coord,Grid,wallNodes]  = read_grid(stepSizeFile, sizeFileType);
@@ -87,10 +87,10 @@ while size(AFT_stack_sorted,1)>0
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);        
 
-    if nCells_AFT >=0
-        if node1_base == 138 && node2_base == 120 || node1_base == 375 && node2_base == 167|| ...
+    if nCells_AFT >=3096
+        if node1_base == 1990 && node2_base == 1999 || node1_base == 375 && node2_base == 167|| ...
                 node1_base == 313 && node2_base == 314
-%         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+        PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
         end
 %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);    
     end  

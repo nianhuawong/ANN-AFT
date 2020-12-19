@@ -1,4 +1,4 @@
-function flagDiag   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_check)
+function flagDiag   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_check, nodeCandidate)
 flagDiag = 0;
 
 nCells = size(cellNodeTopo,1);
@@ -17,6 +17,11 @@ for i = 1:nCells
         node2 = cell(2);
         node3 = cell(3);
         node4 = cell(4);
+        
+        if sum(node1 == nodeCandidate) == 0 && sum(node2 == nodeCandidate) == 0 && ...
+                sum(node3 == nodeCandidate) == 0 && sum(node4 == nodeCandidate) == 0
+            continue;
+        end
         
         if length(node_test) == 2
             if ( node_test(1) == node1 && node_test(2) == node3 ) || ...
