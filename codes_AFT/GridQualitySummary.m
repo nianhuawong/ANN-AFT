@@ -1,6 +1,11 @@
 function GridQualitySummary(cellNodeTopo, xCoord, yCoord, Grid_stack)
 if nargin == 3
-    Grid_stack = ConstructGridTopo(cellNodeTopo,xCoord, yCoord);
+    Grid_stack = ConstructGridStack(cellNodeTopo,xCoord, yCoord);
+end
+
+if isempty(cellNodeTopo)
+    cellNodeTopo = ConstructGridTopo(Grid_stack);
+    PLOT(Grid_stack, xCoord, yCoord);
 end
 
 nFaces = size(Grid_stack,1);
@@ -10,32 +15,36 @@ areaRatio = zeros(1,nFaces);
 qualityRatio = zeros(1,nFaces);
 quality = zeros(1,nCells);
 for i = 1:nFaces
+    if i == 2926
+        kkk = 1;
+    end
     leftCell = Grid_stack(i,3);
     rightCell = Grid_stack(i,4);
     
-    node4 = cellNodeTopo(leftCell,1);
-    node5 = cellNodeTopo(leftCell,2);
-    node6 = cellNodeTopo(leftCell,3);
+    node5 = cellNodeTopo(leftCell,1);
+    node6 = cellNodeTopo(leftCell,2);
+    node7 = cellNodeTopo(leftCell,3);
+    node8 = cellNodeTopo(leftCell,4);
     
-    [qualityL,~] = QualityCheckTri(node4, node5, node6, xCoord, yCoord, -1);
+    qualityL = QualityCheckQuad_new(node5, node6, node7, node8, xCoord, yCoord);
        
     if rightCell <= 0
         areaRatio(i)      = -1;
         qualityRatio(i)   = -1;
         quality(leftCell) = qualityL;
     else
-        node7 = cellNodeTopo(rightCell,1);
-        node8 = cellNodeTopo(rightCell,2);
-        node9 = cellNodeTopo(rightCell,3);
+        node9 = cellNodeTopo(rightCell,1);
+        node10 = cellNodeTopo(rightCell,2);
+        node11 = cellNodeTopo(rightCell,3);
+        node12 = cellNodeTopo(rightCell,4);
         
-        areaL = AreaTriangleIndex(node4, node5, node6, xCoord, yCoord);
-        areaR = AreaTriangleIndex(node7, node8, node9, xCoord, yCoord);
+        areaL = AreaQuadangleIndex(node5, node6, node7, node8, xCoord, yCoord);
+        areaR = AreaQuadangleIndex(node9, node10, node11, node12, xCoord, yCoord);
         areaRatio(i) = min([areaL,areaR]) / max([areaL,areaR]);
-        
-        [qualityR,~] = QualityCheckTri(node7, node8, node9, xCoord, yCoord, -1);
-        quality(leftCell)  = qualityL;
+
+        qualityR = QualityCheckQuad_new(node9, node10, node11, node12, xCoord, yCoord);    
+        quality(leftCell) = qualityL;
         quality(rightCell) = qualityR;
-        
         qualityRatio(i) = min([qualityL,qualityR]) / max([qualityL,qualityR]);
     end
 end
@@ -45,7 +54,7 @@ areaRatio( II ) = 100000;
 [minAreaRatio, pos1] = min(areaRatio);
 
 Edge = Grid_stack(pos1,1:2);
-plot(xCoord(Edge),yCoord(Edge),'r-*');
+% plot(xCoord(Edge),yCoord(Edge),'r-*');
 
 areaRatio( II ) = [];
 maxAreaRatio = max(areaRatio);
@@ -56,7 +65,7 @@ qualityRatio( II ) = 100000;
 [minQualityRatio, pos2] = min(qualityRatio);
 
 Edge = Grid_stack(pos2,1:2);
-plot(xCoord(Edge),yCoord(Edge),'g-o');
+% plot(xCoord(Edge),yCoord(Edge),'g-o');
 
 qualityRatio( II ) = [];
 maxQualityRatio = max(qualityRatio);
@@ -66,8 +75,8 @@ averQualityRatio = mean(qualityRatio);
 
 badCell = cellNodeTopo(pos3,:);
 badCell(badCell<=0)=[];
-plot(xCoord(badCell),yCoord(badCell),'k-+');
-plot(mean(xCoord(badCell)),mean(yCoord(badCell)),'k+');
+% plot(xCoord(badCell),yCoord(badCell),'k+');
+% plot(mean(xCoord(badCell)),mean(yCoord(badCell)),'k+');
 hold off;
 maxQuality = max(quality);
 averQuality = mean(quality);
@@ -86,15 +95,27 @@ disp(['minQuality       = ', num2str(minQuality)]);
 disp(['averQuality      = ', num2str(averQuality)]);
 end
 
-function area = AreaTriangleIndex(nodeIn1, nodeIn2, nodeIn3, xCoord, yCoord)
+% function area = AreaTriangleIndex(nodeIn1, nodeIn2, nodeIn3, xCoord, yCoord)
+% node1 = [xCoord(nodeIn1), yCoord(nodeIn1)];
+% node2 = [xCoord(nodeIn2), yCoord(nodeIn2)];
+% node3 = [xCoord(nodeIn3), yCoord(nodeIn3)];
+% 
+% area = AreaTriangle(node1, node2, node3);
+% end
+
+function area = AreaQuadangleIndex(nodeIn1, nodeIn2, nodeIn3, nodeIn4, xCoord, yCoord)
 node1 = [xCoord(nodeIn1), yCoord(nodeIn1)];
 node2 = [xCoord(nodeIn2), yCoord(nodeIn2)];
 node3 = [xCoord(nodeIn3), yCoord(nodeIn3)];
-
-area = AreaTriangle(node1, node2, node3);
+if nodeIn4 > 0
+    node4 = [xCoord(nodeIn4), yCoord(nodeIn4)];
+    area = AreaQuadrangle(node1, node2, node3, node4);
+else
+    area = AreaTriangle(node1, node2, node3);    
+end
 end
 
-function Grid_stack = ConstructGridTopo(cellNodeTopo, xCoord, yCoord)
+function Grid_stack = ConstructGridStack(cellNodeTopo, xCoord, yCoord)
 Grid_stack = [];
 nCells = size(cellNodeTopo,1);
 for i=1:nCells

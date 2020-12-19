@@ -1,4 +1,4 @@
-clear;clc;close all;format long;
+clear;clc;format long;close all;
 tstart0 = tic;
 %%
 global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount;  
@@ -21,14 +21,14 @@ SpDefined    = 1;   % 0-Î´¶¨Òå²½³¤£¬Ö±½Ó²ÉÓÃÍø¸ñµã£»1-¶¨ÒåÁË²½³¤ÎÄ¼þ£»2-ANNÊä³öÁ
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
-% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas';
+% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-10-hybrid.cas';
+stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-coarse.cas';
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-stepSizeFile     = '../grid/30p30n/30p30n-fine.cas';
+% stepSizeFile     = '../grid/30p30n/30p30n.cas';
 sizeFileType     = 0;   %ÊäÈë²½³¤ÎÄ¼þµÄÀàÐÍ£¬0-Èý½ÇÐÎÍø¸ñ£¬1-»ìºÏÍø¸ñ
-boundaryGrid     = stepSizeFile; 
-boundaryGridType = 0;   % 0-µ¥Ò»µ¥ÔªÍø¸ñ£¬1-»ìºÏµ¥ÔªÍø¸ñ
+% boundaryGrid     = stepSizeFile; 
+% boundaryGridType = 0;   % 0-µ¥Ò»µ¥ÔªÍø¸ñ£¬1-»ìºÏµ¥ÔªÍø¸ñ
 crossCount       = 0;
 %%
 [AFT_stack,Coord,Grid,wallNodes]  = read_grid(stepSizeFile, sizeFileType);
@@ -154,7 +154,7 @@ GridQualitySummaryDelaunay(triMesh_pw, invalidCellIndex_pw);
 GridQualitySummaryDelaunay(triMesh, invalidCellIndex, xCoord, yCoord)
 
 %% ÓÃ±äÐÎÓÅ»¯ºóµÄÍø¸ñºÏ²¢
-combinedMesh = CombineMesh(triMesh,wallNodes,0.5, xCoord, yCoord);
+combinedMesh = CombineMesh(triMesh, invalidCellIndex, wallNodes,0.5, xCoord, yCoord);
 GridQualitySummary(combinedMesh, xCoord, yCoord);
 
 

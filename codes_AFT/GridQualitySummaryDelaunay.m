@@ -60,7 +60,7 @@ II = areaRatio==-1;
 areaRatio( II ) = 100000;
 [minAreaRatio, pos1] = min(areaRatio);
 hold on;
-plot(xCoord(Edge(pos1,:)),yCoord(Edge(pos1,:)),'r-*');
+% plot(xCoord(Edge(pos1,:)),yCoord(Edge(pos1,:)),'r-*');
 areaRatio( II ) = [];
 
 maxAreaRatio = max(areaRatio);
@@ -70,7 +70,7 @@ averAreaRatio = mean(areaRatio);
 II = qualityRatio==-1;
 qualityRatio( II ) = 100000;
 [minQualityRatio, pos2] = min(qualityRatio);
-plot(xCoord(Edge(pos2,:)),yCoord(Edge(pos2,:)),'g-o');
+% plot(xCoord(Edge(pos2,:)),yCoord(Edge(pos2,:)),'g-o');
 
 qualityRatio( II ) = [];
 maxQualityRatio = max(qualityRatio);
@@ -80,9 +80,9 @@ averQualityRatio = mean(qualityRatio);
 quality( invalidCellIndex ) = 100000;
 [minQuality, pos3] = min(quality);
 badCell = triMesh.ConnectivityList(pos3,:);
-plot(xCoord(badCell),yCoord(badCell),'k-+');
-plot(mean(xCoord(badCell)),mean(yCoord(badCell)),'k+');
-hold off;
+% plot(xCoord(badCell),yCoord(badCell),'k-+');
+% plot(mean(xCoord(badCell)),mean(yCoord(badCell)),'k+');
+
 quality( invalidCellIndex ) = [];
 maxQuality = max(quality);
 averQuality = mean(quality);

@@ -1,31 +1,32 @@
-function quad = CombineMesh(triMesh,wallNodes,qualCriterion, xCoord, yCoord)
+function quad = CombineMesh(triMesh, invalidCellIndex, wallNodes, qualCriterion, xCoord, yCoord)
 if nargin == 3
     xCoord = triMesh.Points(:,1);
     yCoord = triMesh.Points(:,2);
 end
+rectangularBoudanryNodes = 4*10-4;
 tri = triMesh.ConnectivityList;
 neighbor = neighbors(triMesh);
-tri_bak = tri; 
 nCells_ori = size(tri,1);
-wallCells = [];
-for i = 1:nCells_ori
-    tmp = intersect(wallNodes,tri(i,:));
-    if length(tmp) >= 2
-        wallCells(end+1) = i;
-    end
-end
 
-nWallCells = length(wallCells);
-for i = 1:nWallCells    
-    tmp = tri(i,:);
-    tri(i,:) = tri(wallCells(i),:);
-    tri(wallCells(i),:) = tmp;
-    
-    tmp2 = neighbor(i,:);
-    neighbor(i,:) = neighbor(wallCells(i),:);
-    neighbor(wallCells(i),:) = tmp2;    
-end
-
+% tri_bak = tri; 
+% wallCells = [];
+% for i = 1:nCells_ori
+%     tmp = intersect(wallNodes,tri(i,:));
+%     if length(tmp) >= 2
+%         wallCells(end+1) = i;%找到边界单元
+%     end
+% end
+% 
+% nWallCells = length(wallCells);
+% for i = 1:nWallCells    
+%     tmp = tri(i,:);
+%     tri(i,:) = tri(wallCells(i),:);%把边界单元放在单元列表最前面
+%     tri(wallCells(i),:) = tmp;
+%     
+%     tmp2 = neighbor(i,:);
+%     neighbor(i,:) = neighbor(wallCells(i),:);
+%     neighbor(wallCells(i),:) = tmp2;   
+% end
 
 quad = zeros( round(nCells_ori/2), 4 );
 % for i = 1:nCells_ori
@@ -35,7 +36,7 @@ quad = zeros( round(nCells_ori/2), 4 );
 %     plot(xCoord(tri(i,3)),yCoord(tri(i,3)),'bx')    
 % end
 count = 0;
-for i = 1:nCells_ori
+for i = 1:nCells_ori  %遍历每个原始单元
     if i==45
         kkk = 1;
     end
@@ -46,18 +47,18 @@ for i = 1:nCells_ori
         continue;
     end
 
-    TN = neighbor(i,:);
+    TN = neighbor(i,:);  %找到其相邻单元
     num_neighbor = length(TN);
     
     quality = 0; node = -1; 
-    for j = 1:num_neighbor
-        if isnan(TN(j))
+    for j = 1:num_neighbor  %对每个相邻单元，都要计算其合并后的单元质量
+        if isnan(TN(j)) || sum(invalidCellIndex==TN(j))~=0
             continue;
         end
         
-        [~,~,IB] = intersect(tri(i,:),tri_bak(TN(j),:));
+        [~,~,IB] = intersect(tri(i,:),tri(TN(j),:));  %找到相邻单元的相同节点
         node_t = tri(TN(j),:);
-        node_t(IB)=[];
+        node_t(IB)=[];%找到相邻单元的另一个点
         if node_t(1) == -1
             continue;
         end
@@ -71,7 +72,7 @@ for i = 1:nCells_ori
 %             plot(xCoord(node_t),yCoord(node_t),'k+')
 %         end
         
-        flag0 = IsLeftCell(node1, node2, node3, xCoord, yCoord);
+%         flag0 = IsLeftCell(node1, node2, node3, xCoord, yCoord);
         flag1 = IsLeftCell(node1, node2, node_t, xCoord, yCoord);
         flag2 = IsLeftCell(node3, node1, node_t, xCoord, yCoord);
         flag3 = IsLeftCell(node2, node3, node_t, xCoord, yCoord);
@@ -92,15 +93,15 @@ for i = 1:nCells_ori
         if tmp > quality && tmp> qualCriterion
             quality = tmp;
             node = node_t; 
-            nn = TN(j);
+            nn = TN(j);   %邻居单元的编号
             cell = cell_tmp;
         end
     end
     
-   if node == -1  
-       cell_tmp1 = [node1,node2,node3];
+   if node == -1  %如果没有合并成功，因为不满足qualCriterion
+       cell_tmp1 = [node1,node2,node3]; %则仍然是三角形
        tmp = intersect(wallNodes,cell_tmp1);
-       if length(tmp)>=3 && min([node1,node2,node3])>36
+       if length(tmp)>=3 && min([node1,node2,node3])>rectangularBoudanryNodes
            
        else
            quad(count+1,:) = [node1,node2,node3,-1];
@@ -110,7 +111,7 @@ for i = 1:nCells_ori
    else   
        cell_tmp1 = [node1,node2,node3,node];
        tmp = intersect(wallNodes,cell_tmp1);
-       if length(tmp)>=3
+       if length(tmp)>=3 %&& min([node1,node2,node3])>rectangularBoudanryNodes
            
        else
            quad(count+1,:) = cell;
