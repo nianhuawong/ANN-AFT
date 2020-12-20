@@ -36,6 +36,8 @@ quad = zeros( round(nCells_ori/2), 4 );
 %     plot(xCoord(tri(i,3)),yCoord(tri(i,3)),'bx')    
 % end
 count = 0;
+nQuadCells = 0;
+nTriCells  = 0;
 for i = 1:nCells_ori  %遍历每个原始单元
     if i==45
         kkk = 1;
@@ -122,6 +124,12 @@ for i = 1:nCells_ori  %遍历每个原始单元
    end
 end
 quad( quad(:,1)==0, : ) = [];
+
+nTotalCells = size(quad,1);
+disp('==========网格合并完成！=========');
+disp(['合并后总单元数      ：', num2str(nTotalCells)]);
+disp(['合并后quad单元数    ：', num2str(nQuadCells)]);
+disp(['合并后tri 单元数    ：', num2str(nTriCells)]);
 
 figure; 
 for i = 1:size(quad,1)
