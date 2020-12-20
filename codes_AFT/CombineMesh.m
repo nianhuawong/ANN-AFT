@@ -108,6 +108,7 @@ for i = 1:nCells_ori  %遍历每个原始单元
        else
            quad(count+1,:) = [node1,node2,node3,-1];
            count = count + 1;
+		   nTriCells = nTriCells + 1;
            tri(i,:) = -1;
        end
    else   
@@ -118,6 +119,7 @@ for i = 1:nCells_ori  %遍历每个原始单元
        else
            quad(count+1,:) = cell;
            count = count + 1;
+		   nQuadCells = nQuadCells + 1;
            tri(nn,:) = -1;
            tri(i,:) = -1;
        end
