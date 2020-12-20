@@ -27,7 +27,7 @@ for i = 1:nCells
             sum(node3Index == nodeCandidate) == 0 && sum(node4Index == nodeCandidate) == 0
         continue;
     end
-        
+
     cell(cell==0) = []; 
     cell(cell==-11) = [];
     cell(cell==-22) = [];
@@ -50,12 +50,9 @@ for i = 1:nCells
         area2 = AreaTriangle(node0, node1, node3);
         area3 = AreaTriangle(node0, node2, node3);
         
-%         if abs(area0-area1-area2-area3) <1e-5 ...
+        if abs(area0-area1-area2-area3) <1e-3 %...
 %                 && abs(area0) > 1e-5 && abs(area1) > 1e-5 ...
-%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5  
-        if abs(area0-area1-area2-area3) <1e-7 ...           %% 这个判断条件还有点问题，待修改
-                 || abs(area1) < 1e-10 ...
-                 || abs(area2) < 1e-10 || abs(area3) < 1e-10              
+%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5              
            flagInCell = 1;
            break;
         end
@@ -77,12 +74,9 @@ for i = 1:nCells
         area3 = AreaTriangle(node0, node3, node4);
         area4 = AreaTriangle(node0, node4, node1);  
         
-%         if abs(area0-area1-area2-area3-area4) <1e-5 ...
+        if abs(area0-area1-area2-area3-area4) <1e-3 %...
 %                 && abs(area0) > 1e-5 && abs(area1) > 1e-5 ...
-%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5 && abs(area4) > 1e-5
-        if abs(area0-area1-area2-area3-area4) <1e-7 ...         %% 这个判断条件还有点问题，待修改
-                 || abs(area1) < 1e-10 || abs(area2) < 1e-10 ...
-                 || abs(area3) < 1e-10 || abs(area4) < 1e-10             
+%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5 && abs(area4) > 1e-5       
             flagInCell = 1;
             break;
         end

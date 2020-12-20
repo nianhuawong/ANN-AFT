@@ -11,15 +11,15 @@ outGridType = 1;        % 0-三角形网格， 1-混合网格
 stencilType = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
 epsilon     = 0.8;     % 四边形网格质量要求, 值越大要求越高
 useANN      = 1;        % 是否使用ANN生成网格
-tolerance   = 0.2;      % ANN进行模式判断的容差
+tolerance   = 0.0000002;      % ANN进行模式判断的容差
 cd ./net;
 nn_fun_quad = @net_hybrid_20201130;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
 nn_fun_tri  = @net_naca0012_20201104; 
 cd ../;
 standardlize = 1;       %是否进行坐标归一化
 isSorted     = 1;       %是否对阵面进行排序推进
-isPlotNew    = 1;       %是否plot生成过程
-num_label    = 1;       %是否在图中输出点的编号
+isPlotNew    = 0;       %是否plot生成过程
+num_label    = 0;       %是否在图中输出点的编号
 SpDefined    = 1;       % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
@@ -87,8 +87,8 @@ while size(AFT_stack_sorted,1)>0
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);        
 
-    if nCells_AFT >=3096
-        if node1_base == 1990 && node2_base == 1999 || node1_base == 375 && node2_base == 167|| ...
+    if nCells_AFT >=2000
+        if node1_base == 2455 && node2_base == 2464 || node1_base == 375 && node2_base == 167|| ...
                 node1_base == 313 && node2_base == 314
         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
         end
@@ -139,7 +139,9 @@ while size(AFT_stack_sorted,1)>0
 end
 %% ============================================== 
 DisplayResultsHybrid(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1, generateTime,updateTime,plotTime, tstart0, 'finalRes');
-
+if isPlotNew == 0   
+    PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
+end
 %% ============================================== 
 % GridQualitySummary(cellNodeTopo, xCoord_AFT, yCoord_AFT, Grid_stack);
 % %% Delaunay对角线变换之后，输出网格质量
@@ -154,7 +156,7 @@ GridQualitySummaryDelaunay(triMesh, invalidCellIndex, xCoord, yCoord)
 % %% 三角形网格合并成四边形
 % combinedMesh = CombineMesh(triMesh,wallNodes,epsilon);
 % 用变形优化后的网格合并
-combinedMesh = CombineMesh(triMesh,wallNodes,0.5, xCoord, yCoord);
+combinedMesh = CombineMesh(triMesh,invalidCellIndex,wallNodes,0.5, xCoord, yCoord);
 GridQualitySummary(combinedMesh, xCoord, yCoord);
 % toc
 

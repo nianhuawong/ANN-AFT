@@ -49,6 +49,9 @@ end
 Qp_sort = sort(Qp(:),'descend'); 
 for i = 1:N
     [~,col] = find(Qp==Qp_sort(i));
+    if length(col) ~= 1  &&  Qp(1,col(1)) == 0
+        break;
+    end
     node_select1 = node_select(1);
     node_select2 = candidateList2(col(1));
     

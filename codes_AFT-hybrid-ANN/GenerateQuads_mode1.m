@@ -53,6 +53,9 @@ end
 Qp_sort = sort(Qp(:),'descend'); 
 for i = 1:M*N
     [row,col] = find(Qp==Qp_sort(i));
+    if length(row) ~= 1  &&  Qp(row(1),col(1)) == 0
+       break;
+    end
     node_select1 = candidateList1(row(1));
     node_select2 = candidateList2(col(1));
     
