@@ -22,12 +22,13 @@ for i=1:size(backGrid,1)
     dvv(i) = sqrt( vv(1)^2 + vv(2)^2 );
 end
 [~, index] = sort(dvv);
+Sp = mean( SpField(index(1:3)) );
 
-Sp = 0; dist = 0;
-for i = 1:10
-    iNode = index(i);
-    Sp = Sp + SpField(iNode) * ( 1.0 / ( dvv(iNode) + 1e-7 ) );   %反距离加权
-    dist = dist + ( 1.0 / ( dvv(iNode) + 1e-7 ) );
-end
-Sp = Sp / dist;
+% Sp = 0; dist = 0;
+% for i = 1:10
+%     iNode = index(i);
+%     Sp = Sp + SpField(iNode) * ( 1.0 / ( dvv(iNode) + 1e-7 ) );   %反距离加权
+%     dist = dist + ( 1.0 / ( dvv(iNode) + 1e-7 ) );
+% end
+% Sp = Sp / dist;
 end

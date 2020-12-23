@@ -27,7 +27,7 @@ for i = 1:nCells
             sum(node3Index == nodeCandidate) == 0 && sum(node4Index == nodeCandidate) == 0
         continue;
     end
-
+        
     cell(cell==0) = []; 
     cell(cell==-11) = [];
     cell(cell==-22) = [];
@@ -52,7 +52,7 @@ for i = 1:nCells
         
         if abs(area0-area1-area2-area3) <1e-3 %...
 %                 && abs(area0) > 1e-5 && abs(area1) > 1e-5 ...
-%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5              
+%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5           
            flagInCell = 1;
            break;
         end
@@ -76,7 +76,7 @@ for i = 1:nCells
         
         if abs(area0-area1-area2-area3-area4) <1e-3 %...
 %                 && abs(area0) > 1e-5 && abs(area1) > 1e-5 ...
-%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5 && abs(area4) > 1e-5       
+%                 && abs(area2) > 1e-5 && abs(area3) > 1e-5 && abs(area4) > 1e-5          
             flagInCell = 1;
             break;
         end

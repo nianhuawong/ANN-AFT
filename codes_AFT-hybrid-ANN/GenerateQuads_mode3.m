@@ -49,20 +49,20 @@ end
 Qp_sort = sort(Qp(:),'descend'); 
 for i = 1:N
     [~,col] = find(Qp==Qp_sort(i));
-    if length(col) ~= 1  &&  Qp(1,col(1)) == 0
-        break;
+    if length(col)>1 && Qp(1,col(1)) == 0
+        continue;
     end
+    
     node_select1 = candidateList1(col(1));
     node_select2 = node_select(2);
     
     flagNotCross = IsNotCrossAllMode(node1_base, node2_base, node_select1, node_select2,...
-                              frontCandidate, AFT_stack_sorted, faceCandidate, Grid_stack, ...
-                              xCoord_tmp, yCoord_tmp,3);    
-      if flagNotCross == 0
-          continue;
-      end
-      
-                      
+        frontCandidate, AFT_stack_sorted, faceCandidate, Grid_stack, ...
+        xCoord_tmp, yCoord_tmp,3);
+    if flagNotCross == 0
+        continue;
+    end
+                            
     flagLeftCell1 = IsLeftCell(node1_base, node2_base, node_select1, xCoord_tmp, yCoord_tmp);
     flagLeftCell2 = 1;
 %     flagLeftCell2 = IsLeftCell(node1_base, node2_base, node_select2, xCoord_tmp, yCoord_tmp);
@@ -137,10 +137,24 @@ end
 
 %%
 %选择的边不能在Grid_stack里存在，即不能为非活跃面
-[row1, ~ ] = FrontExist(node1_base,node_select(1), Grid_stack);
-[row2, ~ ] = FrontExist(node2_base,node_select(2), Grid_stack);
-[row3, ~ ] = FrontExist(node_select(1),node_select(2), Grid_stack);
-if row1 ~= -1 || row2 ~= -1 || row3 ~= -1
+[row1, ~ ] = FrontExist(node1_base,node_select(1), Grid_stack,faceCandidate);
+if row1 ~= -1
+    node_select = [-1,-1];
+    coordX = [];
+    coordY = [];
+    return;
+end
+
+[row2, ~ ] = FrontExist(node2_base,node_select(2), Grid_stack,faceCandidate);
+if row2 ~= -1
+    node_select = [-1,-1];
+    coordX = [];
+    coordY = [];
+    return;
+end
+
+[row3, ~ ] = FrontExist(node_select(1),node_select(2), Grid_stack,faceCandidate);
+if row3 ~= -1
     node_select = [-1,-1];
     coordX = [];
     coordY = [];

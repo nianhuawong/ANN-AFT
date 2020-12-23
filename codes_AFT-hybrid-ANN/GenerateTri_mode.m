@@ -24,7 +24,7 @@ if mode == 2 || mode == 3
     frontCandidate = FrontCandidate(AFT_stack_sorted, [nodeCandidate_AFT, node1_base, node2_base]);
     flagNotCross1 = IsNotCross(node1_base, node2_base, nodeIndex, frontCandidate, AFT_stack_sorted, xCoord_AFT, yCoord_AFT ,0);
             
-     flagLeftCell = IsLeftCell(node1_base, node2_base, nodeIndex, xCoord_AFT, yCoord_AFT);
+    flagLeftCell = IsLeftCell(node1_base, node2_base, nodeIndex, xCoord_AFT, yCoord_AFT);
     if flagLeftCell == 0 || flagNotCross1 == 0
         node_select = -1;
     else

@@ -49,9 +49,10 @@ end
 Qp_sort = sort(Qp(:),'descend'); 
 for i = 1:N
     [~,col] = find(Qp==Qp_sort(i));
-    if length(col) ~= 1  &&  Qp(1,col(1)) == 0
-        break;
+    if length(col)>1 && Qp(1,col(1)) == 0
+        continue;
     end
+    
     node_select1 = node_select(1);
     node_select2 = candidateList2(col(1));
     
@@ -136,10 +137,24 @@ end
 
 %%
 %选择的边不能在Grid_stack里存在，即不能为非活跃面
-[row1, ~ ] = FrontExist(node1_base,node_select(1), Grid_stack);
-[row2, ~ ] = FrontExist(node2_base,node_select(2), Grid_stack);
-[row3, ~ ] = FrontExist(node_select(1),node_select(2), Grid_stack);
-if row1 ~= -1 || row2 ~= -1 || row3 ~= -1
+[row1, ~ ] = FrontExist(node1_base,node_select(1), Grid_stack,faceCandidate);
+if row1 ~= -1
+    node_select = [-1,-1];
+    coordX = [];
+    coordY = [];
+    return;
+end
+
+[row2, ~ ] = FrontExist(node2_base,node_select(2), Grid_stack,faceCandidate);
+if row2 ~= -1
+    node_select = [-1,-1];
+    coordX = [];
+    coordY = [];
+    return;
+end
+
+[row3, ~ ] = FrontExist(node_select(1),node_select(2), Grid_stack,faceCandidate);
+if row3 ~= -1
     node_select = [-1,-1];
     coordX = [];
     coordY = [];

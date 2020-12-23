@@ -1,9 +1,15 @@
-function GridQualitySummary(cellNodeTopo, xCoord, yCoord, Grid_stack)
+function GridQualitySummary(cellNodeTopology, xCoord, yCoord, Grid_stack)
 if nargin == 3
-    Grid_stack = ConstructGridTopo(cellNodeTopo,xCoord, yCoord);
+    Grid_stack = ConstructGridTopo(cellNodeTopology,xCoord, yCoord);
 end
+
+if isempty(cellNodeTopology)
+    cellNodeTopology = ConstructGridTopo(Grid_stack);
+    PLOT(Grid_stack, xCoord, yCoord);
+end
+
 nFaces = size(Grid_stack,1);
-nCells = size(cellNodeTopo,1);
+nCells = size(cellNodeTopology,1);
 
 areaRatio = zeros(1,nFaces);
 qualityRatio = zeros(1,nFaces);
@@ -11,22 +17,22 @@ quality = zeros(1,nCells);
 
 % targetPoint = TargetPointOfFrontQuad(Grid_stack);
 for i = 1:nFaces
-    node1 = Grid_stack(i,1);
-    node2 = Grid_stack(i,2);
+%     node1 = Grid_stack(i,1);
+%     node2 = Grid_stack(i,2);
 %     node3 = targetPoint(i,2);
 %     node4 = targetPoint(i,1);
     
-    if node1 == 37 && node2 == 38
-        kkk = 1;
-    end
+%     if node1 == 37 && node2 == 38
+%         kkk = 1;
+%     end
     
     leftCell = Grid_stack(i,3);
     rightCell = Grid_stack(i,4);
     
-    node5 = cellNodeTopo(leftCell,1);
-    node6 = cellNodeTopo(leftCell,2);
-    node7 = cellNodeTopo(leftCell,3);
-    node8 = cellNodeTopo(leftCell,4);
+    node5 = cellNodeTopology(leftCell,1);
+    node6 = cellNodeTopology(leftCell,2);
+    node7 = cellNodeTopology(leftCell,3);
+    node8 = cellNodeTopology(leftCell,4);
     
     qualityL = QualityCheckQuad_new(node5, node6, node7, node8, xCoord, yCoord);
     
@@ -35,10 +41,10 @@ for i = 1:nFaces
         qualityRatio(i) = -1;
         quality(leftCell) = qualityL;
     else
-        node9 = cellNodeTopo(rightCell,1);
-        node10 = cellNodeTopo(rightCell,2);
-        node11 = cellNodeTopo(rightCell,3);
-        node12 = cellNodeTopo(rightCell,4);
+        node9 = cellNodeTopology(rightCell,1);
+        node10 = cellNodeTopology(rightCell,2);
+        node11 = cellNodeTopology(rightCell,3);
+        node12 = cellNodeTopology(rightCell,4);
         
         areaL = AreaQuadangleIndex(node5, node6, node7, node8, xCoord, yCoord);
         areaR = AreaQuadangleIndex(node9, node10, node11, node12, xCoord, yCoord);
@@ -78,7 +84,7 @@ averQualityRatio = mean(qualityRatio);
 %%
 [minQuality, pos3] = min(quality);
 
-badCell = cellNodeTopo(pos3,:);
+badCell = cellNodeTopology(pos3,:);
 badCell(badCell<=0)=[];
 plot(xCoord(badCell),yCoord(badCell),'k-+');
 plot(mean(xCoord(badCell)),mean(yCoord(badCell)),'k+');
@@ -122,9 +128,9 @@ for i=1:nCells
     node3 = cellNodes(3);
     node4 = cellNodes(4);
     if node4 <=0   
-        Grid_stack = Update_AFT_INFO_GENERAL_TRI(Grid_stack, node1, node2, node3, i, xCoord, yCoord);
+        Grid_stack = Update_AFT_INFO_GENERAL_TRI_new(Grid_stack, node1, node2, node3, i, xCoord, yCoord);
     elseif node4 >0    
-        [Grid_stack, ~] = Update_AFT_INFO_GENERAL_quad(Grid_stack, node1, node2, node3, node4, i, xCoord, yCoord);
+        [Grid_stack, ~] = Update_AFT_INFO_GENERAL_quad_new(Grid_stack, node1, node2, node3, node4, i, xCoord, yCoord);
     end
 end
 tmp = Grid_stack(:,3);

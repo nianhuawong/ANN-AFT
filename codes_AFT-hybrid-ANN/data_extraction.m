@@ -3,15 +3,15 @@
 close all;format long;clear;
 tstart0 = tic;
 global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri ...
-stencilType outGridType standardlize SpDefined useANN crossCount countMode_quad countMode_tri tolerance nn_fun_quad nn_fun_tri; 
+stencilType outGridType standardlize SpDefined useANN crossCount countMode_quad countMode_tri tolerance nn_fun_quad nn_fun_tri rectangularBoudanryNodes; 
 %%
 al          = 3.0;      % ÔÚ¼¸±¶·¶Î§ÄÚËÑË÷
 coeff       = 0.8;     % ¾¡Á¿Ñ¡ÔñÏÖÓÐµãµÄ²ÎÊý£¬PbestÖÊÁ¿²ÎÊýµÄÏµÊý
-outGridType = 1;        % 0-Èý½ÇÐÎÍø¸ñ£¬ 1-»ìºÏÍø¸ñ
+outGridType = 0;        % 0-Èý½ÇÐÎÍø¸ñ£¬ 1-»ìºÏÍø¸ñ
 stencilType = 'all';    % ÔÚANNÉú³ÉµãÊ±£¬ÈçºÎÈ¡µ±Ç°ÕóÃæµÄÒýµ¼µãÄ£°å£¬¿ÉÒÔËæ»úÈ¡1¸ö£¬»òÕßËùÓÐ¿ÉÄÜ¶¼È¡£¬×îºóÆ½¾ù
-epsilon     = 0.8;     % ËÄ±ßÐÎÍø¸ñÖÊÁ¿ÒªÇó, ÖµÔ½´óÒªÇóÔ½¸ß
+epsilon     = 0.9;     % ËÄ±ßÐÎÍø¸ñÖÊÁ¿ÒªÇó, ÖµÔ½´óÒªÇóÔ½¸ß
 useANN      = 1;        % ÊÇ·ñÊ¹ÓÃANNÉú³ÉÍø¸ñ
-tolerance   = 0.0000002;      % ANN½øÐÐÄ£Ê½ÅÐ¶ÏµÄÈÝ²î
+tolerance   = 0.2;      % ANN½øÐÐÄ£Ê½ÅÐ¶ÏµÄÈÝ²î
 cd ./net;
 nn_fun_quad = @net_hybrid_20201130;  %net_naca0012_quad;net_airfoil_hybrid;net_cylinder_quad3
 nn_fun_tri  = @net_naca0012_20201104; 
@@ -26,6 +26,7 @@ SpDefined    = 1;       % 0-Î´¶¨Òå²½³¤£¬Ö±½Ó²ÉÓÃÍø¸ñµã£»1-¶¨ÒåÁË²½³¤ÎÄ¼þ£»2-ANNÊ
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/special.cas';
 stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
+rectangularBoudanryNodes = 50*4-4;  %¾ØÐÎÍâ±ß½çÉÏµÄ½ÚµãÊý£¬¿ÉÄÜ»á±ä»¯
 % stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas';
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
@@ -70,7 +71,8 @@ end
 if isSorted == 0
     AFT_stack_sorted = AFT_stack;
 elseif isSorted == 1
-    AFT_stack_sorted = sortrows(AFT_stack, 5);
+%     AFT_stack_sorted = sortrows(AFT_stack, 5);
+    AFT_stack_sorted = Sort_AFT(AFT_stack);
 end
 % end
 %% ==============================================    
@@ -87,8 +89,8 @@ while size(AFT_stack_sorted,1)>0
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);        
 
-    if nCells_AFT >=2000
-        if node1_base == 2455 && node2_base == 2464 || node1_base == 375 && node2_base == 167|| ...
+    if nCells_AFT >=3096
+        if node1_base == 1990 && node2_base == 1999 || node1_base == 375 && node2_base == 167|| ...
                 node1_base == 313 && node2_base == 314
         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
         end
@@ -134,7 +136,8 @@ while size(AFT_stack_sorted,1)>0
     [AFT_stack_sorted, Grid_stack] = DeleteInactiveFront(AFT_stack_sorted, Grid_stack);
     
     if isSorted == 1      
-        AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
+%         AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
+        AFT_stack_sorted = Sort_AFT(AFT_stack_sorted);
     end
 end
 %% ============================================== 
