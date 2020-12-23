@@ -13,17 +13,10 @@ AFT_stack_sorted = Update_AFT_INFO_TRI(AFT_stack_sorted, node1_base, ...
 %新增点的邻点
 % if(node_select ~= node_best)
 if flag_best == 0
-    neighbor = [node1_base, node2_base];
-    for i = 1: size(AFT_stack_sorted,1)
-        if( AFT_stack_sorted(i,1)== node_select)
-            neighbor(end+1) = AFT_stack_sorted(i,2);
-        end
-        if( AFT_stack_sorted(i,2) == node_select)
-            neighbor(end+1) = AFT_stack_sorted(i,1);
-        end
-    end
+    neighbor = NeighborNodes(node_select, AFT_stack_sorted,-1);%找出现有点的相邻点
+    neighbor = [node1_base, node2_base, neighbor];
     neighbor = unique(neighbor);
-    
+           
     %         邻点中若是有互相相邻的，则形成新单元
     new_cell = [];
     for i = 1:length(neighbor)

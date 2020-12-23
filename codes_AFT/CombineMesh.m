@@ -1,9 +1,10 @@
 function quad = CombineMesh(triMesh, invalidCellIndex, wallNodes, qualCriterion, xCoord, yCoord)
+global rectangularBoudanryNodes;
 if nargin == 3
     xCoord = triMesh.Points(:,1);
     yCoord = triMesh.Points(:,2);
 end
-rectangularBoudanryNodes = 4*10-4;
+
 tri = triMesh.ConnectivityList;
 neighbor = neighbors(triMesh);
 nCells_ori = size(tri,1);
@@ -108,18 +109,18 @@ for i = 1:nCells_ori  %遍历每个原始单元
        else
            quad(count+1,:) = [node1,node2,node3,-1];
            count = count + 1;
-		   nTriCells = nTriCells + 1;
+           nTriCells = nTriCells + 1;
            tri(i,:) = -1;
        end
    else   
        cell_tmp1 = [node1,node2,node3,node];
        tmp = intersect(wallNodes,cell_tmp1);
-       if length(tmp)>=3 %&& min([node1,node2,node3])>rectangularBoudanryNodes
+       if length(tmp)>=3 && min([node1,node2,node3])>rectangularBoudanryNodes
            
        else
            quad(count+1,:) = cell;
            count = count + 1;
-		   nQuadCells = nQuadCells + 1;
+           nQuadCells = nQuadCells + 1;
            tri(nn,:) = -1;
            tri(i,:) = -1;
        end
@@ -129,9 +130,9 @@ quad( quad(:,1)==0, : ) = [];
 
 nTotalCells = size(quad,1);
 disp('==========网格合并完成！=========');
-disp(['合并后总单元数      ：', num2str(nTotalCells)]);
-disp(['合并后quad单元数    ：', num2str(nQuadCells)]);
-disp(['合并后tri 单元数    ：', num2str(nTriCells)]);
+disp(['合并后总单元数   ：', num2str(nTotalCells)]);
+disp(['合并后quad单元数 ：', num2str(nQuadCells)]);
+disp(['合并后tri 单元数 ：', num2str(nTriCells)]);
 
 figure; 
 for i = 1:size(quad,1)

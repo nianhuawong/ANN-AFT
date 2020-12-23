@@ -1,7 +1,7 @@
 clear;clc;format long;close all;
 tstart0 = tic;
 %%
-global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount;  
+global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount rectangularBoudanryNodes;  
 al          = 3.0;      % ÔÚ¼¸±¶·¶Î§ÄÚËÑË÷
 coeff       = 0.8;      % ¾¡Á¿Ñ¡ÔñÏÖÓĞµãµÄ²ÎÊı£¬PbestÖÊÁ¿²ÎÊıµÄÏµÊı
 outGridType = 0;        % 0-¸÷ÏòÍ¬ĞÔÍø¸ñ£¬1-¸÷ÏòÒìĞÔÍø¸ñ
@@ -21,8 +21,9 @@ SpDefined    = 1;   % 0-Î´¶¨Òå²½³¤£¬Ö±½Ó²ÉÓÃÍø¸ñµã£»1-¶¨ÒåÁË²½³¤ÎÄ¼ş£»2-ANNÊä³öÁ
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-10-hybrid.cas';
-stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-coarse.cas';
+stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
+rectangularBoudanryNodes = 50*4-4;  %¾ØĞÎÍâ±ß½çÉÏµÄ½ÚµãÊı£¬¿ÉÄÜ»á±ä»¯
+% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-coarse.cas';
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 % stepSizeFile     = '../grid/30p30n/30p30n.cas';

@@ -1,5 +1,5 @@
 function [triMesh,invalidCellIndex] = DelaunayMesh(xCoord,yCoord,wallNodes)
-nNodesOnOuterBoundary = 36;  %矩形外边界上的节点数，可能会变化
+global rectangularBoudanryNodes;
 %%
 disp('=================Delaunay网格生成中...=================');
 % tri = delaunay(xCoord,yCoord);
@@ -13,7 +13,7 @@ for i = 1 : size(tri,1)
     
     cell_tmp1 = [node1,node2,node3];        %当前单元
     tmp = intersect(wallNodes,cell_tmp1);   %当前单元与物面节点求交
-    if length(tmp)>=3 && min([node1,node2,node3])>nNodesOnOuterBoundary %如果求交结果大于等于3，则说明当前单元的3个节点都在物面上，且同时是内部边界（如圆柱表面），则删掉不合理单元      
+    if length(tmp)>=3 && min([node1,node2,node3])>rectangularBoudanryNodes %如果求交结果大于等于3，则说明当前单元的3个节点都在物面上，且同时是内部边界（如圆柱表面），则删掉不合理单元      
 %         tri(i,:) = -1;                                                  %外部边界3个节点同时在物面上时，仍需保留该单元
         invalidCellIndex(end+1) = i;
     end
