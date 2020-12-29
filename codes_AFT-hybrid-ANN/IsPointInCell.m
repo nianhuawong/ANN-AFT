@@ -1,4 +1,6 @@
 function flagInCell = IsPointInCell(cellNodeTopo, xCoord, yCoord, node_test,nodeCandidate)
+% global crossCount;
+% crossCount = crossCount + 1;
 flagInCell = 0;
 
 node0_ori = [xCoord(node_test),yCoord(node_test)];

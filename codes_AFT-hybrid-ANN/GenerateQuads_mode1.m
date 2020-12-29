@@ -39,7 +39,6 @@ for i = 1:M
         node_select2 = candidateList2(j);
         if node_select1 ~= node_select2
             [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select2, node_select1, xCoord_tmp, yCoord_tmp, Sp);
-%             quality = QualityCheckQuad_new(node1_base, node2_base, node_select2, node_select1, xCoord_tmp, yCoord_tmp);
             Qp(i,j) = quality;
             if node_select1 > node_best && node_select2 > node_best
                 Qp(i,j) = coeff * coeff * Qp(i,j);
@@ -120,7 +119,7 @@ for i = 1:M*N
     break;
 end
     al2 = 2.0 * al2;
-    [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(2), node_select(1), xCoord_tmp, yCoord_tmp, Sp);
+    [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select(2), node_select(1), xCoord_tmp, yCoord_tmp, Sp);    
     if ( quality > epsilon && sum(node_select) > 0 ) || al2 > 3.2
         break;
     end

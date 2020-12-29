@@ -36,7 +36,6 @@ for j = 1:N
     node_select2 = candidateList2(j);
     if node_select1 ~= node_select2
         [quality,~] = QualityCheckQuad(node1_base, node2_base, node_select2, node_select1, xCoord_tmp, yCoord_tmp, Sp);
-        %             quality = QualityCheckQuad_new(node1_base, node2_base, node_select2, node_select1, xCoord_tmp, yCoord_tmp);
         Qp(1,j) = quality;
         if node_select1 > node_best && node_select2 > node_best
             Qp(1,j) = coeff * coeff * Qp(1,j);

@@ -123,8 +123,8 @@ end
 xCoord_tmp = [xCoord; x_new];
 yCoord_tmp = [yCoord; y_new];
 nodeNum = length(xCoord);
-[quality1,~] = QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
-[quality2,~] = QualityCheckQuad(node1, node2, nodeNum+1, nodeNum+2, xCoord_tmp, yCoord_tmp, Sp);
+quality1 = QualityCheckQuad(node1, node2, nodeNum+2, nodeNum+1, xCoord_tmp, yCoord_tmp, Sp);
+quality2 = QualityCheckQuad(node1, node2, nodeNum+1, nodeNum+2, xCoord_tmp, yCoord_tmp, Sp);
 if quality2 > quality1 && quality2 > 0
     tmp = [x_new(1), y_new(1)];
     x_new(1) = x_new(2); y_new(1) = y_new(2);

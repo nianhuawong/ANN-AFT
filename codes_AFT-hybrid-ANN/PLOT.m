@@ -38,6 +38,7 @@ end
 % end
 
 axis equal
+axis off
 end
 
     

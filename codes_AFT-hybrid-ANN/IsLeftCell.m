@@ -1,5 +1,6 @@
 function flag = IsLeftCell( node1, node2, node3, xCoord, yCoord)
-    
+% global crossCount;
+% crossCount = crossCount + 1;    
 flag = 0;
 
 if node1 == -1 || node2 == -1 || node3 == -1

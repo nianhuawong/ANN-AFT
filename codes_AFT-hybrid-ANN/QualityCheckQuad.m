@@ -1,4 +1,11 @@
 function [quality,h] = QualityCheckQuad(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT, Sp)
+global qualityQuad;
+if qualityQuad == 1
+    quality = QualityCheckQuad_new(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT);
+    h=0;
+    return;
+end
+
 if node4 <= 0 && node1 > 0 && node2 > 0 && node3 > 0
     [quality,h] = QualityCheckTri(node1, node2, node3, xCoord_AFT, yCoord_AFT, Sp);
     return;

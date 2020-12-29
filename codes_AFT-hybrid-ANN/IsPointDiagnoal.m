@@ -1,4 +1,6 @@
 function flagDiag   = IsPointDiagnoal(cellNodeTopo, node1_base, node2_base, node_check, nodeCandidate)
+% global crossCount;
+% crossCount = crossCount + 1;
 flagDiag = 0;
 
 nCells = size(cellNodeTopo,1);

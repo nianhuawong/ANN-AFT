@@ -2,12 +2,12 @@
 % if restart == 0
 close all;format long;clear;
 tstart0 = tic;
-global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri ...
+global num_label flag_label cellNodeTopo epsilon nCells_quad nCells_tri qualityQuad...
 stencilType outGridType standardlize SpDefined useANN crossCount countMode_quad countMode_tri tolerance nn_fun_quad nn_fun_tri rectangularBoudanryNodes; 
 %%
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.8;     % 尽量选择现有点的参数，Pbest质量参数的系数
-outGridType = 0;        % 0-三角形网格， 1-混合网格
+outGridType = 1;        % 0-三角形网格， 1-混合网格
 stencilType = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
 epsilon     = 0.9;     % 四边形网格质量要求, 值越大要求越高
 useANN      = 1;        % 是否使用ANN生成网格
@@ -21,6 +21,7 @@ isSorted     = 1;       %是否对阵面进行排序推进
 isPlotNew    = 0;       %是否plot生成过程
 num_label    = 0;       %是否在图中输出点的编号
 SpDefined    = 1;       % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
+qualityQuad  = 0;       %四边形质量判断方法，0-自定义方法，1-文献方法
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
@@ -145,18 +146,19 @@ DisplayResultsHybrid(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1, gen
 if isPlotNew == 0   
     PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
 end
+
 %% ============================================== 
 % GridQualitySummary(cellNodeTopo, xCoord_AFT, yCoord_AFT, Grid_stack);
-% %% Delaunay对角线变换之后，输出网格质量
+%% Delaunay对角线变换之后，输出网格质量
 [triMesh,invalidCellIndex] = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
-% GridQualitySummaryDelaunay(triMesh, invalidCellIndex);
-%%
-% %% 弹簧法优化后，输出网格质量
+GridQualitySummaryDelaunay(triMesh, invalidCellIndex);
+
+%% 弹簧法优化后，输出网格质量
 [xCoord, yCoord] = SpringOptimize(triMesh,invalidCellIndex,wallNodes,3);
 GridQualitySummaryDelaunay(triMesh, invalidCellIndex, xCoord, yCoord)
+% [xCoord,yCoord] = SpringOptimize_new(Grid_stack,xCoord_AFT,yCoord_AFT,wallNodes,5);
 
-%%
-% %% 三角形网格合并成四边形
+%% 三角形网格合并成四边形
 % combinedMesh = CombineMesh(triMesh,wallNodes,epsilon);
 % 用变形优化后的网格合并
 combinedMesh = CombineMesh(triMesh,invalidCellIndex,wallNodes,0.5, xCoord, yCoord);

@@ -1,5 +1,6 @@
 function quality = QualityCheckQuad_new(node1, node2, node3, node4, xCoord_AFT, yCoord_AFT)
-if node4 <= 0 
+
+if node4 <= 0 || node3 <= 0
     quality = QualityCheckTri_new(node1, node2, node3, xCoord_AFT, yCoord_AFT);
     return;
 end
@@ -28,7 +29,10 @@ quality = tmp(1) * tmp(2) / tmp(3) / tmp(4);
 end
 
 function quality = QualityCheckTri_new(node1, node2, node3, xCoord_AFT, yCoord_AFT)
-
+if node3 < 0 
+    quality = 0;
+    return;
+end
 a = DISTANCE( node1, node2, xCoord_AFT, yCoord_AFT) + 1e-40;  
 b = DISTANCE( node2, node3, xCoord_AFT, yCoord_AFT) + 1e-40;       
 c = DISTANCE( node3, node1, xCoord_AFT, yCoord_AFT) + 1e-40;
