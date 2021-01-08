@@ -1,15 +1,12 @@
-function wdist = ComputeWallDistOfNode(Grid_stack, Coord, pointIn)
-xNode = pointIn(1);
-yNode = pointIn(2);
-
+function [wdist,index] = ComputeWallDistOfNode(Grid_stack, Coord, xNode, yNode, bc)
 xCoord = Coord(:,1);
 yCoord = Coord(:,2);
 node1 = Grid_stack(:,1);
 node2 = Grid_stack(:,2);
 bcType = Grid_stack(:,7);
 
-nWallFaces = sum( bcType == 3 );
-I = find(bcType==3);
+nWallFaces = sum( bcType == bc );  %BC=3为物面，BC=9为外场边界
+I = find(bcType==bc);
 
 wdist = 1e40;
 for i =1:nWallFaces
@@ -23,5 +20,6 @@ for i =1:nWallFaces
     tmp = sqrt((xmid_w-xNode)^2+(ymid_w-yNode)^2);
     if tmp < wdist
         wdist = tmp;
+        index = wallFaceIndex;
     end
 end

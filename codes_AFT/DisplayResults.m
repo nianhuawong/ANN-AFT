@@ -1,4 +1,4 @@
-function DisplayResults(nCells,nFronts,nNodes,nNewFronts,generateTime,updateTime,plotTime,tstart,flag)
+function DisplayResults(nCells,nFronts,nNodes,nNewFronts,spTime, generateTime,updateTime,plotTime,tstart,flag)
 global crossCount countMode
 if strcmp(flag,'midRes') == 1
     disp('================================');
@@ -17,6 +17,7 @@ elseif strcmp(flag,'finalRes') == 1
 end
 
 disp(['countMode    = ', num2str(countMode)]);
+disp(['spTime       = ', num2str(spTime)]);
 disp(['generateTime = ', num2str(generateTime)]);
 disp(['updateTime   = ', num2str(updateTime)]);
 disp(['plotTime     = ', num2str(plotTime)]);

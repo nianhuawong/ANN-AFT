@@ -1,4 +1,4 @@
-clear;clc;format long;close all;
+clear all;format long;close all;
 tstart0 = tic;
 %%
 global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount rectangularBoudanryNodes;  
@@ -11,19 +11,21 @@ useANN      = 1;        % 是否使用ANN生成网格
 tolerance   = 0.2;      % ANN进行模式判断的容差
 cd ./nets;
 nn_fun = @net_naca0012_20201104; 
+nn_step_size = @nn_mesh_size_naca0012_3;
 cd ../;
 standardlize = 1;   %是否进行坐标归一化
 isSorted     = 1;   %是否对阵面进行排序推进
-isPlotNew    = 0;   %是否plot生成过程
+isPlotNew    = 1;   %是否plot生成过程
 num_label    = 0;   %是否在图中输出点的编号    
-SpDefined    = 1;   % 0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
+SpDefined    = 1;   %0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
+sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
-rectangularBoudanryNodes = 50*4-4;  %矩形外边界上的节点数，可能会变化
-% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-coarse.cas';
+% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-40.cas';
+rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
+stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; 
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 % stepSizeFile     = '../grid/30p30n/30p30n.cas';
@@ -57,7 +59,7 @@ for i =1:size(AFT_stack,1)
 %     end
 end
 
-if SpDefined == 1
+if SpDefined == 1 && sampleType == 0
     [SpField, backGrid, backCoord] = StepSizeField(stepSizeFile, sizeFileType);
 end
 
@@ -69,14 +71,41 @@ elseif isSorted == 1
 end
 
 countMode = 0;
-generateTime = 0; updateTime = 0; plotTime = 0;
+spTime = 0; generateTime = 0; updateTime = 0; plotTime = 0;
 while size(AFT_stack_sorted,1)>0
-    if SpDefined == 1
-        Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
-    end
-    
     node1_base = AFT_stack_sorted(1,1);         
-    node2_base = AFT_stack_sorted(1,2);      
+    node2_base = AFT_stack_sorted(1,2);   
+    
+    tstart1 = tic;
+    if SpDefined == 1
+        xx = 0.5 * ( xCoord_AFT(node1_base) + xCoord_AFT(node2_base) );
+        yy = 0.5 * ( yCoord_AFT(node1_base) + yCoord_AFT(node2_base) );
+        if sampleType == 0
+            Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
+        elseif sampleType == 1
+            input = [xx,yy]';
+            Sp = nn_step_size(input);
+        elseif sampleType == 2
+            [wdist,index] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);
+%             input = [xx,yy,wdist,Grid(index,5)]';
+            input = [wdist,Grid(index,5)]';
+            Sp = nn_step_size(input) * Grid(index,5);
+        elseif sampleType == 3
+            [wdist, index ] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);          
+            [wdist2,index2] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 9);
+%             input = [xx,yy,wdist,Grid(index,5),wdist2,Grid(index2,5)]';
+            input = [wdist,Grid(index,5),wdist2,Grid(index2,5)]';
+            Sp = ( exp ^ ( nn_step_size(input) ) ) * Grid(index,5) ;
+%             Sp = nn_step_size(input) * Grid(index,5);
+%             a = nn_step_size(input);
+%             Sp = a * Grid(index,5) + ( 1 - a ) * Grid(index2,5);
+        end   
+        if length(Sp)>1 || Sp <= 0
+            break;
+        end
+    end
+    telapsed1 = toc(tstart1);
+    spTime = spTime + telapsed1;
 %     if nCells_AFT >= 100
 %         if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
 %                 node1_base == 580 && node2_base == 468
@@ -89,16 +118,16 @@ while size(AFT_stack_sorted,1)>0
 
     size0 = size(AFT_stack_sorted,1);   
     
-    tstart1 = tic;
+    tstart2 = tic;
     [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);   
     while node_select == -1
         al = 1.2 * al;
         [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);
     end
-    telapsed1 = toc(tstart1);
-    generateTime = generateTime + telapsed1;
+    telapsed2 = toc(tstart2);
+    generateTime = generateTime + telapsed2;
     
-    tstart2 = tic;
+    tstart3 = tic;
     if( flag_best == 1 )
         xCoord_AFT = [xCoord_AFT;coordX];
         yCoord_AFT = [yCoord_AFT;coordY];
@@ -107,21 +136,21 @@ while size(AFT_stack_sorted,1)>0
     
     [AFT_stack_sorted,nCells_AFT] = UpdateTriCells(AFT_stack_sorted, nCells_AFT, xCoord_AFT, yCoord_AFT, node_select, flag_best);
     
-    telapsed2 = toc(tstart2);
-    updateTime = updateTime + telapsed2;
+    telapsed3 = toc(tstart3);
+    updateTime = updateTime + telapsed3;
     
-    tstart3 = tic;
+    tstart4 = tic;
     size1 = size(AFT_stack_sorted,1);
     numberOfNewFronts = size1-size0;
     if isPlotNew == 1
         PLOT_NEW_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, numberOfNewFronts, flag_best);
     end
-    telapsed3 = toc(tstart3);
-    plotTime = plotTime + telapsed3;
+    telapsed4 = toc(tstart4);
+    plotTime = plotTime + telapsed4;
     
     interval = 500;
     if(mod(nCells_AFT,interval)==0)
-        DisplayResults(nCells_AFT, size(AFT_stack_sorted,1), -1, numberOfNewFronts, generateTime,updateTime,plotTime,tstart0,'midRes');
+        DisplayResults(nCells_AFT, size(AFT_stack_sorted,1), -1, numberOfNewFronts,spTime,generateTime,updateTime,plotTime,tstart0,'midRes');
     end
   %%  
   %找出非活跃阵面，并删除
@@ -133,7 +162,7 @@ while size(AFT_stack_sorted,1)>0
     end
 end
 
-DisplayResults(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1, generateTime,updateTime,plotTime,tstart0,'finalRes');
+DisplayResults(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1,spTime,generateTime,updateTime,plotTime,tstart0,'finalRes');
 if isPlotNew == 0   
     PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
 end
@@ -143,8 +172,8 @@ end
 
 %% PW网格质量
 % PLOT(Grid, Coord(:,1), Coord(:,2))
-[triMesh_pw,invalidCellIndex_pw]= DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
-GridQualitySummaryDelaunay(triMesh_pw, invalidCellIndex_pw);
+% [triMesh_pw,invalidCellIndex_pw]= DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
+% GridQualitySummaryDelaunay(triMesh_pw, invalidCellIndex_pw);
 
 %% Delaunay对角线变换之后，输出网格质量
 [triMesh,invalidCellIndex] = DelaunayMesh(xCoord_AFT,yCoord_AFT,wallNodes);
@@ -155,8 +184,8 @@ GridQualitySummaryDelaunay(triMesh_pw, invalidCellIndex_pw);
 GridQualitySummaryDelaunay(triMesh, invalidCellIndex, xCoord, yCoord)
 
 %% 用变形优化后的网格合并
-combinedMesh = CombineMesh(triMesh, invalidCellIndex, wallNodes,0.5, xCoord, yCoord);
-GridQualitySummary(combinedMesh, xCoord, yCoord);
+% combinedMesh = CombineMesh(triMesh, invalidCellIndex, wallNodes,0.5, xCoord, yCoord);
+% GridQualitySummary(combinedMesh, xCoord, yCoord);
 
 
     
