@@ -1,6 +1,6 @@
 clc;clear;
 load('./data/mesh_size_sample.mat');
-net_name = '../codes_AFT/nets/nn_mesh_size_naca0012_3'; 
+net_name = '../codes_AFT/nets/nn_mesh_size_naca_31'; 
 input = input';output = output';
 num_of_samples = size(input,2)
 %%
@@ -12,22 +12,24 @@ Test  = input(:,num_of_traning_samples + 1:end);
 Tag   = output(:,num_of_traning_samples + 1:end);
 %% 网络建立及训练方法
 % mapminmax %trainscg;traingda；trainlm；trainbr；trainrp
-net = feedforwardnet([18 7],'trainlm'); 
+net = feedforwardnet([15 5],'trainbr'); 
 % net = newrb(Train,Label,SPREAD)
 %% 激活函数 %radbas;radbasn;poslin;purelin;tansig;logsig;softmax
-net.layers{1}.transferFcn = 'tansig'; 
-net.layers{2}.transferFcn = 'tansig';
-net.layers{3}.transferFcn = 'purelin';
+net.layers{1}.transferFcn = 'poslin'; 
+net.layers{2}.transferFcn = 'poslin';
+% net.layers{3}.transferFcn = 'poslin';
+% net.layers{4}.transferFcn = 'tansig';
+% net.layers{4}.transferFcn = 'purelin';
 
 % net.trainParam.lr = 0.01;
 % net.trainParam.lr_inc = 1.05;
-% net.trainParam.epochs = 1000;
+net.trainParam.epochs = 20000;  
 % net.trainParam.max_fail = 6;
 %% 样本分成训练集，测试集，验证集 %dividerand;divideblock;divideint;divideind
 net.divideFcn = 'dividerand';
-net.divideParam.trainRatio = 0.8;
-net.divideParam.valRatio   = 0.1;
-net.divideParam.testRatio  = 0.1;
+net.divideParam.trainRatio = 0.7;
+net.divideParam.valRatio   = 0.15;
+net.divideParam.testRatio  = 0.15;
 %% LOSS函数定义，默认为MSE；还有MAE; SAE; SSE
 % net.performFcn = 'crossentropy';
 % net.performParam.regularization = 0.1;

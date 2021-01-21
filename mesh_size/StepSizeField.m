@@ -9,7 +9,7 @@ if sampleType == 1
 elseif sampleType == 2
     input  = zeros(nFaces,2);
 elseif sampleType == 3
-    input  = zeros(nFaces,4);
+    input  = zeros(nFaces,3);
 end
 output = zeros(nFaces,1);
 
@@ -27,41 +27,39 @@ if gridType == 0
         v_ac = [xCoord(target)-xCoord(node1In), yCoord(target)-yCoord(node1In)];
 
         Sp = abs( v_ac * normal' );
+        
+        bc = 3;
+        [wdist,index] = ComputeWallDistOfFace(iFace, Grid_stack, Coord, bc);
+        bc = 9;
+        [wdist2,index2] = ComputeWallDistOfFace(iFace, Grid_stack, Coord, bc);
+        %             PLOT_FRONT(Grid_stack, xCoord, yCoord, index)
         if sampleType == 1 
             input(iFace,1) = 0.5 * ( xCoord(node1In) + xCoord(node2In) ); %此处也可以用形心坐标
             input(iFace,2) = 0.5 * ( yCoord(node1In) + yCoord(node2In) );
             output(iFace,1)= Sp;
-        elseif sampleType == 2 
-%             input(iFace,1) = 0.5 * ( xCoord(node1In) + xCoord(node2In) ); %此处也可以用形心坐标
-%             input(iFace,2) = 0.5 * ( yCoord(node1In) + yCoord(node2In) );            
-            bc = 3;
-            [wdist,index] = ComputeWallDistOfFace(iFace, Grid_stack, Coord, bc);
-%             PLOT_FRONT(Grid_stack, xCoord, yCoord, index)
-            
-            input(iFace,1) = wdist;
-            input(iFace,2) = Grid_stack(index,5);
-            output(iFace,1)= Sp / Grid_stack(index,5);
-        elseif sampleType == 3
-%             input(iFace,1) = 0.5 * ( xCoord(node1In) + xCoord(node2In) ); %此处也可以用形心坐标
-%             input(iFace,2) = 0.5 * ( yCoord(node1In) + yCoord(node2In) );            
-            bc = 3;
-            [wdist,index] = ComputeWallDistOfFace(iFace, Grid_stack, Coord, bc);
+        elseif sampleType == 2         
             input(iFace,1) = wdist;
             input(iFace,2) = Grid_stack(index,5);
             
-            bc = 9;
-            [wdist2,index2] = ComputeWallDistOfFace(iFace, Grid_stack, Coord, bc);
-%             PLOT_FRONT(Grid_stack, xCoord, yCoord, index2)
-
-            input(iFace,3) = wdist2;
-            input(iFace,4) = Grid_stack(index2,5);
-            output(iFace,1)= log( Sp / Grid_stack(index,5) );
-%             output(iFace,1)= Sp^(1.0/5);
-
-            d1 = Grid_stack(index, 5);
-            d2 = Grid_stack(index2,5);
-%             output(iFace,1)= ( d2 - Sp ) / ( d2 - d1 );
-%             output(iFace,2)= ( Sp - d1 ) / ( d2 - d1 );
+%             output(iFace,1)= Sp / Grid_stack(index,5);
+            output(iFace,1)= log10( Sp / Grid_stack(index,5) );
+%             output(iFace,1)= log10( Sp );
+        elseif sampleType == 3          
+%             input(iFace,1) = log10(wdist+1e-10);
+%             input(iFace,2) = log10(Grid_stack(index,5));
+%             input(iFace,3) = log10(wdist2+1e-10);
+            input(iFace,1) = (wdist+1e-10)^(1.0/20);
+            input(iFace,2) = Grid_stack(index,5)^(1.0/30); 
+            input(iFace,3) = (wdist2+1e-10)^(1.0/20);
+             
+%             output(iFace,1)= log10( Sp / Grid_stack(index,5) );
+%             output(iFace,1)= ( Sp * Sp / Grid_stack(index,5) / Grid_stack(index2,5) )^(1.0/6);
+% output(iFace,1)= ( Sp / Grid_stack(index,5) + Sp / Grid_stack(index2,5) )^(1.0/6);
+term1 = 1.0/Grid_stack(index,5 )^(1.0/6);
+term2 = 1.0/Grid_stack(index2,5)^(1.0/1);
+output(iFace,1)= ( Sp * ( term1 + term2 ) )^(1.0/6);
+% output(iFace,1)= ( Sp / Grid_stack(index,5 )^(1.0/6))^(1.0/6);
+% output(iFace,2)= ( Sp / Grid_stack(index2,5)^(1.0/1))^(1.0/6);
         end
     end
 elseif gridType == 1
