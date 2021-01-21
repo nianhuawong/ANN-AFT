@@ -11,24 +11,24 @@ useANN      = 1;        % 是否使用ANN生成网格
 tolerance   = 0.2;      % ANN进行模式判断的容差
 cd ./nets;
 nn_fun = @net_naca0012_20201104; 
-nn_step_size = @nn_mesh_size_naca_31;   
+nn_step_size = @nn_mesh_size_naca_3;
 cd ../;
 standardlize = 1;   %是否进行坐标归一化
 isSorted     = 1;   %是否对阵面进行排序推进
-isPlotNew    = 1;   %是否plot生成过程
+isPlotNew    = 0;   %是否plot生成过程
 num_label    = 0;   %是否在图中输出点的编号    
 SpDefined    = 1;   %0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
-sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
+sampleType   = 0;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
-rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
+stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
+rectangularBoudanryNodes =50*4-4;  %矩形外边界上的节点数，可能会变化
 % stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; 
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-stepSizeFile     = '../grid/30p30n/30p30n.cas';
+% stepSizeFile     = '../grid/30p30n/30p30n.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 % boundaryGrid     = stepSizeFile; 
 % boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
@@ -42,7 +42,7 @@ yCoord_AFT = Coord(1:node_num,2);
 
 fig = figure;
 fig.Color = 'white'; hold on;
-flag_label  = zeros(1,100000);
+flag_label  = zeros(1,10000);
 PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
 
 %%
@@ -55,6 +55,7 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 for i =1:size(AFT_stack,1)
 %     if AFT_stack(i,7) == 3      
          AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
+%          AFT_stack(i,5) = 1e5* AFT_stack(i,5);
 %     end
 end
 
@@ -69,49 +70,77 @@ elseif isSorted == 1
     AFT_stack_sorted = Sort_AFT(AFT_stack);
 end
 
+maxWdist = ComputeMaxWallDist(Grid, Coord);
 countMode = 0;
 spTime = 0; generateTime = 0; updateTime = 0; plotTime = 0;
 while size(AFT_stack_sorted,1)>0
     node1_base = AFT_stack_sorted(1,1);         
-    node2_base = AFT_stack_sorted(1,2);   
-     if nCells_AFT >= 450
-        if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
-                node1_base == 580 && node2_base == 468
-            kkk = 1;      
-%             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
-        end
+    node2_base = AFT_stack_sorted(1,2);  
+    
+%     if nCells_AFT >= 0
+%         if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
+%                 node1_base == 580 && node2_base == 468
+%             kkk = 1;      
+% %             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+%         end
 %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
-        kkk = 1;      
-    end   
+%         kkk = 1;      
+%     end
+    
     tstart1 = tic;
     if SpDefined == 1
         xx = 0.5 * ( xCoord_AFT(node1_base) + xCoord_AFT(node2_base) );
         yy = 0.5 * ( yCoord_AFT(node1_base) + yCoord_AFT(node2_base) );
+        [wdist, index ] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);
+        [wdist2,index2] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 9);
         if sampleType == 0
             Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
         elseif sampleType == 1
             input = [xx,yy]';
-            Sp = nn_step_size(input);
+            Sp = nn_step_size(input) * Grid(index2,5);            
         elseif sampleType == 2
             [wdist,index] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);
-            input = [wdist,Grid(index,5)]';
-%             Sp = nn_step_size(input) * Grid(index,5);
-%             Sp = 10^( nn_step_size(input) ) * Grid(index,5);
-              Sp = 10^( nn_step_size(input) );
+            input = [(wdist)^(1.0/6)]';
+%             Sp = ( nn_step_size(input)^6 ) * Grid(index2,5);
+            Sp = ( ( nn_step_size(input)^6 ) * (Grid(index,5)^(1.0/6)) );
+
+%             input = [log10(wdist+1e-10)]';
+%             Sp = 10^nn_step_size(input) * Grid(index2,5);
+%             maxSp = sqrt(3.0) / 2.0 * BoundaryLength(Grid);
+%             if Sp > maxSp 
+%                 Sp = maxSp;
+%             end
         elseif sampleType == 3
-            [wdist, index ] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);          
-            [wdist2,index2] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 9);
-%             input = [log10(wdist+1e-10),log10(Grid(index,5)),Grid(index2,5)]';
-%             Sp = 10^( nn_step_size(input) ) * Grid(index,5);
-% PLOT_FRONT(Grid, Coord(:,1), Coord(:,2), index);
-% plot(xx,yy,'m.')
-input = [(wdist+1e-10)^(1.0/20),Grid(index,5)^(1.0/30),(wdist2+1e-10)^(1.0/20)]';
-% Sp = sqrt( ( nn_step_size(input) )^6 * Grid(index,5) * Grid(index2,5) ); 
+%input = [log10(wdist+1e-10),log10(Grid(index,5)),(Grid(index2,5))^(1.0/5)]';
+% input = [(wdist+1e-10)^(1.0/20),Grid(index,5)^(1.0/20),Grid(index2,5)^(1.0/6)]';
+%             Sp = ( ( nn_step_size(input) )^4 * (Grid(index,5)^(1.0/2)) );
+
+% plot(xx,yy,'r.')
+% PLOT_FRONT(Grid, Coord(:,1), Coord(:,2), index);            
+% input = [(wdist+1e-10)^(1.0/20),Grid(index,5)^(1.0/30),(wdist2+1e-10)^(1.0/20)]';
+input = [((wdist)/maxWdist)^(1.0/6)]';
 term1 = 1.0/Grid(index,5 )^(1.0/6);
-term2 = 1.0/Grid(index2,5)^(1.0/1); 
-Sp = ( nn_step_size(input)^6 ) / ( term1 +  term2 );
-kkk = 1;
-        end   
+term2 = 1.0/Grid(index2,5)^(1.0/1);
+%     Sp = (nn_step_size(input)^6) / ( term1 + term2 );
+if wdist > 0.25 * maxWdist
+    Sp = (nn_step_size(input)^6) / term2;
+else
+    Sp = (nn_step_size(input)^6) / ( term1 + term2 );
+%     Sp = (nn_step_size(input)^6) / ( term1 );
+end
+% out = nn_step_size(input);
+% Sp1 = (out(1)^6) / ( term1 );
+% Sp2 = (out(2)^6) / ( term2 );
+% coef = 0.5;
+% Sp = coef* Sp1 + (1-coef)*Sp2;
+% maxSp = sqrt(3.0) / 2.0 * BoundaryLength(Grid);
+% if Sp > maxSp
+%     Sp = maxSp;
+% end
+kkk = 1;   
+        end 
+        
+    
         if length(Sp)>1 || Sp <= 0
             break;
         end
@@ -119,8 +148,7 @@ kkk = 1;
     telapsed1 = toc(tstart1);
     spTime = spTime + telapsed1;
 
-    size0 = size(AFT_stack_sorted,1);   
-    
+    size0 = size(AFT_stack_sorted,1);     
     tstart2 = tic;
     [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);   
     while node_select == -1
