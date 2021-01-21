@@ -1,5 +1,5 @@
 clear;clc;
-grid = importfile("./inv_cylinder.cas");
+grid = importfile("../naca0012/tri/naca0012-tri-coarse.cas");
 %%
 %读入基本信息
 gridType        = 0;    % 0-单一单元网格，1-混合单元网格
