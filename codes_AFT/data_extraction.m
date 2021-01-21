@@ -11,7 +11,7 @@ useANN      = 1;        % 是否使用ANN生成网格
 tolerance   = 0.2;      % ANN进行模式判断的容差
 cd ./nets;
 nn_fun = @net_naca0012_20201104; 
-nn_step_size = @nn_mesh_size_naca0012_3;
+nn_step_size = @nn_mesh_size_naca_31;   
 cd ../;
 standardlize = 1;   %是否进行坐标归一化
 isSorted     = 1;   %是否对阵面进行排序推进
@@ -23,12 +23,12 @@ sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-40.cas';
+% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
 rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
-stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; 
+% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; 
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-% stepSizeFile     = '../grid/30p30n/30p30n.cas';
+stepSizeFile     = '../grid/30p30n/30p30n.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 % boundaryGrid     = stepSizeFile; 
 % boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
@@ -42,7 +42,7 @@ yCoord_AFT = Coord(1:node_num,2);
 
 fig = figure;
 fig.Color = 'white'; hold on;
-flag_label  = zeros(1,10000);
+flag_label  = zeros(1,100000);
 PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
 
 %%
@@ -55,7 +55,6 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 for i =1:size(AFT_stack,1)
 %     if AFT_stack(i,7) == 3      
          AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
-%          AFT_stack(i,5) = 1e5* AFT_stack(i,5);
 %     end
 end
 
@@ -75,7 +74,15 @@ spTime = 0; generateTime = 0; updateTime = 0; plotTime = 0;
 while size(AFT_stack_sorted,1)>0
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);   
-    
+     if nCells_AFT >= 450
+        if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
+                node1_base == 580 && node2_base == 468
+            kkk = 1;      
+%             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+        end
+%         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+        kkk = 1;      
+    end   
     tstart1 = tic;
     if SpDefined == 1
         xx = 0.5 * ( xCoord_AFT(node1_base) + xCoord_AFT(node2_base) );
@@ -87,18 +94,23 @@ while size(AFT_stack_sorted,1)>0
             Sp = nn_step_size(input);
         elseif sampleType == 2
             [wdist,index] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);
-%             input = [xx,yy,wdist,Grid(index,5)]';
             input = [wdist,Grid(index,5)]';
-            Sp = nn_step_size(input) * Grid(index,5);
+%             Sp = nn_step_size(input) * Grid(index,5);
+%             Sp = 10^( nn_step_size(input) ) * Grid(index,5);
+              Sp = 10^( nn_step_size(input) );
         elseif sampleType == 3
             [wdist, index ] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);          
             [wdist2,index2] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 9);
-%             input = [xx,yy,wdist,Grid(index,5),wdist2,Grid(index2,5)]';
-            input = [wdist,Grid(index,5),wdist2,Grid(index2,5)]';
-            Sp = ( exp ^ ( nn_step_size(input) ) ) * Grid(index,5) ;
-%             Sp = nn_step_size(input) * Grid(index,5);
-%             a = nn_step_size(input);
-%             Sp = a * Grid(index,5) + ( 1 - a ) * Grid(index2,5);
+%             input = [log10(wdist+1e-10),log10(Grid(index,5)),Grid(index2,5)]';
+%             Sp = 10^( nn_step_size(input) ) * Grid(index,5);
+% PLOT_FRONT(Grid, Coord(:,1), Coord(:,2), index);
+% plot(xx,yy,'m.')
+input = [(wdist+1e-10)^(1.0/20),Grid(index,5)^(1.0/30),(wdist2+1e-10)^(1.0/20)]';
+% Sp = sqrt( ( nn_step_size(input) )^6 * Grid(index,5) * Grid(index2,5) ); 
+term1 = 1.0/Grid(index,5 )^(1.0/6);
+term2 = 1.0/Grid(index2,5)^(1.0/1); 
+Sp = ( nn_step_size(input)^6 ) / ( term1 +  term2 );
+kkk = 1;
         end   
         if length(Sp)>1 || Sp <= 0
             break;
@@ -106,15 +118,6 @@ while size(AFT_stack_sorted,1)>0
     end
     telapsed1 = toc(tstart1);
     spTime = spTime + telapsed1;
-%     if nCells_AFT >= 100
-%         if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
-%                 node1_base == 580 && node2_base == 468
-%             kkk = 1;      
-% %             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
-%         end
-% %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
-%         kkk = 1;      
-%     end
 
     size0 = size(AFT_stack_sorted,1);   
     

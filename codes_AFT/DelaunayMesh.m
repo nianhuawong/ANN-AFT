@@ -21,8 +21,8 @@ end
 % II = tri(:,1)==-1;%删除不合理的delaunay单元后，得到真实的网格单元
 tri(invalidCellIndex,:) = [];
 
-figure;
-triplot(tri,xCoord,yCoord);
+% figure;
+% triplot(tri,xCoord,yCoord);
 axis equal;
 axis off
 
