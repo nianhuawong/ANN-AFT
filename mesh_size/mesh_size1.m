@@ -2,8 +2,8 @@ clc;clear;
 global num_label flag_label;
 num_label        = 0;
 flag_label       = zeros(10000,1);
-stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-30.cas';
-% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-coarse.cas';
+% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-30.cas';
+stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-coarse.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 % stepSizeFile     = '../grid/30p30n/30p30n.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格

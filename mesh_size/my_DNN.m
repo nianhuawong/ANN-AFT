@@ -1,6 +1,6 @@
  clc;clear;
 load('./data/mesh_size_sample.mat');
-net_name = '../codes_AFT/nets/nn_mesh_size_cylinder_3'; 
+net_name = '../codes_AFT/nets/nn_mesh_size_naca_31'; 
 input = input';output = output';
 num_of_samples = size(input,2)
 %%

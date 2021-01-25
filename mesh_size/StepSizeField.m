@@ -33,15 +33,18 @@ if gridType == 0
         bc = 9;
         [wdist2,index2] = ComputeWallDistOfFace(iFace, Grid_stack, Coord, bc);      
         %PLOT_FRONT(Grid_stack, xCoord, yCoord, index)
-     
+        
+        term1 = 1.0/Grid_stack(index,5 )^(1.0/6);
+        term2 = 1.0/Grid_stack(index2,5)^(1.0/1);
+        
         if sampleType == 1 
             input(iFace,1) = xmid; 
             input(iFace,2) = ymid;
             output(iFace,1)= Sp/Grid_stack(index2,5);
         elseif sampleType == 2             
             input(iFace,1) = (wdist)^(1.0/6);
-%             output(iFace,1)=  (Sp/Grid_stack(index2,5))^(1.0/6);
-            output(iFace,1)= ( Sp / (Grid_stack(index,5)^(1.0/6)) )^(1.0/6);
+%             output(iFace,1)=  ( Sp*term1 )^(1.0/6);  %物面
+            output(iFace,1)= ( Sp*term2 )^(1.0/6);     %远场
 %             input(iFace,1) = log10(wdist+1e-10);
 %             output(iFace,1)= log10( Sp / Grid_stack(index2,5) );
         elseif sampleType == 3
@@ -51,24 +54,18 @@ if gridType == 0
 %             output(iFace,1)= log10( Sp / Grid_stack(index,5) );
 %             input(iFace,3) = ( wdist2 + 1e-10 )^(1.0/5);
 %             input(iFace,3) = Grid_stack(index2,5)^(1.0/6);
-
-            input(iFace,1) = ((wdist)/maxWdist)^(1.0/6);
 %             input(iFace,2) = Grid_stack(index,5)^(1.0/6);  
 %             input(iFace,3) = (( wdist2 + 1e-10)/maxWdist )^(1.0/20);
+
+            input(iFace,1) = ((wdist)/maxWdist)^(1.0/6);
             
-            term1 = 1.0/Grid_stack(index,5 )^(1.0/6);
-            term2 = 1.0/Grid_stack(index2,5)^(1.0/1);
-%             output(iFace,1) = ( Sp * ( term1 + term2 ) )^(1.0/6);
-            
-            if wdist > 0.25 * maxWdist
-                output(iFace,1) = ( Sp * term2 )^(1.0/6);
+            if wdist/maxWdist < 0.25
+                output(iFace,1) = ( Sp * ( term1 + 0.0*term2 ) )^(1.0/6);   %物面
             else
-                output(iFace,1) = ( Sp * ( term1 + term2 ) )^(1.0/6);
-%                 output(iFace,1) = ( Sp * ( term1 ) )^(1.0/6);
+                output(iFace,1) = ( Sp * term2 )^(1.0/6);                   %远场
             end
         end
     end
-%     input(:,1) = input(:,1) / max(input(:,1));
 elseif gridType == 1
     targetPoint = TargetPointOfFrontQuad(Grid_stack);
     for iFace=1:nFaces
