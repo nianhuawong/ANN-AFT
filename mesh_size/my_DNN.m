@@ -12,7 +12,7 @@ Test  = input(:,num_of_traning_samples + 1:end);
 Tag   = output(:,num_of_traning_samples + 1:end);
 %% 网络建立及训练方法
 % mapminmax %trainscg;traingda；trainlm；trainbr；trainrp
-net = feedforwardnet([10],'trainbr'); 
+net = feedforwardnet([10],'trainlm'); 
 % net = newrb(Train,Label,SPREAD)
 %% 激活函数 %radbas;radbasn;poslin;purelin;tansig;logsig;softmax
 net.layers{1}.transferFcn = 'tansig'; 

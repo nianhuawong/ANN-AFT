@@ -57,10 +57,10 @@ if gridType == 0
 %             input(iFace,2) = Grid_stack(index,5)^(1.0/6);  
 %             input(iFace,3) = (( wdist2 + 1e-10)/maxWdist )^(1.0/20);
 
-            input(iFace,1) = ((wdist)/maxWdist)^(1.0/6);
+            input(iFace,1) = ((wdist/maxWdist))^(1.0/6);
             
-            if wdist/maxWdist < 0.25
-                output(iFace,1) = ( Sp * ( term1 + 0.0*term2 ) )^(1.0/6);   %物面
+            if wdist/maxWdist < 0.15
+                output(iFace,1) = ( Sp * ( term1 + term2 ) )^(1.0/6);   %物面
             else
                 output(iFace,1) = ( Sp * term2 )^(1.0/6);                   %远场
             end
