@@ -25,10 +25,10 @@ sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
 rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
-stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; 
+% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; 
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-% stepSizeFile     = '../grid/30p30n/30p30n.cas';
+stepSizeFile     = '../grid/30p30n/30p30n.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 % boundaryGrid     = stepSizeFile; 
 % boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
@@ -113,12 +113,11 @@ while size(AFT_stack_sorted,1)>0
 %                 Sp = maxSp;
 %             end
         elseif sampleType == 3
-            input = [((wdist)/maxWdist)^(1.0/6)]';
-            if wdist/maxWdist < 0.25
-                Sp = (nn_step_size(input)^6) / ( term1 + 0.0*term2 );   %物面
+            input = [(wdist/maxWdist)^(1.0/6)]';
+            if wdist/maxWdist < 0.15
+                Sp = (nn_step_size(input)^6) / ( term1 + term2 );   %物面
             else
-                Sp = (nn_step_size(input)^6) / term2;                   %远场
-                
+                Sp = (nn_step_size(input)^6) / term2;                   %远场              
             end
             kkk = 1;
         end        
