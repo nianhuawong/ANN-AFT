@@ -1,7 +1,7 @@
 clear all;format long;close all;
 tstart0 = tic;
 %%
-global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount rectangularBoudanryNodes;  
+global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount rectangularBoudanryNodes gridDim dx dy;  
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
@@ -17,18 +17,19 @@ standardlize = 1;   %是否进行坐标归一化
 isSorted     = 1;   %是否对阵面进行排序推进
 isPlotNew    = 0;   %是否plot生成过程
 num_label    = 0;   %是否在图中输出点的编号    
-SpDefined    = 1;   %0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长
+SpDefined    = 3;   %0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长；3-采用背景网格控制步长
+gridDim      = 201;
 sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
-rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
-% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; 
+rectangularBoudanryNodes =10*4-4;  %矩形外边界上的节点数，可能会变化
+stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; 
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-stepSizeFile     = '../grid/30p30n/30p30n.cas';
+% stepSizeFile     = '../grid/30p30n/30p30n.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 % boundaryGrid     = stepSizeFile; 
 % boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
@@ -61,6 +62,12 @@ end
 
 if SpDefined == 1 && sampleType == 0
     [SpField, backGrid, backCoord] = StepSizeField(stepSizeFile, sizeFileType);
+elseif SpDefined == 3
+    
+        [range,xcoord,ycoord] = RectangularBackgroundMesh(AFT_stack,Coord);
+        SourceInfo = CalculateSourceInfo(AFT_stack,Coord);
+        StepSize = InitialValue(SourceInfo,range);
+        SpField = Iterative_Solve(SourceInfo,StepSize,range);
 end
 
 if isSorted == 0
@@ -86,11 +93,11 @@ while size(AFT_stack_sorted,1)>0
 %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
 %         kkk = 1;      
 %     end
-    
+    xx = 0.5 * ( xCoord_AFT(node1_base) + xCoord_AFT(node2_base) );
+    yy = 0.5 * ( yCoord_AFT(node1_base) + yCoord_AFT(node2_base) );
+
     tstart1 = tic;
     if SpDefined == 1
-        xx = 0.5 * ( xCoord_AFT(node1_base) + xCoord_AFT(node2_base) );
-        yy = 0.5 * ( yCoord_AFT(node1_base) + yCoord_AFT(node2_base) );
         [wdist, index ] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);
         [wdist2,index2] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 9);
         term1 = 1.0/Grid(index,5 )^(1.0/6);
@@ -125,7 +132,10 @@ while size(AFT_stack_sorted,1)>0
         if length(Sp)>1 || Sp <= 0
             break;
         end
+    elseif SpDefined == 3
+        Sp = Interpolate2Grid(xx, yy, SpField, range);
     end
+    
     telapsed1 = toc(tstart1);
     spTime = spTime + telapsed1;
 

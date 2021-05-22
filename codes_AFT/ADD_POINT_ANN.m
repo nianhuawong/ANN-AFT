@@ -117,10 +117,10 @@ v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
 h = abs( v_ac * normal' );
 
 % Sp = h;
-if AFT_stack(1,7) == 3
+if AFT_stack(1,7) == 3 && SpDefined ~= 3 
     Sp = h;
 else
-    if SpDefined == 1
+    if SpDefined == 1 || SpDefined == 3 
         
     elseif SpDefined == 2
         Sp = max([h,Sp]);
