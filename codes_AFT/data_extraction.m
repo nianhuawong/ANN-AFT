@@ -15,7 +15,7 @@ nn_step_size = @nn_mesh_size_naca_31;
 cd ../;
 standardlize = 1;   %是否进行坐标归一化
 isSorted     = 1;   %是否对阵面进行排序推进
-isPlotNew    = 0;   %是否plot生成过程
+isPlotNew    = 1;   %是否plot生成过程
 num_label    = 0;   %是否在图中输出点的编号    
 SpDefined    = 3;   %0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长；3-采用背景网格控制步长
 gridDim      = 101;
@@ -24,7 +24,7 @@ sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-50.cas';
+% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
 rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
 stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
 % stepSizeFile     = '../grid/ANW/anw.cas';
@@ -55,7 +55,7 @@ node_best = node_num;     %初始时最佳点Pbest的序号
 %%  先将边界阵面推进
 for i =1:size(AFT_stack,1)
 %     if AFT_stack(i,7) == 3      
-         AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
+%          AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
 %          AFT_stack(i,5) = 1e5* AFT_stack(i,5);
 %     end
 end
