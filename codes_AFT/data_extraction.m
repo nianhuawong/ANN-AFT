@@ -1,4 +1,4 @@
-clear all;format long;close all;
+clear all;format long;close all;clc;
 tstart0 = tic;
 %%
 global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount rectangularBoudanryNodes gridDim dx dy;  
@@ -25,10 +25,10 @@ sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
-rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
-stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
+rectangularBoudanryNodes =10*4-4;  %矩形外边界上的节点数，可能会变化
+% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; %
 % stepSizeFile     = '../grid/ANW/anw.cas';
-% stepSizeFile     = '../grid/RAE2822/rae2822.cas';
+stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 % stepSizeFile     = '../grid/30p30n/30p30n.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 % boundaryGrid     = stepSizeFile; 
@@ -53,12 +53,12 @@ Grid_stack = [];cellNodeTopo = [];
 node_best = node_num;     %初始时最佳点Pbest的序号
 
 %%  先将边界阵面推进
-for i =1:size(AFT_stack,1)
-%     if AFT_stack(i,7) == 3      
-%          AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
-%          AFT_stack(i,5) = 1e5* AFT_stack(i,5);
-%     end
-end
+% for i =1:size(AFT_stack,1)
+% %     if AFT_stack(i,7) == 3      
+% %          AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
+% %          AFT_stack(i,5) = 1e5* AFT_stack(i,5);
+% %     end
+% end
 
 if SpDefined == 1 && sampleType == 0
     [SpField, backGrid, backCoord] = StepSizeField(stepSizeFile, sizeFileType);
