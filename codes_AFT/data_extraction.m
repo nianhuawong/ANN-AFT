@@ -9,6 +9,7 @@ stencilType = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1
 epsilon     = 0.9;      % 网格质量要求, 值越大要求越高
 useANN      = 0;        % 是否使用ANN生成网格
 tolerance   = 0.2;      % ANN进行模式判断的容差 
+%%
 cd ./nets;
 nn_fun = @net_naca0012_20201104; 
 nn_step_size = @nn_mesh_size_naca_31;
@@ -16,17 +17,18 @@ cd ../;
 standardlize = 1;   %是否进行坐标归一化
 isSorted     = 1;   %是否对阵面进行排序推进
 isPlotNew    = 0;   %是否plot生成过程
-num_label    = 0;   %是否在图中输出点的编号    
+num_label    = 0;   %是否在图中输出点的编号
+%%
 SpDefined    = 3;   %0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长；3-采用背景网格控制步长
-gridDim      = 101;
+gridDim      = 201;
 sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
-stepSizeFile     = '../grid/simple/quad2.cas';
+% stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
 rectangularBoudanryNodes =10*4-4;  %矩形外边界上的节点数，可能会变化
-% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; %
+stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; %
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 % stepSizeFile     = '../grid/30p30n/30p30n.cas';
@@ -64,9 +66,12 @@ if SpDefined == 1 && sampleType == 0
     [SpField, backGrid, backCoord] = StepSizeField(stepSizeFile, sizeFileType);
 elseif SpDefined == 3   
         [range,xcoord,ycoord] = RectangularBackgroundMesh(AFT_stack,Coord);
+%         PLOT_Background_Grid(xcoord,ycoord);
+%         PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
         SourceInfo = CalculateSourceInfo(AFT_stack,Coord);
-        StepSize = InitialValue(SourceInfo,range);
-        SpField = Iterative_Solve(SourceInfo,StepSize,range);
+        [StepSize, LOWER, UPPER] = InitialValue(SourceInfo,range);
+        SpField = Iterative_Solve(SourceInfo,StepSize,range, LOWER, UPPER);
+%         SpField = StepSize;
 end
 
 if isSorted == 0

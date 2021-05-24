@@ -23,7 +23,7 @@ nNodes = max( max(nodeList)-min(nodeList)+1 );
 for i = 1 : nNodes
     str = num2str(i);
     if  flag_label(i) == 0 && num_label == 1
-        text(xCoord(i)+0.05*dist,yCoord(i)+0.05*dist,str, 'Color', 'red', 'FontSize', 9)
+        text(xCoord(i)+0.00005*dist,yCoord(i)+0.00005*dist,str, 'Color', 'red', 'FontSize', 9)
         flag_label(i) = 1;
     end
 end

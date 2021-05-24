@@ -1,5 +1,6 @@
 function [range,xcoord,ycoord] = RectangularBackgroundMesh(AFT_stack,Coord)
 global num_label flag_label gridDim dx dy;
+disp('Éú³É±³¾°Íø¸ñ...');
 xmin = 1e40; ymin = 1e40;
 xmax = -1e40; ymax = -1e40;
 nBoundaryFaces = size(AFT_stack,1);

@@ -1,5 +1,6 @@
-function S = Iterative_Solve(SourceInfo,S,range)
+function S = Iterative_Solve(SourceInfo,S,range, LOWER, UPPER)
 global num_label flag_label gridDim dx dy;
+disp('迭代求解网格密度场...');
 xMin = range(1);% xMax = range(2);
 yMin = range(3);% yMax = range(4);
 
@@ -7,20 +8,6 @@ S1 = S;
 omega = 1.8;
 flag = 1.0;
 iter = 0;
-%%
-LOWER = zeros(gridDim,gridDim);
-UPPER = zeros(gridDim,gridDim);
-for i = 2:gridDim-1
-    for j = 2:gridDim-1
-        
-        xNode = xMin + (i-1)*dx;
-        yNode = yMin + (j-1)*dy;
-        
-        [lower, upper] = SourceImpact(SourceInfo,xNode, yNode);
-        LOWER(i,j) = lower;
-        UPPER(i,j) = upper;
-    end
-end
 %%
 while flag >1e-10
     if mod(iter, 10) == 0 
