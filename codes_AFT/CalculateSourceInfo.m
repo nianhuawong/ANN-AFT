@@ -9,9 +9,7 @@ if type == 1
                 4,-4, 0.9, 1;
                 4, 4, 0.9, 1;
                 0, 0, 0.05, 1];
-    
-%     SourceInfo = Cal_Intensity(an, bn, u, alpha, SourceInfo);
-    
+%   SourceInfo_line =  [];    
 elseif type == 2
     %% 在计算域中点选几个点源
     X=[];Y=[];
@@ -31,7 +29,7 @@ elseif type == 2
     nBoundaryFaces = size(AFT_stack,1);
     nSources = size(X,1);
     SourceInfo = zeros(nSources,4); % 存储点源的位置、强度、强度因子
-%     intensity  = ones(nSources,1);  % 强度因子暂时默认为1.0
+    
     for k = 1:nSources
         xSource = X(k);
         ySource = Y(k);
@@ -59,7 +57,6 @@ elseif type == 2
         SourceInfo(k,2) = yNode;
         SourceInfo(k,3) = AFT_stack(index,5);
         SourceInfo(k,4) = 1.0;
-%         SourceInfo(k,4) = Cal_Intensity_Single(an, bn, u, alpha, xNode, yNode);
     end
     SourceInfo
     
@@ -67,7 +64,6 @@ elseif type == 3
     %% 直接采用所有边界阵面作为点源，貌似不行?
     nBoundaryFaces = size(AFT_stack,1);
     SourceInfo = zeros(nBoundaryFaces,4); % 存储点源的位置、强度、强度因子
-%     intensity  = ones(nBoundaryFaces,1);  % 强度因子暂时默认为1.0
     
     for i = 1:nBoundaryFaces
         node1 = AFT_stack(i,1);
@@ -78,39 +74,10 @@ elseif type == 3
         
         sp = sqrt(3.0)/2.0 * DISTANCE( node1, node2, Coord(:,1), Coord(:,2));
         
-        intensity = 1.0;
-%         intensity = Cal_Intensity_Single(an, bn, u, alpha, xcoord, ycoord);
-        
+        intensity = 1.0;      % 强度因子暂时默认为1.0
         SourceInfo(i,:)=[xcoord, ycoord, sp, intensity]; % 存储点源的位置、强度、强度因子
     end       
 end
-
-end
-
-function sourceInfo = Cal_Intensity(an, bn, u, alpha,sourceInfo)
-nSources = size(sourceInfo,1);
-    for k = 1:nSources
-        xSource = sourceInfo(k,1);
-        ySource = sourceInfo(k,2);
-        sourceInfo(k,4) = Cal_Intensity_Single(an, bn, u, alpha, xSource, ySource);
-    end
-end
-
-function intensity = Cal_Intensity_Single(an, bn, u, alpha, xSource, ySource)
-k = 10; beta = 1;
-if size(u,1) == 1 && size(u,2) == 2
-    u = u';  %把u转换成列向量
-end
-
-rn = sqrt( ( xSource * xSource ) + ( ySource * ySource ) ) + 1e-40;
-vector_v = [xSource,ySource] ./ rn;
-fai = ( 1 - abs(alpha)/2.0 ) * vector_v * u + alpha/2.0 * abs(vector_v * u);
-
-tmp = alpha * vector_v * u;
-if tmp <0 
-    beta = 0;
-end
-intensity = an * beta + bn * power(abs(fai), k);
 end
 %% 矩形算例
 %  SourceInfo = [-4, 4, 0.9, 1;
