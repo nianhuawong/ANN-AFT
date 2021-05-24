@@ -7,7 +7,21 @@ S1 = S;
 omega = 1.8;
 flag = 1.0;
 iter = 0;
-
+%%
+LOWER = zeros(gridDim,gridDim);
+UPPER = zeros(gridDim,gridDim);
+for i = 2:gridDim-1
+    for j = 2:gridDim-1
+        
+        xNode = xMin + (i-1)*dx;
+        yNode = yMin + (j-1)*dy;
+        
+        [lower, upper] = SourceImpact(SourceInfo,xNode, yNode);
+        LOWER(i,j) = lower;
+        UPPER(i,j) = upper;
+    end
+end
+%%
 while flag >1e-10
     if mod(iter, 10) == 0 
         tstart1 = tic;
@@ -17,10 +31,12 @@ while flag >1e-10
     for i = 2:gridDim-1
         for j = 2:gridDim-1
             
-            xNode = xMin + (i-1)*dx;
-            yNode = yMin + (j-1)*dy;
+%             xNode = xMin + (i-1)*dx;
+%             yNode = yMin + (j-1)*dy;
             
-            [lower, upper] = SourceImpact(SourceInfo,xNode, yNode);
+%             [lower, upper] = SourceImpact(SourceInfo,xNode, yNode);
+            lower = LOWER(i,j);
+            upper = UPPER(i,j);
             
             fai = S1(i-1,j) + S(i+1,j) + S1(i,j-1) + S(i,j+1) + dx * dx * upper;
             fai = fai / (4.0 + dx * dx * lower);
@@ -36,7 +52,7 @@ while flag >1e-10
         flag = 0;
     end
     iter = iter + 1;
-    if mod(iter, 10) == 0
+    if mod(iter, 100) == 0
         telapsed = toc(tstart1)
         iter
         error
