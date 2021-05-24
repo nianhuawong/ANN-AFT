@@ -39,7 +39,13 @@ Sp4 = StepSize(ni4,nj4);
 dist4 = sqrt( ( xNode - x4 )^2 + ( yNode - y4 )^2 ) + 1e-40;
 
 %% inverse distance weighting
-Sp = (Sp1 / dist1 / dist1 + Sp2 / dist2 / dist2 + Sp3 / dist3 / dist3 + Sp4 / dist4 / dist4) ...
-    /(1.0 / dist1 / dist1 + 1.0 / dist2 / dist2 + 1.0 / dist3 / dist3 + 1.0 / dist4 / dist4);
+% Sp = (Sp1 / dist1 / dist1 + Sp2 / dist2 / dist2 + Sp3 / dist3 / dist3 + Sp4 / dist4 / dist4) ...
+%     /(1.0 / dist1 / dist1 + 1.0 / dist2 / dist2 + 1.0 / dist3 / dist3 + 1.0 / dist4 / dist4);
+
+%% bilinear interpolation
+[xx, yy] = meshgrid([x1,x2], [y1,y3]);
+zz = [Sp1, Sp2; Sp4, Sp3];
+
+Sp = interp2(xx, yy, zz, xNode, yNode);
 
 end
