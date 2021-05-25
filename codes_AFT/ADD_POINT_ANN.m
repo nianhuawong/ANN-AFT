@@ -116,19 +116,23 @@ normal = normal_vector(node1, node2, xCoord, yCoord);
 v_ac = [x_new-xCoord(node1), y_new-yCoord(node1)];
 h = abs( v_ac * normal' );
 
-% Sp = h;
-if AFT_stack(1,7) == 3 && SpDefined ~= 3 
-    Sp = h;
-else
-    if SpDefined == 1 || SpDefined == 3 
-        
-    elseif SpDefined == 2
-        Sp = max([h,Sp]);
-        % Sp = h;
-    else
-        Sp = h;
-    end
+if AFT_stack(1,7) == 3  %在物面上网格步长采用边界阵元长度的sqrt(3)/2
+    Sp = ds_base * sqrt(3.0) / 2.0;
 end
+    
+% Sp = h;
+% if AFT_stack(1,7) == 3 && SpDefined ~= 3 
+%     Sp = h;
+% else
+%     if SpDefined == 1 || SpDefined == 3 
+%         
+%     elseif SpDefined == 2
+%         Sp = max([h,Sp]);
+%         % Sp = h;
+%     else
+%         Sp = h;
+%     end
+% end
 
 v_ab = [xCoord(node2) - xCoord(node1), yCoord(node2) - yCoord(node1)]./ds_base;
 v_ad = ( v_ac * v_ab' ) .* v_ab;

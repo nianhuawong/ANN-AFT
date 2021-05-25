@@ -14,22 +14,22 @@ isPlotNew    = 0;   % 是否plot生成过程
 num_label    = 0;   % 是否在图中输出点的编号
 flag_label   = zeros(1,10000);
 %%
-useANN       = 0;        % 是否使用ANN生成网格
+useANN       = 1;        % 是否使用ANN生成网格
 tolerance    = 0.2;      % ANN进行模式判断的容差 
 stencilType  = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
 standardlize = 1;        % 是否进行坐标归一化
 nn_fun       = @net_naca0012_20201104; 
 nn_step_size = @nn_mesh_size_naca_31;
 %%
-SpDefined    = 1;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
-gridDim      = 201; 
+SpDefined    = 3;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
+gridDim      = 201;
 sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
-rectangularBoudanryNodes =1*4-4;  % 矩形外边界上的节点数，可能会变化
+rectangularBoudanryNodes =10*4-4;  % 矩形外边界上的节点数，可能会变化
 stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
@@ -42,7 +42,9 @@ node_num = max( max(nodeList)-min(nodeList)+1 ); %边界点的个数，或者，初始阵面点
 xCoord_AFT = Coord(1:node_num,1);                %初始阵面点坐标
 yCoord_AFT = Coord(1:node_num,2);
 
-PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
+if isPlotNew == 1 || SpDefined == 3
+    PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
+end
 %% 步长控制方法，选择，1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
 if SpDefined == 1 && sampleType == 3
     maxWdist = ComputeMaxWallDist(Grid, Coord);
