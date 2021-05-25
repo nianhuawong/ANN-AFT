@@ -21,7 +21,7 @@ standardlize = 1;        % 是否进行坐标归一化
 nn_fun       = @net_naca0012_20201104; 
 nn_step_size = @nn_mesh_size_naca_31;
 %%
-SpDefined    = 3;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
+SpDefined    = 1;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
 gridDim      = 201; 
 sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';

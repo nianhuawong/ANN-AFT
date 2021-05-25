@@ -29,5 +29,6 @@ elseif sampleType == 3  %ANN第3种输入
 end
 
 if length(Sp)>1 || Sp <= 0
-    break;
+    disp('ANN输出的网格步长错误！请检查！')
+    quit();
 end
