@@ -1,59 +1,48 @@
-clear all;format long;close all;clc;
-tstart0 = tic;
+clear;clc;close all;format long;tstart0 = tic;
+global outGridType epsilon num_label useANN tolerance flag_label ...
+       cellNodeTopo standardlize SpDefined countMode crossCount  ... 
+       rectangularBoudanryNodes gridDim dx dy;  
+addpath(genpath('./')); % 设置当前目录及子目录为搜索目录
 %%
-global num_label flag_label cellNodeTopo epsilon standardlize SpDefined countMode useANN outGridType tolerance crossCount rectangularBoudanryNodes gridDim dx dy;  
 al          = 3.0;      % 在几倍范围内搜索
 coeff       = 0.8;      % 尽量选择现有点的参数，Pbest质量参数的系数
 outGridType = 0;        % 0-各向同性网格，1-各向异性网格
-stencilType = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
 epsilon     = 0.9;      % 网格质量要求, 值越大要求越高
-useANN      = 0;        % 是否使用ANN生成网格
-tolerance   = 0.2;      % ANN进行模式判断的容差 
 %%
-cd ./nets;
-nn_fun = @net_naca0012_20201104; 
+isSorted     = 1;   % 是否对阵面进行排序推进
+isPlotNew    = 0;   % 是否plot生成过程
+num_label    = 0;   % 是否在图中输出点的编号
+flag_label   = zeros(1,10000);
+%%
+useANN       = 0;        % 是否使用ANN生成网格
+tolerance    = 0.2;      % ANN进行模式判断的容差 
+stencilType  = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
+standardlize = 1;        % 是否进行坐标归一化
+nn_fun       = @net_naca0012_20201104; 
 nn_step_size = @nn_mesh_size_naca_31;
-cd ../;
-standardlize = 1;   %是否进行坐标归一化
-isSorted     = 1;   %是否对阵面进行排序推进
-isPlotNew    = 0;   %是否plot生成过程
-num_label    = 0;   %是否在图中输出点的编号
 %%
-SpDefined    = 3;   %1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
-gridDim      = 401; 
-sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
+SpDefined    = 3;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
+gridDim      = 201; 
+sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
-rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
+rectangularBoudanryNodes =1*4-4;  % 矩形外边界上的节点数，可能会变化
 stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 % stepSizeFile     = '../grid/30p30n/30p30n-small.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
-% boundaryGrid     = stepSizeFile; 
-% boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
-crossCount       = 0;
 %%
 [AFT_stack,Coord,Grid,wallNodes]  = read_grid(stepSizeFile, sizeFileType);
 nodeList = AFT_stack(:,1:2);
-node_num = max( max(nodeList)-min(nodeList)+1 );%边界点的个数，或者，初始阵面点数
+node_num = max( max(nodeList)-min(nodeList)+1 ); %边界点的个数，或者，初始阵面点数
 xCoord_AFT = Coord(1:node_num,1);                %初始阵面点坐标
 yCoord_AFT = Coord(1:node_num,2);
 
-fig = figure;
-fig.Color = 'white'; hold on;
-flag_label  = zeros(1,10000);
 PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
-
-%%
-% 选择最小阵面，生成Pbest
-nCells_AFT = 0;
-Grid_stack = [];cellNodeTopo = [];
-node_best = node_num;     %初始时最佳点Pbest的序号
-
 %% 步长控制方法，选择，1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
 if SpDefined == 1 && sampleType == 3
     maxWdist = ComputeMaxWallDist(Grid, Coord);
@@ -68,15 +57,18 @@ elseif SpDefined == 3
         SpField = Iterative_Solve(SourceInfo,StepSize,range, LOWER, UPPER);
 %         SpField = StepSize;
 end
-
 %% 先将边界阵面推进
 AFT_stack_sorted = AFT_stack;
 if isSorted == 1
     AFT_stack_sorted = Sort_AFT(AFT_stack);
 end
 %%
-countMode = 0;
-spTime = 0; generateTime = 0; updateTime = 0; plotTime = 0;
+nCells_AFT   = 0;
+Grid_stack   = []; cellNodeTopo = [];
+countMode    = 0;  crossCount   = 0;
+node_best    = node_num;   %初始时最佳点Pbest的序号
+generateTime = 0; spTime = 0; updateTime = 0; plotTime = 0;
+%%
 while size(AFT_stack_sorted,1)>0
     node1_base = AFT_stack_sorted(1,1);         
     node2_base = AFT_stack_sorted(1,2);  
@@ -92,7 +84,7 @@ while size(AFT_stack_sorted,1)>0
 %     end
     xx = 0.5 * ( xCoord_AFT(node1_base) + xCoord_AFT(node2_base) );
     yy = 0.5 * ( yCoord_AFT(node1_base) + yCoord_AFT(node2_base) );
-
+%%
     tstart1 = tic;
     if SpDefined == 1       %1-ANN控制密度
         Sp = StepSize_ANN(xx, yy, Grid, Coord, sampleType, nn_step_size, maxWdist);
@@ -104,7 +96,7 @@ while size(AFT_stack_sorted,1)>0
     
     telapsed1 = toc(tstart1);
     spTime = spTime + telapsed1;
-
+%%
     size0 = size(AFT_stack_sorted,1);     
     tstart2 = tic;
     [node_select,coordX, coordY, flag_best] = GenerateTri(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, Sp, coeff, al, node_best, Grid_stack, nn_fun, stencilType);   
@@ -114,7 +106,7 @@ while size(AFT_stack_sorted,1)>0
     end
     telapsed2 = toc(tstart2);
     generateTime = generateTime + telapsed2;
-    
+%%    
     tstart3 = tic;
     if( flag_best == 1 )
         xCoord_AFT = [xCoord_AFT;coordX];
@@ -126,7 +118,7 @@ while size(AFT_stack_sorted,1)>0
     
     telapsed3 = toc(tstart3);
     updateTime = updateTime + telapsed3;
-    
+%%    
     tstart4 = tic;
     size1 = size(AFT_stack_sorted,1);
     numberOfNewFronts = size1-size0;
@@ -135,21 +127,19 @@ while size(AFT_stack_sorted,1)>0
     end
     telapsed4 = toc(tstart4);
     plotTime = plotTime + telapsed4;
-    
+%%    
     interval = 500;
     if(mod(nCells_AFT,interval)==0)
         DisplayResults(nCells_AFT, size(AFT_stack_sorted,1), -1, numberOfNewFronts,spTime,generateTime,updateTime,plotTime,tstart0,'midRes');
     end
-  %%  
-  %找出非活跃阵面，并删除
+%% 找出非活跃阵面，并删除
     [AFT_stack_sorted, Grid_stack] = DeleteInactiveFront(AFT_stack_sorted, Grid_stack);
 
     if isSorted == 1      
-%         AFT_stack_sorted = sortrows(AFT_stack_sorted, 5);
         AFT_stack_sorted = Sort_AFT(AFT_stack_sorted);
     end
 end
-
+%%
 DisplayResults(nCells_AFT, size(Grid_stack,1), length(xCoord_AFT), -1,spTime,generateTime,updateTime,plotTime,tstart0,'finalRes');
 if isPlotNew == 0   
     PLOT(Grid_stack, xCoord_AFT, yCoord_AFT)
@@ -173,14 +163,4 @@ GridQualitySummaryDelaunay(triMesh, invalidCellIndex, xCoord, yCoord)
 
 %% 用变形优化后的网格合并
 % combinedMesh = CombineMesh(triMesh, invalidCellIndex, wallNodes,0.5, xCoord, yCoord);
-% GridQualitySummary(combinedMesh, xCoord, yCoord);
-
-
-    
-    
-
-
-
-
-
-
+% GridQualitySummary(combinedMesh, xCoord, yCoord);  

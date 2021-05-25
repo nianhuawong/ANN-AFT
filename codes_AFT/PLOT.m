@@ -1,6 +1,7 @@
 function PLOT(AFT_stack, xCoord, yCoord)
-global flag_label;
-global num_label;
+global flag_label num_label;
+fig = figure;
+fig.Color = 'white'; hold on;
 len = size(AFT_stack,1);
 for i = 1:len
     node1 = AFT_stack(i,1);
