@@ -1,7 +1,6 @@
 function SourceInfo = CalculateSourceInfo(AFT_stack,Coord)
 disp('设置热源...');
-% an = 1; bn = 0; alpha = 1.0; u = [-1 1];
-type = 3;
+type = 2;
 % type = input('设定SourceInfo的方法（1-人工设置，2-图中点选，3-根据BC设置）：');
 %%
 if type == 1
@@ -21,8 +20,8 @@ elseif type == 2
     %% 在计算域中点选几个点源
     X=[];Y=[];
     button = 1;
-    % axis([-0.2 1.2 -0.1 0.1])
-    axis([-0.7 0.7 -0.1 0.1])
+    axis([-0.2 1.2 -0.1 0.1])
+%     axis([-0.7 0.7 -0.1 0.1])
     while (button~=3)
         [x1,y1,button] = ginput(1);   %前面的点源用鼠标左键选择，最后一个点源用鼠标右键选择
         plot(x1,y1,'b*')

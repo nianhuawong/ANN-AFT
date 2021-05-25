@@ -19,19 +19,19 @@ isSorted     = 1;   %是否对阵面进行排序推进
 isPlotNew    = 0;   %是否plot生成过程
 num_label    = 0;   %是否在图中输出点的编号
 %%
-SpDefined    = 3;   %0-未定义步长，直接采用网格点；1-定义了步长文件；2-ANN输出了步长；3-采用背景网格控制步长
-gridDim      = 201;
+SpDefined    = 3;   %1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
+gridDim      = 401; 
 sampleType   = 3;   %ANN步长控制1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
-rectangularBoudanryNodes =10*4-4;  %矩形外边界上的节点数，可能会变化
-stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; %
+rectangularBoudanryNodes =1*4-4;  %矩形外边界上的节点数，可能会变化
+stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-% stepSizeFile     = '../grid/30p30n/30p30n.cas';
+% stepSizeFile     = '../grid/30p30n/30p30n-small.cas';
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 % boundaryGrid     = stepSizeFile; 
 % boundaryGridType = 0;   % 0-单一单元网格，1-混合单元网格
@@ -54,15 +54,10 @@ nCells_AFT = 0;
 Grid_stack = [];cellNodeTopo = [];
 node_best = node_num;     %初始时最佳点Pbest的序号
 
-%%  先将边界阵面推进
-% for i =1:size(AFT_stack,1)
-% %     if AFT_stack(i,7) == 3      
-% %          AFT_stack(i,5) = 0.00001* AFT_stack(i,5);  
-% %          AFT_stack(i,5) = 1e5* AFT_stack(i,5);
-% %     end
-% end
-
-if SpDefined == 1 && sampleType == 0
+%% 步长控制方法，选择，1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
+if SpDefined == 1 && sampleType == 3
+    maxWdist = ComputeMaxWallDist(Grid, Coord);
+elseif SpDefined == 2 
     [SpField, backGrid, backCoord] = StepSizeField(stepSizeFile, sizeFileType);
 elseif SpDefined == 3   
         [range,xcoord,ycoord] = RectangularBackgroundMesh(AFT_stack,Coord);
@@ -74,14 +69,12 @@ elseif SpDefined == 3
 %         SpField = StepSize;
 end
 
-if isSorted == 0
-    AFT_stack_sorted = AFT_stack;
-elseif isSorted == 1
-%     AFT_stack_sorted = sortrows(AFT_stack, 5);
+%% 先将边界阵面推进
+AFT_stack_sorted = AFT_stack;
+if isSorted == 1
     AFT_stack_sorted = Sort_AFT(AFT_stack);
 end
-
-maxWdist = ComputeMaxWallDist(Grid, Coord);
+%%
 countMode = 0;
 spTime = 0; generateTime = 0; updateTime = 0; plotTime = 0;
 while size(AFT_stack_sorted,1)>0
@@ -101,42 +94,11 @@ while size(AFT_stack_sorted,1)>0
     yy = 0.5 * ( yCoord_AFT(node1_base) + yCoord_AFT(node2_base) );
 
     tstart1 = tic;
-    if SpDefined == 1
-        [wdist, index ] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 3);
-        [wdist2,index2] = ComputeWallDistOfNode(Grid, Coord, xx, yy, 9);
-        term1 = 1.0/Grid(index,5 )^(1.0/6);
-        term2 = 1.0/Grid(index2,5)^(1.0/1);
-        
-        if sampleType == 0
-            Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
-        elseif sampleType == 1
-            input = [xx,yy]';
-            Sp = nn_step_size(input) * Grid(index2,5);            
-        elseif sampleType == 2
-            input = [(wdist)^(1.0/6)]';
-%             Sp = ( nn_step_size(input)^6 ) / term1;   %物面
-            Sp = ( nn_step_size(input)^6 ) / term2;     %远场
-
-%             input = [log10(wdist+1e-10)]';
-%             Sp = 10^nn_step_size(input) * Grid(index2,5);
-%             maxSp = sqrt(3.0) / 2.0 * BoundaryLength(Grid);
-%             if Sp > maxSp 
-%                 Sp = maxSp;
-%             end
-        elseif sampleType == 3
-            input = [(wdist/maxWdist)^(1.0/6)]';
-            if wdist/maxWdist < 0.15
-                Sp = (nn_step_size(input)^6) / ( term1 + term2 );   %物面
-            else
-                Sp = (nn_step_size(input)^6) / term2;                   %远场              
-            end
-            kkk = 1;
-        end        
-    
-        if length(Sp)>1 || Sp <= 0
-            break;
-        end
-    elseif SpDefined == 3
+    if SpDefined == 1       %1-ANN控制密度
+        Sp = StepSize_ANN(xx, yy, Grid, Coord, sampleType, nn_step_size, maxWdist);
+    elseif SpDefined == 2   %2-从背景网格文件中读取Sp     
+        Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
+    elseif SpDefined == 3   
         Sp = Interpolate2Grid(xx, yy, SpField, range);
     end
     

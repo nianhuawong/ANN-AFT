@@ -1,6 +1,6 @@
 function [lower, upper] = SourceImpact(SourceInfo,xNode, yNode)
 %% 密度方向性控制参数
-an = 0.05;           % 影响半径
+an = 0.01;           % 影响半径
 bn = 0.0;           % 方向强度因子
 alpha = 1.0;        % 方向系数
 u = [0 0]';         % 作用方向

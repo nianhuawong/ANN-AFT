@@ -39,7 +39,7 @@ while flag >1e-10
         flag = 0;
     end
     iter = iter + 1;
-    if mod(iter, 100) == 0
+    if mod(iter, 200) == 0
         telapsed = toc(tstart1)
         iter
         error
