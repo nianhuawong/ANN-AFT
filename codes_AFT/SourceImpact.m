@@ -1,7 +1,7 @@
 function [lower, upper] = SourceImpact(SourceInfo,xNode, yNode)
 %% 密度方向性控制参数
-an = 1;           % 影响半径
-bn = 0.0;           % 方向强度因子
+an = 0.2;           % 影响半径
+bn = 1.0;           % 方向强度因子
 alpha = 1.0;        % 方向系数
 u = [0 0]';         % 作用方向
 %%
@@ -26,9 +26,7 @@ end
 
 function intensity = Cal_Intensity_Single(an, bn, u, alpha, xSource, ySource, xNode, yNode)
 k = 10; beta = 1;
-% if size(u,1) == 1 && size(u,2) == 2
-%     u = u';  %把u转换成列向量
-% end
+
 if an == 0 
     intensity = 1.0;
     return;
@@ -37,9 +35,34 @@ end
 rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
 vector_v = [xNode - xSource, yNode - ySource] ./ rn;
 fai = ( 1 - abs(alpha)/2.0 ) * vector_v * u + alpha/2.0 * abs(vector_v * u);
+% if fai~= 0
+%     kkk = 1;
+% end
 
 if alpha * vector_v * u < 0 
     beta = 0;
 end
-intensity = an * beta + bn * power(abs(fai), k);
+% intensity = an * beta + bn * power(abs(fai), k);
+%%
+coeff_a = 10^( log10(0.01) / an );
+intensity = bn * coeff_a ^ rn * beta;
+
+% disp('影响半径（intensity >0.01 ）:');
+% radius = log10(0.1) /log10(coeff_a)
+
+
+% coeff_a = ( 1 / 0.01 - 1 ) / an;
+% intensity = 1.0 / (coeff_a * rn + 1.0);
+
+% disp('影响半径（intensity >0.01 ）:');
+% radius = ( 1 / 0.01 - 1 ) / coeff_a
+kkk =1;
+
+
+% term1 = beta * bn * power(abs(fai), k) / rn;
+% if rn > an
+%     term1 = 1e-40;
+% end
+% 
+% intensity = term1;
 end
