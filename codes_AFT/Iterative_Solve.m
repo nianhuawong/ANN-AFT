@@ -9,7 +9,7 @@ flag = true;
 iter = 0;
 %%
 while flag
-    if mod(iter, 10) == 0 
+    if mod(iter, 50) == 0 
         tstart1 = tic;
     end
     
@@ -38,7 +38,9 @@ while flag
     if error < 5e-4
         flag = false;
     end
+    
     iter = iter + 1;
+    
     if mod(iter, 50) == 0
         telapsed = toc(tstart1)
         iter
