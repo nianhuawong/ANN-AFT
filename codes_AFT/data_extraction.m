@@ -11,7 +11,7 @@ outGridType = 0;        % 0-各向同性网格，1-各向异性网格
 epsilon     = 0.9;      % 网格质量要求, 值越大要求越高
 isSorted    = 1;        % 是否对阵面进行排序推进
 %% 画图相关参数
-isPlotNew    = 0;   % 是否plot生成过程
+isPlotNew    = 1;   % 是否plot生成过程
 num_label    = 0;   % 是否在图中输出点的编号
 flag_label   = zeros(1,10000);
 %% ANN控制参数
@@ -22,15 +22,15 @@ standardlize = 1;        % 是否进行坐标归一化
 nn_fun       = @net_naca0012_20201104; 
 nn_step_size = @nn_mesh_size_naca_31;
 %% 网格步长控制参数
-SpDefined    = 3;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
-gridDim      = 201;
+SpDefined    = 4;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
+gridDim      = 101;
 sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
-rectangularBoudanryNodes =10*4-4;  % 矩形外边界上的节点数，可能会变化
+rectangularBoudanryNodes =1*4-4;  % 矩形外边界上的节点数，可能会变化
 stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
@@ -59,6 +59,10 @@ elseif SpDefined == 3
         [StepSize, LOWER, UPPER] = InitialValue(SourceInfo,range);
         SpField = Iterative_Solve(SourceInfo,StepSize,range, LOWER, UPPER);
 %         SpField = StepSize;
+elseif SpDefined == 4   
+        [range,xcoord,ycoord] = RectangularBackgroundMesh(AFT_stack,Coord);
+        SourceInfo = CalculateSourceInfo(AFT_stack,Coord);    
+        SpField = CalculateSpByRBF(SourceInfo,range);
 end
 %% 先将边界阵面推进
 AFT_stack_sorted = AFT_stack;
@@ -94,6 +98,8 @@ while size(AFT_stack_sorted,1)>0
     elseif SpDefined == 2   % 2-从背景网格文件中读取Sp     
         Sp = StepSize(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, SpField, backGrid, backCoord);
     elseif SpDefined == 3   % 3-矩形背景网格，热源控制疏密，此处是从背景网格插值到真实网格
+        Sp = Interpolate2Grid(xx, yy, SpField, range);
+    elseif SpDefined == 4   % 4-矩形背景网格，RBF控制疏密，此处是从背景网格插值到真实网格
         Sp = Interpolate2Grid(xx, yy, SpField, range);
     end
     
