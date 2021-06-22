@@ -61,7 +61,7 @@ for i = 1:nFaces
     Grid_stack(i,5) = DISTANCE(Grid_stack(i,1), Grid_stack(i,2), xCoord, yCoord);
     Grid_stack(i,6) = i;
     Grid_stack(i,7) = bcType(i);
-    if bcType(i) ~= 2 % == 3 %
+    if bcType(i) ~= 3 % == 3 %  %BC=3为物面，BC=9为外场边界
         wallNodes(end+1:end+2) = [Grid_stack(i,1),Grid_stack(i,2)];
     end
 end
