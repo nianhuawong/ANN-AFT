@@ -1,6 +1,8 @@
-function SourceInfo = CalculateSourceInfo(AFT_stack,Coord)
+function SourceInfo = CalculateSourceInfo(AFT_stack,Coord, type)
 disp('设置热源...');
-type = 3;
+if nargin == 2
+    type = 3;
+end
 % type = input('设定SourceInfo的方法（1-人工设置，2-图中点选，3-根据BC设置）：');
 %%
 if type == 1

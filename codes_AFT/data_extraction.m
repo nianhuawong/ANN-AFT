@@ -29,9 +29,9 @@ sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-30.cas';
+% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-30.cas';
 rectangularBoudanryNodes =1*4-4;  % 矩形外边界上的节点数，可能会变化
-% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
+stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
 % stepSizeFile     = '../grid/30p30n/30p30n.cas';%-small
@@ -43,7 +43,7 @@ node_num = max( max(nodeList)-min(nodeList)+1 ); %边界点的个数，或者，初始阵面点
 xCoord_AFT = Coord(1:node_num,1);                %初始阵面点坐标
 yCoord_AFT = Coord(1:node_num,2);
 
-if isPlotNew == 1 || SpDefined == 3
+if isPlotNew == 1 || SpDefined == 3 || SpDefined == 4
     PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
 end
 % [triMesh_pw,invalidCellIndex_pw]= DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
@@ -63,8 +63,11 @@ elseif SpDefined == 3
 %         SpField = StepSize;
 elseif SpDefined == 4   
         [range,xcoord,ycoord] = RectangularBackgroundMesh(AFT_stack,Coord);
-        SourceInfo = CalculateSourceInfo(AFT_stack,Coord);    
-        SpField = CalculateSpByRBF(SourceInfo,range);
+        SourceInfo = CalculateSourceInfo(AFT_stack,Coord,3);    
+%         SpField = CalculateSpByRBF(SourceInfo,range);
+
+        [SpField,SelectedSourcesIndex] = CalculateSpByRBF_Greedy(SourceInfo,range);    %贪婪算法
+%         SelectedSources = SourceInfo(SelectedSourcesIndex,:);
 end
 telapsed = toc(tstart);
 disp(['SpField time = ', num2str(telapsed)]);

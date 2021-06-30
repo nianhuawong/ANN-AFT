@@ -19,9 +19,9 @@ function fai = RBF_func(rn, r0, basis)
         fai = 0.0 + 1e-40;
     else
 %         if basis == 21      %% Wendland's C0
-            fai = ( 1 - ksi )^2;
+%             fai = ( 1 - ksi )^2;
 %         elseif basis == 22  %% Wendland's C2
-%             fai = ( 1 - ksi )^4 * ( 4.0 * ksi + 1 );
+            fai = ( 1 - ksi )^4 * ( 4.0 * ksi + 1 );
 %         elseif basis == 23  %% Wendland's C4
 %             fai = ( 1 - ksi )^6 * ( 35.0 * ksi^2 + 18.0 * ksi + 3 );
 %         elseif basis == 24  %% Wendland's C6
