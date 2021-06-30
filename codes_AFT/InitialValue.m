@@ -1,6 +1,7 @@
 function [initialStepSize, LOWER, UPPER] = InitialValue(SourceInfo,range)
 global num_label flag_label gridDim dx dy;
 disp('生成初始网格密度场...');
+tstart = tic;
 initialStepSize = zeros(gridDim,gridDim);
 xMin = range(1);% xMax = range(2);
 yMin = range(3);% yMax = range(4);
@@ -26,5 +27,6 @@ for i = 1 :gridDim
         initialStepSize(i,j) = upper / lower;
     end
 end
-
+telapsed = toc(tstart);
+disp(['InitialValue time = ', num2str(telapsed)]);
 end

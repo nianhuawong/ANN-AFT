@@ -20,7 +20,7 @@ elseif sampleType == 2  %ANN第2种输入
     %             end
 elseif sampleType == 3  %ANN第3种输入
     input = [(wdist/maxWdist)^(1.0/6)]';
-    if wdist/maxWdist < 0.15
+    if wdist/maxWdist < 0.25
         Sp = (nn_step_size(input)^6) / ( term1 + term2 );   %物面
     else
         Sp = (nn_step_size(input)^6) / term2;                   %远场

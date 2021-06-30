@@ -1,7 +1,7 @@
 function [lower, upper] = SourceImpact(SourceInfo,xNode, yNode)
 %% 密度方向性控制参数
-an = 0.2;           % 影响半径
-bn = 0.1;           % 方向强度因子
+an = 2;           % 影响半径
+bn = 1.0;           % 方向强度因子
 alpha = 1.0;        % 方向系数
 u = [0 0]';         % 作用方向
 %%
@@ -52,23 +52,23 @@ rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
 % radius = log10(0.1) /log10(coeff_a)
 
 %% 按照1/(1+ax)的规律设置影响域
-% coeff_a = ( 1 / 0.01 - 1 ) / an;
-% intensity = bn * 1.0 / (coeff_a * rn + 1.0);
+coeff_a = ( 1 / 0.01 - 1 ) / an;
+intensity = bn * 1.0 / (coeff_a * rn + 1.0);
 
 % disp('影响半径（intensity >0.01 ）:');
 % radius = ( 1 / 0.01 - 1 ) / coeff_a
 %%
 
 %% 按照紧支基函数确定强度
-ksi = rn / an;
-if ksi >= 1
-    intensity = 0.0;
-    return;
-else
+% ksi = rn / an;
+% if ksi >= 1
+%     intensity = 0.0;
+%     return;
+% else
 %% Wendland's C0
 %     intensity = ( 1 - ksi )^2;                      
 %% Wendland's C2    
-    intensity = ( 1 - ksi )^4 * ( 4.0 * ksi + 1 );
+%     intensity = ( 1 - ksi )^4 * ( 4.0 * ksi + 1 );
 %% Wendland's C4
 %     intensity = ( 1 - ksi )^6 * ( 35.0 * ksi^2 + 18.0 * ksi + 3 );    
 %% Wendland's C6
@@ -81,9 +81,9 @@ else
 %     intensity = 1 - 30 * ksi^2 - 10 * ksi^3 + 45 * ksi^4 - 6 * ksi^5 - 60 * ksi^3 * log(ksi);
 %% compact TPS C2b
 %     intensity = 1 - 20 * ksi^2 + 80 * ksi^3 - 45 * ksi^4 - 16 * ksi^5 + 60 * ksi^4 * log(ksi);
-end
+% end
 
-intensity = intensity * bn;
+% intensity = intensity * bn;
 kkk =1;
 end
 %%

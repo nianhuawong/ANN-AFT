@@ -15,26 +15,26 @@ isPlotNew    = 0;   % 是否plot生成过程
 num_label    = 0;   % 是否在图中输出点的编号
 flag_label   = zeros(1,10000);
 %% ANN控制参数
-useANN       = 1;        % 是否使用ANN生成网格
+useANN       = 0;        % 是否使用ANN生成网格
 tolerance    = 0.2;      % ANN进行模式判断的容差 
 stencilType  = 'all';    % 在ANN生成点时，如何取当前阵面的引导点模板，可以随机取1个，或者所有可能都取，最后平均
 standardlize = 1;        % 是否进行坐标归一化
 nn_fun       = @net_naca0012_20201104; 
-nn_step_size = @nn_mesh_size_naca_31;
+nn_step_size = @nn_mesh_size_naca_3;
 %% 网格步长控制参数
-SpDefined    = 4;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
-gridDim      = 401;
+SpDefined    = 4;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密；4-RBF插值控制疏密
+gridDim      = 301;
 sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
 % stepSizeFile     = '../grid/simple/pentagon3.cas';
 % stepSizeFile     = '../grid/simple/quad_quad.cas';
 % stepSizeFile     = '../grid/simple/rectan.cas';
-% stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-20.cas';
+stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-30.cas';
 rectangularBoudanryNodes =1*4-4;  % 矩形外边界上的节点数，可能会变化
 % stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
-stepSizeFile     = '../grid/ANW/anw.cas';
+% stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-% stepSizeFile     = '../grid/30p30n/30p30n.cas';
+% stepSizeFile     = '../grid/30p30n/30p30n.cas';%-small
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 %% 读入边界阵面及边界节点等信息
 [AFT_stack,Coord,Grid,wallNodes]  = read_grid(stepSizeFile, sizeFileType);
@@ -46,7 +46,9 @@ yCoord_AFT = Coord(1:node_num,2);
 if isPlotNew == 1 || SpDefined == 3
     PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
 end
+% [triMesh_pw,invalidCellIndex_pw]= DelaunayMesh(Coord(:,1),Coord(:,2),wallNodes);
 %% 步长控制方法，1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密
+tstart = tic;
 if SpDefined == 1 && sampleType == 3
     maxWdist = ComputeMaxWallDist(Grid, Coord);
 elseif SpDefined == 2 
@@ -64,6 +66,8 @@ elseif SpDefined == 4
         SourceInfo = CalculateSourceInfo(AFT_stack,Coord);    
         SpField = CalculateSpByRBF(SourceInfo,range);
 end
+telapsed = toc(tstart);
+disp(['SpField time = ', num2str(telapsed)]);
 %% 先将边界阵面推进
 AFT_stack_sorted = AFT_stack;
 if isSorted == 1
@@ -81,10 +85,10 @@ while size(AFT_stack_sorted,1)>0
     node2_base = AFT_stack_sorted(1,2);  
     
 %     if nCells_AFT >= 0
-%         if node1_base == 742 && node2_base == 743 || node1_base == 748 && node2_base == 743|| ...
-%                 node1_base == 580 && node2_base == 468
-%             kkk = 1;      
-% %             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
+%         if node1_base == 47 && node2_base == 48 %|| node1_base == 748 && node2_base == 743|| ...
+% %                 node1_base == 580 && node2_base == 468
+% %             kkk = 1;      
+%             PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
 %         end
 %         PLOT_FRONT(AFT_stack_sorted, xCoord_AFT, yCoord_AFT, 1);
 %         kkk = 1;      

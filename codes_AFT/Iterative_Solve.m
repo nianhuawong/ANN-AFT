@@ -3,13 +3,13 @@ global num_label flag_label gridDim dx dy;
 disp('迭代求解网格密度场...');
 xMin = range(1);% xMax = range(2);
 yMin = range(3);% yMax = range(4);
-
-omega =1.8;
+tstart = tic;
+omega =1.97;
 flag = true;
 iter = 0;
 %%
 while flag
-    if mod(iter, 50) == 0 
+    if mod(iter, 100) == 0 
         tstart1 = tic;
     end
     
@@ -35,16 +35,18 @@ while flag
     end
     
 %     error = error / (gridDim-1) / (gridDim-1);
-    if error < 5e-4
+    if error < 1e-5
         flag = false;
     end
     
     iter = iter + 1;
     
-    if mod(iter, 50) == 0
+    if mod(iter, 100) == 0
         telapsed = toc(tstart1)
         iter
         error
     end  
 end
+telapsed = toc(tstart);
+disp(['GS-SOR time = ', num2str(telapsed)]);
 end

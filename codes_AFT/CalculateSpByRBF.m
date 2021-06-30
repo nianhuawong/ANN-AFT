@@ -1,8 +1,9 @@
 function SpField = CalculateSpByRBF(SourceInfo,range)
 global gridDim dx dy;
 disp('RBF插值网格密度场...');
+tstart = tic;
 %%
-r0 = 10;        %紧支半径
+r0 = 500;        %紧支半径
 basis = 11;     %基函数类型
 %%
 xMin = range(1);% xMax = range(2);
@@ -26,6 +27,7 @@ W = fai \ SourceInfo(:,3);
 SpField = zeros(gridDim,gridDim);
 fai = zeros(1,numberOfSources);
 
+%% 利用W计算内场点的Sp
 for i = 1:gridDim
     for j = 1:gridDim
         xNode = xMin + (i-1)*dx;
@@ -35,12 +37,13 @@ for i = 1:gridDim
             ySource   = SourceInfo(k,2);
             
             rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
-            
             fai(1,k) = RBF_func(rn, r0, basis);
         end
         
         SpField(i,j) = fai(1,:) * W;
     end
 end
+telapsed = toc(tstart);
+disp(['RBF interpolation time = ', num2str(telapsed)]);
 disp('RBF插值网格密度场...完成！');
 end
