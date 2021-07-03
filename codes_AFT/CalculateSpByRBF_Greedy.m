@@ -3,8 +3,10 @@ global gridDim dx dy;
 disp('RBF插值网格密度场...');
 tstart = tic;
 %%
-r0 = 50;        %紧支半径
-basis = 11;     %基函数类型
+% r0 = 50;            %紧支半径
+r0 = 0.25 * max(range(2)-range(1),range(4)-range(3));
+basis = 11;         %基函数类型
+errorLimit = 0.05;   %相对误差的最大值不超过 
 %%
 xMin = range(1);% xMax = range(2);
 yMin = range(3);% yMax = range(4);
@@ -13,8 +15,8 @@ numberOfSources = size(SourceInfo,1);
 disp(['原始物面点数 = ', num2str(numberOfSources)]);
 
 SelectedSourcesIndex = [];
-count = 1;maxID = 1; Loo = 0.5;
-while Loo > 0.05                        %最大相对误差5%
+count = 1;maxID = 1; Loo = 1.0;
+while Loo > errorLimit                        %最大相对误差5%
     SelectedSourcesIndex(end+1,1)=maxID;
     numberOfSelectedSources = size(SelectedSourcesIndex,1);
     fai = zeros(numberOfSelectedSources, numberOfSelectedSources);
@@ -52,6 +54,12 @@ while Loo > 0.05                        %最大相对误差5%
             maxID = j;
         end
     end
+    
+    if sum(maxID==SelectedSourcesIndex)~=0    %确保选择的点不为已有参考点
+        index = 1:numberOfSources;
+        index(SelectedSourcesIndex)=[];
+        maxID = index(uint16(rand * (length(index) - 1) + 1));
+    end
     count = count + 1;
 end
 
@@ -59,7 +67,7 @@ numberOfSelectedSources = size(SelectedSourcesIndex,1);
 disp(['精简后物面点数 = ', num2str(numberOfSelectedSources)]);
 disp(['精简后最大相对误差 = ', num2str(Loo)]);
 
-plot(SourceInfo(SelectedSourcesIndex,1),SourceInfo(SelectedSourcesIndex,2),'b*')
+plot(SourceInfo(SelectedSourcesIndex,1),SourceInfo(SelectedSourcesIndex,2),'b.','MarkerSize',15)
 
 SpField = zeros(gridDim,gridDim);
 fai = zeros(1,numberOfSelectedSources);

@@ -19,11 +19,12 @@ function fai = RBF_func(rn, r0, basis)
         fai = 0.0 + 1e-40;
     else
 %         if basis == 21      %% Wendland's C0
-%             fai = ( 1 - ksi )^2;
+            fai = ( 1 - ksi )^2;
 %         elseif basis == 22  %% Wendland's C2
-            fai = ( 1 - ksi )^4 * ( 4.0 * ksi + 1 );
+%             fai = ( 1 - ksi )^4 * ( 4.0 * ksi + 1 );
 %         elseif basis == 23  %% Wendland's C4
 %             fai = ( 1 - ksi )^6 * ( 35.0 * ksi^2 + 18.0 * ksi + 3 );
+%             fai = fai/3;
 %         elseif basis == 24  %% Wendland's C6
 %             fai = ( 1 - ksi )^8 * ( 32.0 * ksi^3 + 25.0 * ksi^2 + 8.0 * ksi + 1 );
 %         elseif basis == 31  %% compact TPS C0
@@ -36,4 +37,54 @@ function fai = RBF_func(rn, r0, basis)
 %             fai = 1 - 20 * ksi^2 + 80 * ksi^3 - 45 * ksi^4 - 16 * ksi^5 + 60 * ksi^4 * log(ksi);
 %         end
     end
+    fai = 1 - fai;
+end
+
+%%
+function Plot_RBF_basis_func()
+clc;syms ksi;
+%% Wendland's C0
+h=ezplot(( 1 - ksi )^2);
+set(h,'linestyle','-','color','r','LineWidth',3)
+hold on;
+%% Wendland's C2
+h=ezplot(( 1 - ksi )^4 * ( 4.0 * ksi + 1 ));
+set(h,'linestyle','-.','color','g','LineWidth',3)
+%% Wendland's C4
+h=ezplot(( 1 - ksi )^6 * ( 35.0 * ksi^2 + 18.0 * ksi + 3 ) / 3);
+set(h,'linestyle','--','color','b','LineWidth',3);
+%% Wendland's C6
+h=ezplot(( 1 - ksi )^8 * ( 32.0 * ksi^3 + 25.0 * ksi^2 + 8.0 * ksi + 1 ));
+set(h,'linestyle',':','color','k','LineWidth',3)
+%%
+axis([0,1 -0.1 1.1])
+h=legend('Wendland''s C0','Wendland''s C2','Wendland''s C4','Wendland''s C6');
+set(h,'FontSize',20)
+title('RBF basis function','FontSize',20);
+xlabel('\zeta','FontSize',20)
+ylabel('\phi','FontSize',20)
+hold off;
+%%
+clc;syms ksi;
+%% compact TPS C0
+h=ezplot(( 1 - ksi )^5);
+set(h,'linestyle','-','color','r','LineWidth',3)
+hold on;
+%% compact TPS C1
+h=ezplot((3 + 80 * ksi^2 - 120 * ksi^3 + 45 * ksi^4 - 8 * ksi^5 + 60 * ksi^2 * log(ksi))/3);
+set(h,'linestyle','-.','color','g','LineWidth',3)
+%% compact TPS C2a
+h=ezplot(1 - 30 * ksi^2 - 10 * ksi^3 + 45 * ksi^4 - 6 * ksi^5 - 60 * ksi^3 * log(ksi));
+set(h,'linestyle','--','color','b','LineWidth',3)
+%% compact TPS C2b
+h=ezplot(1 - 20 * ksi^2 + 80 * ksi^3 - 45 * ksi^4 - 16 * ksi^5 + 60 * ksi^4 * log(ksi));
+set(h,'linestyle',':','color','k','LineWidth',3)
+%%
+axis([0,1 -0.1 1.1])
+h=legend('compact TPS C0','compact TPS C1','compact TPS C2a','compact TPS C2b');
+set(h,'FontSize',20)
+title('RBF basis function','FontSize',20);
+xlabel('\zeta','FontSize',20)
+ylabel('\phi','FontSize',20)
+hold off;
 end

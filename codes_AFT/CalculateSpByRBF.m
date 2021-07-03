@@ -3,7 +3,8 @@ global gridDim dx dy;
 disp('RBF插值网格密度场...');
 tstart = tic;
 %%
-r0 = 500;        %紧支半径
+% r0 = 2;        %紧支半径
+r0 = 0.25 * max(range(2)-range(1),range(4)-range(3));
 basis = 11;     %基函数类型
 %%
 xMin = range(1);% xMax = range(2);

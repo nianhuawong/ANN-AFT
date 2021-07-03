@@ -15,7 +15,7 @@ for i = 1:len
     yy = [yCoord(node1),yCoord(node2)];
 
 %     plot( xx, yy, '-r.', 'MarkerSize',14);
-    plot( xx, yy, '-r');
+    plot( xx, yy, '-r','LineWidth',1);
     hold on;
 end
 
