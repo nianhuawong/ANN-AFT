@@ -22,7 +22,7 @@ standardlize = 1;        % 是否进行坐标归一化
 nn_fun       = @net_naca0012_20201104; 
 nn_step_size = @nn_mesh_size_naca_3;
 %% 网格步长控制参数
-SpDefined    = 1;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密；4-RBF插值控制疏密
+SpDefined    = 3;   % 1-ANN控制密度；2-非结构背景网格文件；3-矩形背景网格，热源控制疏密；4-RBF插值控制疏密
 gridDim      = 401;
 sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2,dx2,h)
 % stepSizeFile     = '../grid/simple/quad2.cas';
@@ -31,10 +31,10 @@ sampleType   = 3;   % ANN步长控制：1-(x,y,h); 2-(x,y,d1,dx1,h); 3-(x,y,d1,dx1,d2
 % stepSizeFile     = '../grid/simple/rectan.cas';
 % stepSizeFile     = '../grid/inv_cylinder/tri/inv_cylinder-30.cas';
 rectangularBoudanryNodes =1*4-4;  % 矩形外边界上的节点数，可能会变化
-stepSizeFile     = '../grid/naca0012/tri/naca0012-tri.cas'; %-quadBC
+% stepSizeFile     = '../grid/naca0012/tri/naca0012-tri-quadBC.cas'; %
 % stepSizeFile     = '../grid/ANW/anw.cas';
 % stepSizeFile     = '../grid/RAE2822/rae2822.cas';
-% stepSizeFile     = '../grid/30p30n/30p30n-small.cas';%
+stepSizeFile     = '../grid/30p30n/30p30n-small.cas';%
 sizeFileType     = 0;   %输入步长文件的类型，0-三角形网格，1-混合网格
 %% 读入边界阵面及边界节点等信息
 [AFT_stack,Coord,Grid,wallNodes]  = read_grid(stepSizeFile, sizeFileType);
@@ -57,7 +57,7 @@ elseif SpDefined == 3
         [range,xcoord,ycoord] = RectangularBackgroundMesh(AFT_stack,Coord);
 %         PLOT_Background_Grid(xcoord,ycoord);
 %         PLOT(AFT_stack, xCoord_AFT, yCoord_AFT);
-        SourceInfo = CalculateSourceInfo(AFT_stack,Coord,1);
+        SourceInfo = CalculateSourceInfo(AFT_stack,Coord,2);
 %%
 %          [~,SelectedSourcesIndex] = CalculateSpByRBF_Greedy(SourceInfo,range);    %贪婪算法
 %         SourceInfo = SourceInfo(SelectedSourcesIndex,:);       

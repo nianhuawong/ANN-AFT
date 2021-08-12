@@ -12,11 +12,20 @@ for k = 1:numberOfSources
     ySource   = SourceInfo(k,2);
     Sn        = SourceInfo(k,3);
 %     intensity = SourceInfo(k,4);
+    line_source_sn = SourceInfo(k,5);
+    
     intensity = Cal_Intensity_Single(an, bn, u, alpha, xSource, ySource, xNode, yNode);
     
-    dis = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
-    In  = Sn  / dis / dis;
-    Jn  = 1.0 / dis / dis;
+    if line_source_sn > 0
+        P1 = [SourceInfo(k,1),SourceInfo(k,2)];
+        P2 = [SourceInfo(k,3),SourceInfo(k,4)];
+        fl = line_source_sn;
+        [In, Jn] = LineSourceImpact(xNode, yNode, P1, P2, fl);
+    else
+        dis = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
+        In  = Sn  / dis / dis;
+        Jn  = 1.0 / dis / dis;
+    end
     
     upper = upper + intensity * In;
     lower = lower + intensity * Jn;
@@ -30,14 +39,14 @@ function intensity = Cal_Intensity_Single(an, bn, u, alpha, xSource, ySource, xN
 %     return;
 % end
 %% pirzadeh 1993论文中计算source intensity的方式
-% rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
-% vector_v = [xNode - xSource, yNode - ySource] ./ rn;
-% fai = ( 1 - abs(alpha)/2.0 ) * vector_v * u + alpha/2.0 * abs(vector_v * u);
-% k = 10; beta = 1;
-% if alpha * vector_v * u < 0 
-%     beta = 0;
-% end
-% intensity = an * beta + bn * power(abs(fai), k);
+rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
+vector_v = [xNode - xSource, yNode - ySource] ./ rn;
+fai = ( 1 - abs(alpha)/2.0 ) * vector_v * u + alpha/2.0 * abs(vector_v * u);
+k = 10; beta = 1;
+if alpha * vector_v * u < 0 
+    beta = 0;
+end
+intensity = an * beta + bn * power(abs(fai), k);
 
 %% 按照a^x的变化规律设置影响域
 % rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
@@ -48,9 +57,9 @@ function intensity = Cal_Intensity_Single(an, bn, u, alpha, xSource, ySource, xN
 % radius = log10(0.1) /log10(coeff_a)
 
 %% 按照1/(1+ax)的规律设置影响域
-rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
-coeff_a = ( 1 / 0.01 - 1 ) / an;
-intensity = bn * 1.0 / (coeff_a * rn + 1.0);
+% rn = sqrt( ( xNode - xSource )^2 + ( yNode - ySource )^2 ) + 1e-40;
+% coeff_a = ( 1 / 0.01 - 1 ) / an;
+% intensity = bn * 1.0 / (coeff_a * rn + 1.0);
 
 % disp('影响半径（intensity >0.01 ）:');
 % radius = ( 1 / 0.01 - 1 ) / coeff_a
