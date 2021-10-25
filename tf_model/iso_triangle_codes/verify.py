@@ -14,18 +14,20 @@ EVAL_INTERVAL_SECS = 10
 MODEL_SAVE_PATH = "../iso_triangle_model/"
 MODEL_NAME = "naca0012_tri_model"
 
-validate_data = np.loadtxt('../iso_triangle_data/validation_naca0012.mat', delimiter='\t', unpack=True)
-validate_data = validate_data.transpose()
+validate_input = np.loadtxt('../iso_triangle_data/naca0012-validation-in.dat', delimiter='\t ', unpack=True)
+validate_label = np.loadtxt('../iso_triangle_data/naca0012-validation-out.dat', delimiter='\t ', unpack=True)
+validate_input = validate_input.transpose()
+validate_label = validate_label.transpose()
 
-dataset_size = len(validate_data)
+dataset_size = len(validate_input)
 
-X_valid = np.zeros((dataset_size, 8))
-Y_valid = np.zeros((dataset_size, 1))
+# X_valid = np.zeros((dataset_size, 8))
+# Y_valid = np.zeros((dataset_size, 1))
 
-for i in range(dataset_size):
-    Y_valid[i][0] = validate_data[i][8]
-    for j in range(8):
-        X_valid[i][j] = validate_data[i][j]
+# for i in range(dataset_size):
+#     Y_valid[i][0] = validate_data[i][8]
+#     for j in range(8):
+#         X_valid[i][j] = validate_data[i][j]
 
 
 def verify():
@@ -33,7 +35,7 @@ def verify():
         x = tf.placeholder(tf.float32, [None, forward_step.INPUT_NODE], name='x-input')
         y_= tf.placeholder(tf.float32, [None, forward_step.OUTPUT_NODE], name='y-input')
         
-        validate_feed = {x:X_valid, y_:Y_valid}
+        validate_feed = {x:validate_input, y_:validate_label}
         y = forward_step.forward(x, None)
         
         accuracy = tf.reduce_mean(tf.square(y - y_))
