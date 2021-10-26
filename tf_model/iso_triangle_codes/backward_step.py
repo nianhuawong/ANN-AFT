@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import forward_step
+from tensorflow.python.framework import graph_util
 
 MODEL_SAVE_PATH = "../iso_triangle_model/"
 MODEL_NAME = "naca0012_tri_model"
@@ -34,8 +35,8 @@ dataset_size = len(input_data)
 #
 def backward():
     with tf.name_scope('inputs'):
-        x_data = tf.placeholder(tf.float32, [None, forward_step.INPUT_NODE], name='x_input')
-        y_target = tf.placeholder(tf.float32, [None, forward_step.OUTPUT_NODE], name='y_input')
+        x_data = tf.placeholder(tf.float32, [None, forward_step.INPUT_NODE], name='input_data')
+        y_target = tf.placeholder(tf.float32, [None, forward_step.OUTPUT_NODE], name='label_data')
 
     final_output = forward_step.forward(x_data, REGULARIZER)
     global_step = tf.Variable(0, trainable=False)
@@ -53,6 +54,11 @@ def backward():
     with tf.Session() as sess:
         init_op = tf.global_variables_initializer()
         sess.run(init_op)
+
+        # graph_def = tf.get_default_graph().as_graph_def()
+        constant_graph = tf.graph_util.convert_variables_to_constants(sess, sess.graph_def, ['label_data'])
+        with tf.gfile.FastGFile('../iso_triangle_model/weight.pb', mode='wb') as f:
+            f.write(constant_graph.SerializeToString())
 
         ckpt = tf.train.get_checkpoint_state(MODEL_SAVE_PATH)
         if ckpt and ckpt.model_checkpoint_path:
