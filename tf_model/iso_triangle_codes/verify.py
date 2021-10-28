@@ -21,15 +21,6 @@ validate_label = validate_label.transpose()
 
 dataset_size = len(validate_input)
 
-# X_valid = np.zeros((dataset_size, 8))
-# Y_valid = np.zeros((dataset_size, 1))
-
-# for i in range(dataset_size):
-#     Y_valid[i][0] = validate_data[i][8]
-#     for j in range(8):
-#         X_valid[i][j] = validate_data[i][j]
-
-
 def verify():
     with tf.Graph().as_default() as g:
         x = tf.placeholder(tf.float32, [None, forward_step.INPUT_NODE], name='x-input')

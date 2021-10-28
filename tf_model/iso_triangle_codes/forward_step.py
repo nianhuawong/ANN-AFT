@@ -4,7 +4,7 @@ import tensorflow as tf
 INPUT_NODE = 8
 OUTPUT_NODE = 5
 LAYER1_NODE = 10
-LAYER2_NODE = 5
+LAYER2_NODE = 8
 
 
 def get_weight(shape, regularizer):
@@ -29,5 +29,6 @@ def forward(x, regularizer):
 
     w3 = get_weight([LAYER2_NODE, OUTPUT_NODE], regularizer)
     b3 = get_bias([OUTPUT_NODE])
-    y = tf.matmul(y2, w3, name='label_data') + b3
+    # y = tf.matmul(y2, w3) + b3
+    y = tf.add(tf.matmul(y2, w3), b3, name='output')
     return y
